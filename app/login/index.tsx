@@ -9,7 +9,7 @@ import { Button, Linking } from "react-native";
 import { AuthSessionRedirectUriOptions, revokeAsync } from "expo-auth-session";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appContext, queryClient } from "../_layout";
-import { UserInfoType } from "@/constants/data";
+import { UserInfoType, domain } from "@/constants/data";
 
 function Login() {
   const userInfo = useContext(appContext).userInfo;
@@ -34,16 +34,23 @@ function Login() {
     setGoogleUserAuthInfo();
   }, [response]);
 
+  useEffect(() => {
+    checkIfUserIsInDB(userInfo);
+  }, [userInfo]);
+
   const setGoogleUserAuthInfo = async () => {
     try {
       await AsyncStorage.getItem("user").then(async (userJSON) => {
         if (userJSON) {
           setUserInfo(JSON.parse(userJSON));
+          router.push("/tracks");
         } else if (response?.type === "success") {
           const user = await getUserInfo(
             //@ts-ignore
             response.authentication.accessToken
-          ).then((data) => setUserInfo(data));
+          )
+            .then((data) => setUserInfo(data))
+            .then(() => router.push("/tracks"));
         }
       });
     } catch (error) {
@@ -76,26 +83,6 @@ function Login() {
     }
   };
 
-  async function logout() {
-    const token = await AsyncStorage.getItem("user");
-    const authProvider = await AsyncStorage.getItem("authProvider");
-    // if (token && authProvider === "google") {
-    if (token) {
-      try {
-        await revokeAsync(
-          { token },
-          { revocationEndpoint: "https://oauth2.googleapis.com/revoke" }
-        );
-        await AsyncStorage.removeItem("user").then(() => {
-          setUserInfo(null);
-        });
-        await AsyncStorage.removeItem("authProvider");
-      } catch (error) {
-        console.log("ERROR at logout", error);
-      }
-    }
-  }
-
   return (
     <ThemedSafeAreaView>
       <ThemedText>This is login</ThemedText>
@@ -110,11 +97,51 @@ function Login() {
       <Button
         title="sign out"
         onPress={() => {
-          logout();
+          logout(setUserInfo);
         }}
       />
     </ThemedSafeAreaView>
   );
+}
+
+export async function logout(
+  setUserInfo: React.Dispatch<React.SetStateAction<UserInfoType | null>>
+) {
+  const token = await AsyncStorage.getItem("user");
+  const authProvider = await AsyncStorage.getItem("authProvider");
+  // if (token && authProvider === "google") {
+  if (token) {
+    try {
+      await revokeAsync(
+        { token },
+        { revocationEndpoint: "https://oauth2.googleapis.com/revoke" }
+      );
+      await AsyncStorage.removeItem("user").then(() => {
+        setUserInfo(null);
+      });
+      await AsyncStorage.removeItem("authProvider");
+    } catch (error) {
+      console.log("ERROR at logout", error);
+    }
+  }
+}
+
+export async function checkIfUserIsInDB(userInfo: UserInfoType | null) {
+  if (!userInfo) return;
+
+  const res = await fetch(domain + "/api/mobile/checkUser", {
+    method: "POST",
+    body: JSON.stringify({
+      email: userInfo.email,
+      id: userInfo.id,
+      picture: userInfo.picture,
+      name: userInfo.name,
+    }),
+  });
+
+  const data = await res.json();
+
+  return data;
 }
 
 export default Login;

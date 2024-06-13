@@ -5,29 +5,8 @@ import { ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { appContext, queryClient } from "../_layout";
 import { PressableLink } from "@/components/PressableLink";
-// import {
-//   Race,
-//   RaceOnUserJoin,
-// } from "../../../treasurehuntweb/src/server/db/schema";
-import { domain } from "@/constants/data";
 import { RefreshControl } from "react-native";
-
-const fetchRaces = async (email: string | undefined) => {
-  if (!email) throw new Error("No email provided");
-
-  const res = await fetch(domain + "/api/races", {
-    method: "POST",
-    body: email,
-  });
-
-  const data = (await res.json()) as {
-    // data: {
-    //   races: Race;
-    //   raceOnUserJoin: RaceOnUserJoin;
-    // }[];
-  };
-  return data;
-};
+import { fetchRaces, fetchRacesKey } from "../../queries/queries";
 
 function TracksMainPage() {
   const { height, width } = useWindowDimensions();
@@ -44,8 +23,8 @@ function TracksMainPage() {
 
   const refreshFunction = async () => {
     setRefreshing(true);
-    queryClient.invalidateQueries({ queryKey: ["userRaces"] });
-    queryClient.refetchQueries({ queryKey: ["userRaces"] }).then(() => {
+    queryClient.invalidateQueries({ queryKey: [fetchRacesKey] });
+    queryClient.refetchQueries({ queryKey: [fetchRacesKey] }).then(() => {
       setRefreshing(false);
     });
   };
@@ -59,26 +38,23 @@ function TracksMainPage() {
             onRefresh={() => refreshFunction()}
           />
         }>
-        <PressableLink
-          text="Go back"
-          route="/"
-          style={styles.backlink}></PressableLink>
+        <PressableLink text="Go back" style={styles.backlink}></PressableLink>
         <ThemedText type="title">This is tracks main page !</ThemedText>
         {isLoading ? (
           <ThemedText type="title">Loading...</ThemedText>
         ) : data ? (
           <ThemedView>
-            {/* {data.data.map((race) => {
+            {data.data.map((race) => {
               return (
                 <PressableLink
                   route={`/tracks/${race.races.id}`}
-                  text={`This is Track ${race.races.id}`}
+                  text={`${race.races.name}`}
                   style={styles.trackCard}
                   textType="subtitle"
                   key={"track" + race.races.id.toString()}
                 />
               );
-            })} */}
+            })}
           </ThemedView>
         ) : (
           <ThemedText>{error?.toString()}</ThemedText>

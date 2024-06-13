@@ -6,8 +6,12 @@ import {
   TextInput,
   useWindowDimensions,
 } from "react-native";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { PressableLink } from "@/components/PressableLink";
+import { domain } from "@/constants/data";
+import { useContext, useState } from "react";
+import { appContext } from "../_layout";
+import { router } from "expo-router";
 
 function Join() {
   const { height, width } = useWindowDimensions();
@@ -20,6 +24,9 @@ function Join() {
 }
 
 function JoinForm() {
+  const userInfo = useContext(appContext).userInfo;
+  const [error, setError] = useState("");
+
   const {
     control,
     handleSubmit,
@@ -27,7 +34,28 @@ function JoinForm() {
   } = useForm({ defaultValues: { Code: "" } });
 
   const onSubmit = async (data: { Code: string }) => {
-    console.log(data);
+    if (!userInfo?.email) return;
+
+    const reqBody = { code: data.Code, userEmail: userInfo.email };
+
+    const res = await fetch(domain + "/api/mobile/enterRace", {
+      method: "POST",
+      body: JSON.stringify(reqBody),
+    });
+
+    const responseData = (await res.json()) as {
+      joined: boolean;
+      result: string;
+    };
+    console.log(responseData);
+
+    if (responseData.joined) {
+      router.push("tracks");
+      setError("");
+    } else {
+      setError(responseData.result);
+    }
+    return responseData;
   };
 
   return (
@@ -51,8 +79,8 @@ function JoinForm() {
         )}
         name="Code"
       />
-      {/* {errors.Code && <ThemedText>This is required.</ThemedText>} */}
       <Button title="Join" onPress={handleSubmit(onSubmit)} />
+      <ThemedText>{error}</ThemedText>
     </ThemedView>
   );
 }

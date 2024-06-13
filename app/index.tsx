@@ -2,11 +2,14 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appContext } from "./_layout";
 import { Link } from "expo-router";
 import { PressableLink } from "@/components/PressableLink";
+import { logout } from "./login";
+import { useQuery } from "@tanstack/react-query";
+import { fetchRaces } from "@/queries/queries";
 
 function Homescreen() {
   const { height, width } = useWindowDimensions();
@@ -16,6 +19,13 @@ function Homescreen() {
   useEffect(() => {
     getUserInfoInStorage();
   }, []);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["userRaces"],
+    queryFn: () => {
+      return fetchRaces(userInfo?.email);
+    },
+  });
 
   const getUserInfoInStorage = async () => {
     await AsyncStorage.getItem("user").then((userJSON) => {
@@ -41,7 +51,16 @@ function Homescreen() {
               text="Join a Race"
               style={styles.links}
             />
-            <PressableLink route="login" text="Login" style={styles.links} />
+            <Pressable
+              onPress={() => logout(setUserInfo)}
+              style={{
+                ...styles.links,
+                backgroundColor: Colors.secondary.background,
+              }}>
+              <ThemedText style={{ color: Colors.secondary.text }}>
+                Logout
+              </ThemedText>
+            </Pressable>
           </>
         ) : (
           <PressableLink

@@ -44,16 +44,18 @@ function JoinForm() {
     });
 
     const responseData = (await res.json()) as {
-      joined: boolean;
-      result: string;
+      result: {
+        joined: boolean;
+        result: string;
+      };
     };
     console.log(responseData);
 
-    if (responseData.joined) {
+    if (responseData.result.joined) {
       router.push("tracks");
       setError("");
     } else {
-      setError(responseData.result);
+      setError(responseData.result.result);
     }
     return responseData;
   };

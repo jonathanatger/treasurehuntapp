@@ -16,6 +16,7 @@ export const fetchRaces = async (email: string | undefined) => {
         createdAt: Date;
         projectId: number;
         name: string;
+        launched: boolean;
       };
       raceOnUserJoin: { userEmail: string; raceId: number };
     }[];
@@ -117,6 +118,19 @@ export async function enterTeam(
   const res = await fetch(domain + "/api/mobile/enterTeam", {
     method: "POST",
     body: body,
+  });
+
+  const data = await res.json();
+
+  return data;
+}
+
+export async function deleteTeam(teamId: number) {
+  const res = await fetch(domain + "/api/mobile/deleteTeam", {
+    method: "POST",
+    body: JSON.stringify({
+      teamId,
+    }),
   });
 
   const data = await res.json();

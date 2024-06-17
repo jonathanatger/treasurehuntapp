@@ -16,8 +16,10 @@ import { Colors } from "@/constants/Colors";
 import {
   RaceData,
   createNewTeam,
+  deleteTeam,
   enterTeam,
   fetchRaces,
+  fetchRacesKey,
   fetchTeams,
   fetchTeamsKey,
   quitTeam,
@@ -26,6 +28,7 @@ import { useQuery } from "@tanstack/react-query";
 import { appContext, queryClient } from "../_layout";
 import { UserInfoType } from "@/constants/data";
 import { Controller, set, useForm } from "react-hook-form";
+import { ThemedPressable } from "@/components/Pressable";
 
 function SpecificTrackPage() {
   const { height, width } = useWindowDimensions();
@@ -35,10 +38,14 @@ function SpecificTrackPage() {
 
   const refreshFunction = async () => {
     setRefreshing(true);
-    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + id] });
-    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + id] }).then(() => {
-      setRefreshing(false);
+    queryClient.invalidateQueries({
+      queryKey: [fetchTeamsKey + id, fetchRacesKey],
     });
+    queryClient
+      .refetchQueries({ queryKey: [fetchTeamsKey + id, fetchRacesKey] })
+      .then(() => {
+        setRefreshing(false);
+      });
   };
   const {
     data: raceData,
@@ -50,6 +57,12 @@ function SpecificTrackPage() {
       return fetchRaces(userInfo?.email);
     },
   });
+
+  const numberId = id ? Number(id) : 0;
+  const currentRace = raceData?.data.filter(
+    (race) => race.races.id === numberId
+  )[0];
+
   const {
     data: teamsRawData,
     isLoading: teamsIsLoading,
@@ -75,12 +88,24 @@ function SpecificTrackPage() {
         }>
         <PressableLink text="Go back" style={styles.backlink}></PressableLink>
         <ThemedText type="title">This is tracks {id}</ThemedText>
-        <ThemedText type="subtitle">La course n'a pas commencé !</ThemedText>
+        {currentRace?.races.launched ? (
+          <ThemedText>Lancé</ThemedText>
+        ) : (
+          <ThemedText type="subtitle">La course n'a pas commencé !</ThemedText>
+        )}
         <NewTeamForm id={id} userInfo={userInfo} />
         {teamsIsLoading ? (
           <ThemedText>En attente des équipes...</ThemedText>
+        ) : teamsData?.length === 0 ? (
+          <ThemedText
+            style={{
+              fontWeight: 200,
+              fontStyle: "italic",
+            }}>
+            (Aucune équipe n'a encore été créée)
+          </ThemedText>
         ) : (
-          <TeamCard teams={teamsData} userInfo={userInfo} id={id} />
+          <TeamCards teams={teamsData} userInfo={userInfo} id={id} />
         )}
       </ScrollView>
     </ThemedSafeAreaView>
@@ -113,21 +138,28 @@ const NewTeamForm = ({
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-            placeholder="Nom"
+            placeholder="Nom de la nouvelle équipe"
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
             style={styles.newTeamInput}
+            onSubmitEditing={() => {
+              handleSubmit(onSubmit);
+            }}
           />
         )}
         name="Name"
       />
-      <Button title="Create new team" onPress={handleSubmit(onSubmit)} />
+      <ThemedPressable
+        onPress={handleSubmit(onSubmit)}
+        style={styles.newTeamButton}
+        text="+"
+        textType="subtitle"></ThemedPressable>
     </ThemedView>
   );
 };
 
-const TeamCard = ({
+const TeamCards = ({
   teams,
   userInfo,
   id,
@@ -143,21 +175,10 @@ const TeamCard = ({
   return (
     <ThemedView style={styles.teamsView}>
       {teams
-        ?.sort((a, b) => {
-          const nameA = a.name.toUpperCase();
-          const nameB = b.name.toUpperCase();
-          if (nameA < nameB) {
-            return -1;
-          }
-          if (nameA > nameB) {
-            return 1;
-          }
-
-          return 0;
-        })
+        ?.sort((a, b) => sortStrings(a.name, b.name))
         .map((team, index) => {
           return (
-            <ThemedView style={styles.teamsCard}>
+            <ThemedView style={styles.teamsCard} key={team.id}>
               <ThemedText type="title">{team.name}</ThemedText>
               <ThemedText type="subtitle">
                 {team.users.map((user) => user.name).join(", ")}
@@ -179,13 +200,15 @@ const TeamCard = ({
                     <ThemedText secondary>Rejoindre</ThemedText>
                   </Pressable>
                 )}
-                <Pressable
-                  onPress={() => {
-                    // console.log("Rejoindre");
-                  }}
-                  style={styles.teamSingleButton}>
-                  <ThemedText secondary>X</ThemedText>
-                </Pressable>
+                {team.users.length > 0 && team.users[0].email === "" && (
+                  <Pressable
+                    onPress={() => {
+                      deleteTeamLogic(team.id, id);
+                    }}
+                    style={styles.teamSingleButton}>
+                    <ThemedText secondary>X</ThemedText>
+                  </Pressable>
+                )}
               </ThemedView>
             </ThemedView>
           );
@@ -215,8 +238,18 @@ const styles = StyleSheet.create({
   newTeamForm: {
     flexDirection: "row",
   },
+  newTeamButton: {
+    borderRadius: 100,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
   newTeamInput: {
     flex: 1,
+    borderWidth: 1,
+    borderColor: "black",
+    paddingLeft: 10,
+    borderRadius: 100,
+    marginRight: 10,
   },
   teamSingleButton: {
     backgroundColor: Colors.primary.background,
@@ -341,6 +374,33 @@ async function enterTeamLogic(
   if (!id || Array.isArray(id) || userEmail === undefined)
     throw new Error("No id provided");
   const res = await enterTeam(teamId, userEmail, existingTeamId);
+
+  if (!res || res.result === "error") return false;
+  else {
+    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + id] });
+    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + id] });
+  }
+  return true;
+}
+
+function sortStrings(a: string, b: string) {
+  const nameA = a.toUpperCase();
+  const nameB = b.toUpperCase();
+  if (nameA < nameB) {
+    return -1;
+  }
+  if (nameA > nameB) {
+    return 1;
+  }
+
+  return 0;
+}
+
+async function deleteTeamLogic(
+  teamId: number,
+  id: string | string[] | undefined
+) {
+  const res = await deleteTeam(teamId);
 
   if (!res || res.result === "error") return false;
   else {

@@ -49,6 +49,9 @@ export type RaceData =
           name: string;
           raceId: number;
           racePositionId: number;
+          currentLatitude: number;
+          currentLongitude: number;
+          objectiveIndex: number;
         };
         userOnTeamJoin: {
           userEmail: string;
@@ -137,3 +140,26 @@ export async function deleteTeam(teamId: number) {
 
   return data;
 }
+
+export async function fetchObjectives(raceId: number) {
+  const res = await fetch(domain + "/api/mobile/getRaceObjectives", {
+    method: "POST",
+    body: JSON.stringify({ raceId }),
+  });
+
+  const data = (await res.json()) as {
+    result: {
+      id: number;
+      clientId: number;
+      title: string;
+      order: number;
+      latitude: number;
+      longitude: number;
+      message: string;
+    }[];
+  };
+
+  return data;
+}
+
+export const fetchProjectObjectivesKey = "projectObjectives";

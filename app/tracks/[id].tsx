@@ -18,6 +18,8 @@ import {
   createNewTeam,
   deleteTeam,
   enterTeam,
+  fetchObjectives,
+  fetchProjectObjectivesKey,
   fetchRaces,
   fetchRacesKey,
   fetchTeams,
@@ -39,13 +41,13 @@ function SpecificTrackPage() {
   const refreshFunction = async () => {
     setRefreshing(true);
     queryClient.invalidateQueries({
-      queryKey: [fetchTeamsKey + id, fetchRacesKey],
+      queryKey: [fetchTeamsKey + id],
     });
-    queryClient
-      .refetchQueries({ queryKey: [fetchTeamsKey + id, fetchRacesKey] })
-      .then(() => {
-        setRefreshing(false);
-      });
+    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + id] }).then(() => {
+      setRefreshing(false);
+    });
+    queryClient.invalidateQueries({ queryKey: [fetchRacesKey] });
+    queryClient.refetchQueries({ queryKey: [fetchRacesKey] });
   };
   const {
     data: raceData,
@@ -62,6 +64,18 @@ function SpecificTrackPage() {
   const currentRace = raceData?.data.filter(
     (race) => race.races.id === numberId
   )[0];
+
+  const {
+    data: projectObjectives,
+    isLoading: projectObjectivesIsLoading,
+    error: projectObjectivesError,
+  } = useQuery({
+    queryKey: [fetchProjectObjectivesKey + id],
+    queryFn: () => {
+      return fetchObjectives(numberId);
+    },
+    staleTime: 1000 * 60 * 60,
+  });
 
   const {
     data: teamsRawData,
@@ -87,9 +101,14 @@ function SpecificTrackPage() {
           />
         }>
         <PressableLink text="Go back" style={styles.backlink}></PressableLink>
-        <ThemedText type="title">This is tracks {id}</ThemedText>
+        <ThemedText type="title">
+          {currentRace?.races.name || "Préparation des équipes"}
+        </ThemedText>
         {currentRace?.races.launched ? (
-          <ThemedText>Lancé</ThemedText>
+          <PressableLink
+            text="Entrer dans la course"
+            style={styles.backlink}
+            route={`/race/${id}`}></PressableLink>
         ) : (
           <ThemedText type="subtitle">La course n'a pas commencé !</ThemedText>
         )}
@@ -282,7 +301,7 @@ const styles = StyleSheet.create({
 });
 export default SpecificTrackPage;
 
-function transformData(data: RaceData) {
+export function transformData(data: RaceData) {
   let returnData = [] as TransformedTeamsData;
 
   if (!data) return undefined;
@@ -310,6 +329,9 @@ function transformData(data: RaceData) {
             email: user.users?.email ? user.users.email : "",
           },
         ],
+        currentLatitude: user.teams.currentLatitude,
+        currentLongitude: user.teams.currentLongitude,
+        objectiveIndex: user.teams.objectiveIndex,
       });
     }
   }
@@ -320,6 +342,9 @@ type TransformedTeamsData = {
   id: number;
   name: string;
   users: { name: string; email: string }[];
+  currentLongitude: number;
+  currentLatitude: number;
+  objectiveIndex: number;
 }[];
 
 async function createNewTeamLogic(

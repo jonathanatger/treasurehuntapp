@@ -16,13 +16,19 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.treasurehuntapp",
       "infoPlist": {
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps..499556521140-u23ghdeve49lepfqhjthtast2gl2epha"
-            ]
-          }
-        ]
+        "infoPlist": {
+          "UIBackgroundModes": ["location", "fetch", "remote-notification"],
+          "NSLocationWhenInUseUsageDescription": "This app requires access to your location when open.",
+          "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires access to your location even when closed.",
+          "NSLocationAlwaysUsageDescription": "This app requires access to your location when open.",
+          "CFBundleURLTypes": [
+            {
+              "CFBundleURLSchemes": [
+                "com.googleusercontent.apps..499556521140-u23ghdeve49lepfqhjthtast2gl2epha"
+              ]
+            }
+          ]
+        }
       }
     },
     "android": {
@@ -43,6 +49,14 @@
         "expo-font",
         {
           "fonts": ["./assets/fonts/Oswald-Medium.ttf"]
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
         }
       ]
     ],

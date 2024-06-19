@@ -11,6 +11,7 @@ import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppContextType, UserInfoType } from "@/constants/data";
+import * as Location from "expo-location";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,6 +30,23 @@ export default function Layout() {
     OswaldMedium: require("../assets/fonts/Oswald-Medium.ttf"),
   });
   const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestBackgroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
 
   useEffect(() => {
     if (loaded) {
@@ -51,6 +69,7 @@ export default function Layout() {
             }}>
             <Stack>
               <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="race/[id]" options={{ headerShown: false }} />
               <Stack.Screen
                 name="tracks/[id]"
                 options={{ headerShown: false }}

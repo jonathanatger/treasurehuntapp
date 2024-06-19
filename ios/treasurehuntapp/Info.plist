@@ -27,7 +27,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.googleusercontent.apps..499556521140-u23ghdeve49lepfqhjthtast2gl2epha</string>
+          <string>com.anonymous.treasurehuntapp</string>
+          <string>com.anonymous.treasurehuntapp</string>
         </array>
       </dict>
     </array>
@@ -42,6 +43,12 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to use your location.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your location</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your location</string>
     <key>NSUserActivityTypes</key>
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
@@ -49,6 +56,10 @@
     <key>UIAppFonts</key>
     <array>
       <string>Oswald-Medium.ttf</string>
+    </array>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>location</string>
     </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
@@ -76,5 +87,29 @@
     <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>infoPlist</key>
+    <dict>
+      <key>UIBackgroundModes</key>
+      <array>
+        <string>location</string>
+        <string>fetch</string>
+        <string>remote-notification</string>
+      </array>
+      <key>NSLocationWhenInUseUsageDescription</key>
+      <string>This app requires access to your location when open.</string>
+      <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+      <string>This app requires access to your location even when closed.</string>
+      <key>NSLocationAlwaysUsageDescription</key>
+      <string>This app requires access to your location when open.</string>
+      <key>CFBundleURLTypes</key>
+      <array>
+        <dict>
+          <key>CFBundleURLSchemes</key>
+          <array>
+            <string>com.googleusercontent.apps..499556521140-u23ghdeve49lepfqhjthtast2gl2epha</string>
+          </array>
+        </dict>
+      </array>
+    </dict>
   </dict>
 </plist>

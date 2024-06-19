@@ -9,19 +9,38 @@ import { Link } from "expo-router";
 import { PressableLink } from "@/components/PressableLink";
 import { logout } from "./login";
 import { useQuery } from "@tanstack/react-query";
-import { fetchRaces } from "@/queries/queries";
+import { fetchRaces, fetchRacesKey } from "@/queries/queries";
+import * as Location from "expo-location";
 
 function Homescreen() {
   const { height, width } = useWindowDimensions();
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
+
+  const [errorMsg, setErrorMsg] = useState<string | null>("");
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestBackgroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Activez la géolocalisation pour pouvoir utiliser l'appli");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
 
   useEffect(() => {
     getUserInfoInStorage();
   }, []);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["userRaces"],
+    queryKey: [fetchRacesKey],
     queryFn: () => {
       return fetchRaces(userInfo?.email);
     },
@@ -40,6 +59,15 @@ function Homescreen() {
         Treasurio
       </ThemedText>
       <ThemedView style={styles.main}>
+        <ThemedText type="subtitle" style={styles.title}>
+          {errorMsg}
+        </ThemedText>
+        {errorMsg && (
+          <Pressable
+            onPress={() =>
+              Location.requestBackgroundPermissionsAsync
+            }></Pressable>
+        )}
         {userInfo ? (
           <>
             <PressableLink

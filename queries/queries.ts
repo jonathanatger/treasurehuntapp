@@ -163,3 +163,15 @@ export async function fetchObjectives(raceId: number) {
 }
 
 export const fetchProjectObjectivesKey = "projectObjectives";
+
+export async function advanceObjective(
+  teamId: number,
+  raceId: number,
+  objectiveIndex: number,
+  objectiveName: string
+) {
+  const res = await fetch(domain + "/api/mobile/advanceObjective", {
+    method: "POST",
+    body: JSON.stringify({ teamId, raceId, objectiveIndex, objectiveName }),
+  });
+}

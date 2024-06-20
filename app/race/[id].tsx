@@ -16,6 +16,7 @@ import { useContext, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { useQuery } from "@tanstack/react-query";
 import {
+  advanceObjective,
   fetchObjectives,
   fetchProjectObjectivesKey,
   fetchTeams,
@@ -23,20 +24,32 @@ import {
 } from "@/queries/queries";
 import { transformData } from "../tracks/[id]";
 import { appContext, queryClient } from "../_layout";
+import { getDistanceFromLatLonInM } from "../../functions/functions";
 
 export default function RacePage() {
   const [refreshing, setRefreshing] = useState(false);
   const { height, width } = useWindowDimensions();
   const { id } = useLocalSearchParams();
   const numberId = id ? Number(id) : 0;
+  const [finished, setFinished] = useState(false);
+  const [retryMessage, setRetryMessage] = useState("");
+
   async function refreshFunction() {
+    setFinished(false);
     queryClient.invalidateQueries({
       queryKey: [fetchProjectObjectivesKey + id],
     });
     queryClient.refetchQueries({
       queryKey: [fetchProjectObjectivesKey + id],
     });
+    queryClient.invalidateQueries({
+      queryKey: [fetchTeamsKey + id],
+    });
+    queryClient.refetchQueries({
+      queryKey: [fetchTeamsKey + id],
+    });
   }
+
   const {
     data: projectObjectives,
     isLoading: projectObjectivesIsLoading,
@@ -74,6 +87,13 @@ export default function RacePage() {
     return false;
   });
 
+  const currentObjective = projectObjectives?.result.filter(
+    (obj) => obj.order === userCurrentTeamData?.objectiveIndex
+  )[0];
+
+  const userHasFinishedRace =
+    projectObjectives?.result?.length! <= userCurrentTeamData?.objectiveIndex!;
+
   return (
     <ThemedSafeAreaView style={{ height: height }}>
       <ScrollView
@@ -87,40 +107,96 @@ export default function RacePage() {
         <PressableLink text="Go back" style={styles.backlink}></PressableLink>
         {projectObjectivesIsLoading ? (
           <ThemedText>En attente des objectifs...</ThemedText>
+        ) : userHasFinishedRace ? (
+          <VictoryScreen />
         ) : (
-          projectObjectives?.result
-            .filter((obj) => obj.order === userCurrentTeamData?.objectiveIndex)
-            .map((objective, index) => {
-              return (
-                <ThemedView style={styles.container} key={index}>
-                  <ThemedText type="subtitle">{objective.title}</ThemedText>
-                  <ThemedText type="subtitle">{objective.message}</ThemedText>
-                </ThemedView>
-              );
-            })
+          <ObjectiveInfo
+            title={currentObjective?.title}
+            message={currentObjective?.message}
+          />
+        )}
+        <ThemedView>
+          {retryMessage && <ThemedText>{retryMessage}</ThemedText>}
+        </ThemedView>
+        {finished && (
+          <ThemedView>
+            <ThemedText> Bravo, objectif atteint !</ThemedText>
+            <Pressable
+              onPress={() => {
+                advanceToNextObjectiveLogic(
+                  userCurrentTeamData?.id!,
+                  numberId,
+                  currentObjective?.order!,
+                  currentObjective?.title!
+                );
+                setFinished(false);
+              }}
+              style={styles.button}>
+              <ThemedText>Passer au prochain objectif !</ThemedText>
+            </Pressable>
+          </ThemedView>
         )}
       </ScrollView>
-      <Pressable
-        onPress={() => {
-          checkLocation();
-        }}
-        style={styles.button}>
-        <ThemedText>Vous pensez etre au bon endroit ?</ThemedText>
-      </Pressable>
+      {!userHasFinishedRace && (
+        <Pressable
+          onPress={async () => {
+            if (
+              await checkLocation(
+                currentObjective?.latitude!,
+                currentObjective?.longitude!
+              )
+            ) {
+              setFinished(true);
+            } else {
+              setRetryMessage("Ce n'est pas ici ! :)");
+
+              setTimeout(() => {
+                setRetryMessage("");
+              }, 5000);
+            }
+          }}
+          style={styles.button}>
+          <ThemedText>Vous pensez etre au bon endroit ?</ThemedText>
+        </Pressable>
+      )}
     </ThemedSafeAreaView>
   );
 }
 
-async function checkLocation() {
-  const location = await Location.getCurrentPositionAsync();
-  console.log(
-    getDistanceFromLatLonInKm(
-      location.coords.latitude,
-      location.coords.longitude,
-      48.856614,
-      2.352221
-    )
+function ObjectiveInfo({
+  title,
+  message,
+}: {
+  title: string | undefined;
+  message: string | undefined;
+}) {
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedText type="subtitle">{title}</ThemedText>
+      <ThemedText type="subtitle">{message}</ThemedText>
+    </ThemedView>
   );
+}
+function VictoryScreen() {
+  return (
+    <ThemedView>
+      <ThemedText>Bravo, dernier objectif atteint !</ThemedText>
+    </ThemedView>
+  );
+}
+
+async function checkLocation(lat: number, lon: number) {
+  const location = await Location.getCurrentPositionAsync();
+  const distance = getDistanceFromLatLonInM(
+    location.coords.latitude,
+    location.coords.longitude,
+    lat,
+    lon
+  );
+  if (distance < 50) {
+    return true;
+  }
+  return false;
 }
 
 const styles = StyleSheet.create({
@@ -139,3 +215,21 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 });
+
+async function advanceToNextObjectiveLogic(
+  teamId: number,
+  raceId: number,
+  order: number,
+  title: string
+) {
+  const res = await advanceObjective(teamId, raceId, order, title).then(
+    async () => {
+      queryClient.invalidateQueries({
+        queryKey: [fetchTeamsKey + raceId],
+      });
+      queryClient.refetchQueries({
+        queryKey: [fetchTeamsKey + raceId],
+      });
+    }
+  );
+}

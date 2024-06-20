@@ -1,4 +1,4 @@
-function getDistanceFromLatLonInKm(
+export function getDistanceFromLatLonInM(
   lat1: number,
   lon1: number,
   lat2: number,
@@ -14,7 +14,7 @@ function getDistanceFromLatLonInKm(
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  var d = R * c; // Distance in km
+  var d = R * c * 1000; // Distance in m
   return d;
 }
 

@@ -5,11 +5,12 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { makeRedirectUri } from "expo-auth-session";
 import { useContext, useEffect, useState } from "react";
-import { Button, Linking } from "react-native";
+import { Button, Linking, Platform } from "react-native";
 import { AuthSessionRedirectUriOptions, revokeAsync } from "expo-auth-session";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appContext, queryClient } from "../_layout";
 import { UserInfoType, domain } from "@/constants/data";
+import { set } from "react-hook-form";
 
 function Login() {
   const userInfo = useContext(appContext).userInfo;
@@ -17,13 +18,16 @@ function Login() {
 
   WebBrowser.maybeCompleteAuthSession();
 
+  const redirectUri = makeRedirectUri({
+    scheme: "com.anonymous.treasurehuntapp",
+    path: "/login",
+  });
+
   const googleAuthRequestConfig = {
     androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
     iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
     webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
-    redirectUri: makeRedirectUri({
-      scheme: "com.anonymous.treasurehuntapp",
-    } satisfies AuthSessionRedirectUriOptions),
+    redirectUri,
   };
 
   const [request, response, promptAsync] = Google.useAuthRequest(
@@ -39,6 +43,7 @@ function Login() {
   }, [userInfo]);
 
   const setGoogleUserAuthInfo = async () => {
+    console.log("setGoogleUserAuthInfo");
     try {
       await AsyncStorage.getItem("user").then(async (userJSON) => {
         if (userJSON) {
@@ -90,8 +95,8 @@ function Login() {
       <ThemedText>User : {JSON.stringify(userInfo)}</ThemedText>
       <Button
         title="sign in with google"
-        onPress={() => {
-          promptAsync();
+        onPress={async () => {
+          await promptAsync();
         }}
       />
       <Button

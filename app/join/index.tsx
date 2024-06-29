@@ -12,6 +12,7 @@ import { domain } from "@/constants/data";
 import { useContext, useState } from "react";
 import { appContext } from "../_layout";
 import { router } from "expo-router";
+import { ThemedPressable } from "@/components/Pressable";
 
 function Join() {
   const { height, width } = useWindowDimensions();
@@ -81,7 +82,9 @@ function JoinForm() {
         )}
         name="Code"
       />
-      <Button title="Join" onPress={handleSubmit(onSubmit)} />
+      <ThemedPressable
+        onPress={handleSubmit(onSubmit)}
+        text="Join"></ThemedPressable>
       <ThemedText>{error}</ThemedText>
     </ThemedView>
   );

@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   },
   newTeamButton: {
     borderRadius: 100,
-    paddingHorizontal: 20,
+    paddingHorizontal: 25,
     paddingVertical: 10,
   },
   newTeamInput: {

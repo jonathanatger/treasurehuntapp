@@ -15,6 +15,7 @@ import { set } from "react-hook-form";
 function Login() {
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   WebBrowser.maybeCompleteAuthSession();
 
@@ -35,7 +36,12 @@ function Login() {
   );
 
   useEffect(() => {
-    setGoogleUserAuthInfo();
+    setGoogleUserAuthInfo().then(() => {
+      if (isLoggingIn) {
+        setIsLoggingIn(false);
+        router.push("/tracks");
+      }
+    });
   }, [response]);
 
   useEffect(() => {
@@ -43,19 +49,15 @@ function Login() {
   }, [userInfo]);
 
   const setGoogleUserAuthInfo = async () => {
-    console.log("setGoogleUserAuthInfo");
     try {
       await AsyncStorage.getItem("user").then(async (userJSON) => {
         if (userJSON) {
           setUserInfo(JSON.parse(userJSON));
-          router.push("/tracks");
         } else if (response?.type === "success") {
           const user = await getUserInfo(
             //@ts-ignore
             response.authentication.accessToken
-          )
-            .then((data) => setUserInfo(data))
-            .then(() => router.push("/tracks"));
+          ).then((data) => setUserInfo(data));
         }
       });
     } catch (error) {
@@ -92,10 +94,11 @@ function Login() {
     <ThemedSafeAreaView>
       <ThemedText>This is login</ThemedText>
       <Link href="/">Go back</Link>
-      <ThemedText>User : {JSON.stringify(userInfo)}</ThemedText>
+      <ThemedText>User : {userInfo?.name}</ThemedText>
       <Button
         title="sign in with google"
         onPress={async () => {
+          setIsLoggingIn(true);
           await promptAsync();
         }}
       />
@@ -114,7 +117,6 @@ export async function logout(
 ) {
   const token = await AsyncStorage.getItem("user");
   const authProvider = await AsyncStorage.getItem("authProvider");
-  // if (token && authProvider === "google") {
   if (token) {
     try {
       await revokeAsync(
@@ -126,7 +128,7 @@ export async function logout(
       });
       await AsyncStorage.removeItem("authProvider");
     } catch (error) {
-      console.log("ERROR at logout", error);
+      console.error("ERROR at logout", error);
     }
   }
 }

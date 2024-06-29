@@ -79,22 +79,22 @@ function Homescreen() {
               text="Join a Race"
               style={styles.links}
             />
-            <Pressable
-              onPress={() => logout(setUserInfo)}
-              style={{
-                ...styles.links,
-                backgroundColor: Colors.secondary.background,
-              }}>
-              <ThemedText style={{ color: Colors.secondary.text }}>
-                Logout
-              </ThemedText>
-            </Pressable>
+            <PressableLink
+              text="Profile"
+              route="profile"
+              style={styles.links}></PressableLink>
           </>
         ) : (
-          <PressableLink
-            text="Login"
-            route="login"
-            style={styles.links}></PressableLink>
+          <>
+            <PressableLink
+              text="Continue as guest"
+              route="noAuthLogin"
+              style={styles.links}></PressableLink>
+            <PressableLink
+              text="Login"
+              route="login"
+              style={styles.links}></PressableLink>
+          </>
         )}
       </ThemedView>
     </ThemedView>

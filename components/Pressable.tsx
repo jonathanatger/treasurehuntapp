@@ -7,7 +7,7 @@ export type ThemedPressableProps = PressableProps & {
   textType?: ThemedTextProps["type"];
   route?: string;
   text?: string;
-  onPress: () => {};
+  onPress: any;
 };
 
 export function ThemedPressable({
@@ -15,7 +15,6 @@ export function ThemedPressable({
   route,
   textType,
   text,
-  onPress,
   ...rest
 }: ThemedPressableProps) {
   return (
@@ -30,9 +29,6 @@ export function ThemedPressable({
           },
           style,
         ];
-      }}
-      onPress={() => {
-        onPress();
       }}
       {...rest}>
       <ThemedText secondary={true} type={textType}>

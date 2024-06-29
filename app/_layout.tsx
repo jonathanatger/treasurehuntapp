@@ -69,7 +69,15 @@ export default function Layout() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
-                name="register/index"
+                name="noAuthLogin/index"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="profile/index"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="support/index"
                 options={{ headerShown: false }}
               />
             </Stack>

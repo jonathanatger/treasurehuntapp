@@ -30,10 +30,13 @@ export function ThemedText({
       ? "Oswald-Medium"
       : "";
 
+  const minHeight =
+    type === "title" ? 60 : type === "subtitle" ? 25 : undefined;
+
   return (
     <Text
       style={[
-        { color, fontFamily },
+        { color, fontFamily, minHeight },
         type === "default" ? styles.default : undefined,
         type === "title" ? styles.title : undefined,
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
@@ -60,7 +63,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    lineHeight: 32,
+    lineHeight: 45,
   },
   subtitle: {
     fontSize: 20,

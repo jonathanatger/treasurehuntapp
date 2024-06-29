@@ -2,13 +2,13 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { Link } from "expo-router";
 
-function Register() {
+function noAuthLogin() {
   return (
     <ThemedSafeAreaView>
-      <ThemedText>This is login</ThemedText>
+      <ThemedText>This is no auth login</ThemedText>
       <Link href="/">Go back</Link>
     </ThemedSafeAreaView>
   );
 }
 
-export default Register;
+export default noAuthLogin;

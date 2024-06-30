@@ -37,7 +37,7 @@ function JoinForm() {
   const onSubmit = async (data: { Code: string }) => {
     if (!userInfo?.email) return;
 
-    const reqBody = { code: data.Code, userEmail: userInfo.email };
+    const reqBody = { code: data.Code, userId: userInfo.id };
 
     const res = await fetch(domain + "/api/mobile/enterRace", {
       method: "POST",

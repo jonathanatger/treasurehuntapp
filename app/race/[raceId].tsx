@@ -22,31 +22,31 @@ import {
   fetchTeams,
   fetchTeamsKey,
 } from "@/queries/queries";
-import { transformData } from "../tracks/[id]";
+import { transformData } from "../tracks/[raceId]";
 import { appContext, queryClient } from "../_layout";
 import { getDistanceFromLatLonInM } from "../../functions/functions";
 
 export default function RacePage() {
   const [refreshing, setRefreshing] = useState(false);
   const { height, width } = useWindowDimensions();
-  const { id } = useLocalSearchParams();
-  const numberId = id ? Number(id) : 0;
+  const { raceId } = useLocalSearchParams();
+  const numberId = raceId ? Number(raceId) : 0;
   const [finished, setFinished] = useState(false);
   const [retryMessage, setRetryMessage] = useState("");
 
   async function refreshFunction() {
     setFinished(false);
     queryClient.invalidateQueries({
-      queryKey: [fetchProjectObjectivesKey + id],
+      queryKey: [fetchProjectObjectivesKey + raceId],
     });
     queryClient.refetchQueries({
-      queryKey: [fetchProjectObjectivesKey + id],
+      queryKey: [fetchProjectObjectivesKey + raceId],
     });
     queryClient.invalidateQueries({
-      queryKey: [fetchTeamsKey + id],
+      queryKey: [fetchTeamsKey + raceId],
     });
     queryClient.refetchQueries({
-      queryKey: [fetchTeamsKey + id],
+      queryKey: [fetchTeamsKey + raceId],
     });
   }
 
@@ -55,7 +55,7 @@ export default function RacePage() {
     isLoading: projectObjectivesIsLoading,
     error: projectObjectivesError,
   } = useQuery({
-    queryKey: [fetchProjectObjectivesKey + id],
+    queryKey: [fetchProjectObjectivesKey + raceId],
     queryFn: () => {
       return fetchObjectives(numberId);
     },
@@ -67,9 +67,9 @@ export default function RacePage() {
     isLoading: teamsIsLoading,
     error: teamsError,
   } = useQuery({
-    queryKey: [fetchTeamsKey + id],
+    queryKey: [fetchTeamsKey + raceId],
     queryFn: () => {
-      return fetchTeams(id);
+      return fetchTeams(raceId);
     },
   });
 

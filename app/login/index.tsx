@@ -44,9 +44,7 @@ function Login() {
     });
   }, [response]);
 
-  useEffect(() => {
-    checkIfUserIsInDB(userInfo);
-  }, [userInfo]);
+  useEffect(() => {}, [userInfo]);
 
   const setGoogleUserAuthInfo = async () => {
     try {
@@ -57,7 +55,17 @@ function Login() {
           const user = await getUserInfo(
             //@ts-ignore
             response.authentication.accessToken
-          ).then((data) => setUserInfo(data));
+          )
+            .then((userData) => {
+              if (userData) return checkIfUserIsInDB(userData, setUserInfo);
+              else return null;
+            })
+            .then(async (userData) => {
+              if (userData) {
+                await AsyncStorage.setItem("user", JSON.stringify(userData));
+                await AsyncStorage.setItem("authProvider", "google");
+              }
+            });
         }
       });
     } catch (error) {
@@ -75,10 +83,9 @@ function Login() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      const user = await response.json();
-      await AsyncStorage.setItem("user", JSON.stringify(user));
-      await AsyncStorage.setItem("authProvider", "google");
-      return user;
+      const user: UserInfoType = await response.json();
+      if (user) return user;
+      return null;
     } catch (error) {
       console.error(
         "Failed to fetch user data:",
@@ -87,6 +94,7 @@ function Login() {
         //@ts-ignore
         response.statusText
       );
+      return null;
     }
   };
 
@@ -133,7 +141,10 @@ export async function logout(
   }
 }
 
-export async function checkIfUserIsInDB(userInfo: UserInfoType | null) {
+export async function checkIfUserIsInDB(
+  userInfo: UserInfoType | null,
+  setUserInfo: React.Dispatch<React.SetStateAction<UserInfoType | null>>
+) {
   if (!userInfo) return;
 
   const res = await fetch(domain + "/api/mobile/checkUser", {
@@ -146,9 +157,12 @@ export async function checkIfUserIsInDB(userInfo: UserInfoType | null) {
     }),
   });
 
-  const data = await res.json();
+  const data = (await res.json()) as { found: boolean; user: UserInfoType };
 
-  return data;
+  if (data) {
+    return data.user;
+  }
+  return null;
 }
 
 export default Login;

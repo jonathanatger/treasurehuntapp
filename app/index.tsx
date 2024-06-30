@@ -37,7 +37,7 @@ function Homescreen() {
 
   useEffect(() => {
     getUserInfoInStorage();
-  }, []);
+  });
 
   const { data, isLoading, error } = useQuery({
     queryKey: [fetchRacesKey],
@@ -71,7 +71,7 @@ function Homescreen() {
         {userInfo ? (
           <>
             <PressableLink
-              text="Go to Tracks"
+              text="Go to Races"
               route="tracks"
               style={styles.links}></PressableLink>
             <PressableLink

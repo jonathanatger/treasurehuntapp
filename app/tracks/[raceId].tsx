@@ -32,20 +32,22 @@ import { UserInfoType } from "@/constants/data";
 import { Controller, set, useForm } from "react-hook-form";
 import { ThemedPressable } from "@/components/Pressable";
 
-function SpecificTrackPage() {
+function SpecificRacePage() {
   const { height, width } = useWindowDimensions();
-  const { id } = useLocalSearchParams();
+  const { raceId } = useLocalSearchParams();
   const { userInfo } = useContext(appContext);
   const [refreshing, setRefreshing] = useState(false);
 
   const refreshFunction = async () => {
     setRefreshing(true);
     queryClient.invalidateQueries({
-      queryKey: [fetchTeamsKey + id],
+      queryKey: [fetchTeamsKey + raceId],
     });
-    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + id] }).then(() => {
-      setRefreshing(false);
-    });
+    queryClient
+      .refetchQueries({ queryKey: [fetchTeamsKey + raceId] })
+      .then(() => {
+        setRefreshing(false);
+      });
     queryClient.invalidateQueries({ queryKey: [fetchRacesKey] });
     queryClient.refetchQueries({ queryKey: [fetchRacesKey] });
   };
@@ -56,13 +58,13 @@ function SpecificTrackPage() {
   } = useQuery({
     queryKey: ["userRaces"],
     queryFn: () => {
-      return fetchRaces(userInfo?.email);
+      return fetchRaces(userInfo?.id);
     },
   });
 
-  const numberId = id ? Number(id) : 0;
+  const raceNumberId = raceId ? Number(raceId) : 0;
   const currentRace = raceData?.data.filter(
-    (race) => race.races.id === numberId
+    (race) => race.races.id === raceNumberId
   )[0];
 
   const {
@@ -70,9 +72,9 @@ function SpecificTrackPage() {
     isLoading: projectObjectivesIsLoading,
     error: projectObjectivesError,
   } = useQuery({
-    queryKey: [fetchProjectObjectivesKey + id],
+    queryKey: [fetchProjectObjectivesKey + raceId],
     queryFn: () => {
-      return fetchObjectives(numberId);
+      return fetchObjectives(raceNumberId);
     },
     staleTime: 1000 * 60 * 60,
   });
@@ -82,9 +84,9 @@ function SpecificTrackPage() {
     isLoading: teamsIsLoading,
     error: teamsError,
   } = useQuery({
-    queryKey: [fetchTeamsKey + id],
+    queryKey: [fetchTeamsKey + raceId],
     queryFn: () => {
-      return fetchTeams(id);
+      return fetchTeams(raceId);
     },
   });
 
@@ -108,11 +110,11 @@ function SpecificTrackPage() {
           <PressableLink
             text="Entrer dans la course"
             style={styles.backlink}
-            route={`/race/${id}`}></PressableLink>
+            route={`/race/${raceId}`}></PressableLink>
         ) : (
           <ThemedText type="subtitle">La course n'a pas commencé !</ThemedText>
         )}
-        <NewTeamForm id={id} userInfo={userInfo} />
+        <NewTeamForm raceId={raceId} userInfo={userInfo} />
         {teamsIsLoading ? (
           <ThemedText>En attente des équipes...</ThemedText>
         ) : teamsData?.length === 0 ? (
@@ -124,7 +126,7 @@ function SpecificTrackPage() {
             (Aucune équipe n'a encore été créée)
           </ThemedText>
         ) : (
-          <TeamCards teams={teamsData} userInfo={userInfo} id={id} />
+          <TeamCards teams={teamsData} userInfo={userInfo} raceId={raceId} />
         )}
       </ScrollView>
     </ThemedSafeAreaView>
@@ -132,10 +134,10 @@ function SpecificTrackPage() {
 }
 
 const NewTeamForm = ({
-  id,
+  raceId,
   userInfo,
 }: {
-  id: string | string[] | undefined;
+  raceId: string | string[] | undefined;
   userInfo: UserInfoType | null;
 }) => {
   const { register, handleSubmit, control, reset } = useForm({
@@ -144,7 +146,7 @@ const NewTeamForm = ({
   const onSubmit = async (data: { Name: string }) => {
     if (!userInfo || data.Name === "") return;
 
-    const res = await createNewTeamLogic(data.Name, id, userInfo);
+    const res = await createNewTeamLogic(data.Name, raceId, userInfo);
     if (res) reset();
   };
 
@@ -181,15 +183,16 @@ const NewTeamForm = ({
 const TeamCards = ({
   teams,
   userInfo,
-  id,
+  raceId,
 }: {
   teams: TransformedTeamsData | undefined;
   userInfo: UserInfoType | null;
-  id: string | string[] | undefined;
+  raceId: string | string[] | undefined;
 }) => {
   const [loading, setLoading] = useState(false);
   const userName = userInfo?.name ? userInfo.name : "";
   const userEmail = userInfo?.email ? userInfo.email : "";
+  const userId = userInfo?.id ? userInfo.id : "";
 
   return (
     <ThemedView style={styles.teamsView}>
@@ -206,14 +209,14 @@ const TeamCards = ({
                 {team.users.filter((user) => user.email === userEmail).length >
                 0 ? (
                   <Pressable
-                    onPress={() => quitTeamLogic(team.id, userEmail, id)}
+                    onPress={() => quitTeamLogic(team.id, userId, raceId)}
                     style={{ ...styles.teamSingleButton, flex: 1 }}>
                     <ThemedText>Quitter</ThemedText>
                   </Pressable>
                 ) : (
                   <Pressable
                     onPress={() => {
-                      enterTeamLogic(team.id, userEmail, teams, id);
+                      enterTeamLogic(team.id, userId, userEmail, teams, raceId);
                     }}
                     style={{ ...styles.teamSingleButton, flex: 1 }}>
                     <ThemedText secondary>Rejoindre</ThemedText>
@@ -222,7 +225,7 @@ const TeamCards = ({
                 {team.users.length > 0 && team.users[0].email === "" && (
                   <Pressable
                     onPress={() => {
-                      deleteTeamLogic(team.id, id);
+                      deleteTeamLogic(team.id, raceId);
                     }}
                     style={styles.teamSingleButton}>
                     <ThemedText secondary>X</ThemedText>
@@ -299,7 +302,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
 });
-export default SpecificTrackPage;
+export default SpecificRacePage;
 
 export function transformData(data: RaceData) {
   let returnData = [] as TransformedTeamsData;
@@ -349,42 +352,44 @@ type TransformedTeamsData = {
 
 async function createNewTeamLogic(
   name: string,
-  id: string | string[] | undefined,
+  raceId: string | string[] | undefined,
   userInfo: UserInfoType | null
 ) {
-  if (!id || Array.isArray(id) || userInfo?.email === undefined)
+  console.log(raceId);
+  if (!raceId || Array.isArray(raceId) || userInfo?.id === undefined)
     throw new Error("No id provided");
-  const res = await createNewTeam(name, Number(id), userInfo?.email);
+  const res = await createNewTeam(name, Number(raceId), userInfo?.id);
 
   if (!res || res.result === "error") return false;
   else {
-    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + id] });
-    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + id] });
+    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
+    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
   }
   return true;
 }
 async function quitTeamLogic(
   teamId: number,
-  userEmail: string,
-  id: string | string[] | undefined
+  userId: string,
+  raceId: string | string[] | undefined
 ) {
-  if (!id || Array.isArray(id) || userEmail === undefined)
+  if (!raceId || Array.isArray(raceId) || userId === undefined)
     throw new Error("No id provided");
-  const res = await quitTeam(teamId, userEmail);
+  const res = await quitTeam(teamId, userId);
 
   if (!res || res.result === "error") return false;
   else {
-    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + id] });
-    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + id] });
+    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
+    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
   }
   return true;
 }
 
 async function enterTeamLogic(
   teamId: number,
+  userId: string,
   userEmail: string,
   teams: TransformedTeamsData,
-  id: string | string[] | undefined
+  raceId: string | string[] | undefined
 ) {
   const existingTeamId = teams.reduce((acc, team) => {
     if (
@@ -396,14 +401,15 @@ async function enterTeamLogic(
       return team.id;
     else return acc;
   }, 0);
-  if (!id || Array.isArray(id) || userEmail === undefined)
+
+  if (!raceId || Array.isArray(raceId) || userId === undefined)
     throw new Error("No id provided");
-  const res = await enterTeam(teamId, userEmail, existingTeamId);
+  const res = await enterTeam(teamId, userId, existingTeamId);
 
   if (!res || res.result === "error") return false;
   else {
-    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + id] });
-    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + id] });
+    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
+    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
   }
   return true;
 }

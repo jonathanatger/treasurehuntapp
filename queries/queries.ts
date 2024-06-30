@@ -1,11 +1,11 @@
 import { domain } from "../constants/data";
 
-export const fetchRaces = async (email: string | undefined) => {
-  if (!email) throw new Error("No email provided");
+export const fetchRaces = async (id: string | undefined) => {
+  if (!id) throw new Error("No id provided");
 
   const res = await fetch(domain + "/api/races", {
     method: "POST",
-    body: email,
+    body: id,
   });
 
   const data = (await res.json()) as {
@@ -68,14 +68,14 @@ export type RaceData =
 export async function createNewTeam(
   teamName: string,
   raceId: number,
-  userEmail: string
+  userId: string
 ) {
   const res = await fetch(domain + "/api/mobile/createTeam", {
     method: "POST",
     body: JSON.stringify({
       teamName,
       raceId,
-      userEmail,
+      userId,
     }),
   });
 
@@ -84,12 +84,12 @@ export async function createNewTeam(
   return data;
 }
 
-export async function quitTeam(teamId: number, userEmail: string) {
+export async function quitTeam(teamId: number, userId: string) {
   const res = await fetch(domain + "/api/mobile/quitTeam", {
     method: "POST",
     body: JSON.stringify({
       teamId,
-      userEmail,
+      userId,
     }),
   });
 
@@ -100,7 +100,7 @@ export async function quitTeam(teamId: number, userEmail: string) {
 
 export async function enterTeam(
   teamId: number,
-  userEmail: string,
+  userId: string,
   existingTeamId?: number
 ) {
   let body: any;
@@ -108,13 +108,13 @@ export async function enterTeam(
   if (existingTeamId) {
     body = JSON.stringify({
       teamId,
-      userEmail,
+      userId,
       existingTeamId,
     });
   } else {
     body = JSON.stringify({
       teamId,
-      userEmail,
+      userId,
     });
   }
 

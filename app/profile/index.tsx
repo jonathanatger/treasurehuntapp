@@ -68,10 +68,10 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
   } = useForm({ defaultValues: { Name: "" } });
 
   const onSubmit = async (data: { Name: string }) => {
-    if (!userInfo?.email) return;
+    if (!userInfo?.id) return;
     console.log(data);
 
-    const reqBody = { name: data.Name, userEmail: userInfo.email };
+    const reqBody = { name: data.Name, userId: userInfo.id };
 
     const res = await fetch(domain + "/api/mobile/editName", {
       method: "POST",
@@ -119,8 +119,8 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
         text="Change"></ThemedPressable>
       <ThemedPressable
         onPress={() => setIsEditing(false)}
-        text="X"
-        style={styles.editButton}></ThemedPressable>
+        text="Back"
+        style={styles.backButton}></ThemedPressable>
       <ThemedText>{error}</ThemedText>
     </ThemedView>
   );
@@ -131,6 +131,17 @@ const styles = StyleSheet.create({
     width: 70,
     padding: 3,
     borderRadius: 5,
+  },
+  backButton: {
+    flexDirection: "column",
+    justifyContent: "center",
+    width: "100%",
+    alignItems: "center",
+    height: 48,
+    borderRadius: 100,
+    backgroundColor: Colors.primary.background,
+    borderColor: Colors.primary.text,
+    borderWidth: 1,
   },
   container: {
     padding: 5,

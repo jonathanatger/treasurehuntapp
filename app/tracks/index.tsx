@@ -8,7 +8,7 @@ import { PressableLink } from "@/components/PressableLink";
 import { RefreshControl } from "react-native";
 import { fetchRaces, fetchRacesKey } from "../../queries/queries";
 
-function TracksMainPage() {
+function RacesMainPage() {
   const { height, width } = useWindowDimensions();
   const [tracksIds, setTracksIds] = useState([1, 2, 3, 4]);
   const userInfo = useContext(appContext).userInfo;
@@ -17,7 +17,7 @@ function TracksMainPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["userRaces"],
     queryFn: () => {
-      return fetchRaces(userInfo?.email);
+      return fetchRaces(userInfo?.id);
     },
   });
 
@@ -65,10 +65,6 @@ function TracksMainPage() {
   );
 }
 
-function Track(props: { id: number }) {
-  return <></>;
-}
-
 const styles = StyleSheet.create({
   backlink: {
     width: 70,
@@ -104,4 +100,4 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
 });
-export default TracksMainPage;
+export default RacesMainPage;

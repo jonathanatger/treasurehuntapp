@@ -51,9 +51,12 @@ export default function Layout() {
             }}>
             <Stack>
               <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="race/[id]" options={{ headerShown: false }} />
               <Stack.Screen
-                name="tracks/[id]"
+                name="race/[raceId]"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="tracks/[raceId]"
                 options={{ headerShown: false }}
               />
               <Stack.Screen

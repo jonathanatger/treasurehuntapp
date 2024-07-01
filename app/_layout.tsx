@@ -14,6 +14,7 @@ import { AppContextType, UserInfoType } from "@/constants/data";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
 export const queryClient = new QueryClient();
 export const appContext = createContext<AppContextType>({
   userInfo: null,
@@ -22,7 +23,7 @@ export const appContext = createContext<AppContextType>({
 });
 export const AppContextProvider = appContext.Provider;
 
-export default function Layout() {
+function Layout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -59,6 +60,7 @@ export default function Layout() {
                 name="tracks/[raceId]"
                 options={{ headerShown: false }}
               />
+
               <Stack.Screen
                 name="tracks/index"
                 options={{ headerShown: false }}
@@ -90,3 +92,5 @@ export default function Layout() {
     </ThemeProvider>
   );
 }
+
+export default Layout;

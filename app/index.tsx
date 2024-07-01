@@ -19,7 +19,6 @@ function Homescreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
-
   const [errorMsg, setErrorMsg] = useState<string | null>("");
 
   useEffect(() => {
@@ -37,7 +36,7 @@ function Homescreen() {
 
   useEffect(() => {
     getUserInfoInStorage();
-  });
+  }, []);
 
   const { data, isLoading, error } = useQuery({
     queryKey: [fetchRacesKey],
@@ -87,12 +86,12 @@ function Homescreen() {
         ) : (
           <>
             <PressableLink
-              text="Continue as guest"
-              route="noAuthLogin"
-              style={styles.links}></PressableLink>
-            <PressableLink
               text="Login"
               route="login"
+              style={styles.links}></PressableLink>
+            <PressableLink
+              text="Continue as guest"
+              route="noAuthLogin"
               style={styles.links}></PressableLink>
           </>
         )}

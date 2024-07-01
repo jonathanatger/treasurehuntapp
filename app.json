@@ -15,6 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.treasurehuntapp",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "infoPlist": {
           "UIBackgroundModes": ["location", "fetch", "remote-notification"],
@@ -58,7 +59,8 @@
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }
-      ]
+      ],
+      ["expo-apple-authentication"]
     ],
     "experiments": {
       "typedRoutes": true

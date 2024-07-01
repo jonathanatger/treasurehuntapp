@@ -9,6 +9,8 @@ PODS:
     - ExpoModulesCore
   - Expo (51.0.14):
     - ExpoModulesCore
+  - ExpoAppleAuthentication (6.4.1):
+    - ExpoModulesCore
   - ExpoAsset (10.0.9):
     - ExpoModulesCore
   - ExpoCrypto (13.0.2):
@@ -1311,6 +1313,7 @@ DEPENDENCIES:
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXLocation (from `../node_modules/expo-location/ios`)
   - Expo (from `../node_modules/expo`)
+  - ExpoAppleAuthentication (from `../node_modules/expo-apple-authentication/ios`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
   - ExpoCrypto (from `../node_modules/expo-crypto/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
@@ -1398,6 +1401,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-location/ios"
   Expo:
     :path: "../node_modules/expo"
+  ExpoAppleAuthentication:
+    :path: "../node_modules/expo-apple-authentication/ios"
   ExpoAsset:
     :path: "../node_modules/expo-asset/ios"
   ExpoCrypto:
@@ -1541,6 +1546,7 @@ SPEC CHECKSUMS:
   EXConstants: 409690fbfd5afea964e5e9d6c4eb2c2b59222c59
   EXLocation: 43e9b582ca63a23c6f0a18d8cbe2145b3a388b55
   Expo: 9c87c876b45a6934894ba5e9353ee94fdba48125
+  ExpoAppleAuthentication: 7af0b493e820dc0b22150cb9531fc1c31dc4fbfd
   ExpoAsset: 39e60dc31b16e204a9949caf3edb6dcda322e667
   ExpoCrypto: 156078f266bf28f80ecf5e2a9c3a0d6ffce07a1c
   ExpoFileSystem: 80bfe850b1f9922c16905822ecbf97acd711dc51

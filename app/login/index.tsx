@@ -1,22 +1,37 @@
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedSafeAreaView } from "@/components/ThemedView";
-import { Link, router } from "expo-router";
+import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
+import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { makeRedirectUri } from "expo-auth-session";
 import { useContext, useEffect, useState } from "react";
-import { Button, Linking, Platform } from "react-native";
-import { AuthSessionRedirectUriOptions, revokeAsync } from "expo-auth-session";
+import { useWindowDimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { appContext, queryClient } from "../_layout";
+import { appContext } from "../_layout";
 import { UserInfoType, domain } from "@/constants/data";
-import { set } from "react-hook-form";
+import { PressableLink } from "@/components/PressableLink";
+import { StyleSheet } from "react-native";
+import { Colors } from "@/constants/Colors";
+import { ThemedPressable } from "@/components/Pressable";
+import { ThemedText } from "@/components/ThemedText";
 
 function Login() {
   const userInfo = useContext(appContext).userInfo;
+  const [appleAuthAvailable, setAppleAuthAvailable] = useState(false);
   const setUserInfo = useContext(appContext).setUserInfo;
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { height, width } = useWindowDimensions();
 
+  // Apple Auth -----------------------
+  useEffect(() => {
+    const checkAvailable = async () => {
+      const isAvailable = await AppleAuthentication.isAvailableAsync();
+      setAppleAuthAvailable(isAvailable);
+    };
+    checkAvailable();
+  }, []);
+
+  // Google Auth -----------------------
   WebBrowser.maybeCompleteAuthSession();
 
   const redirectUri = makeRedirectUri({
@@ -39,12 +54,12 @@ function Login() {
     setGoogleUserAuthInfo().then(() => {
       if (isLoggingIn) {
         setIsLoggingIn(false);
-        router.push("/tracks");
+        if (response?.type === "success") {
+          router.push("tracks");
+        }
       }
     });
   }, [response]);
-
-  useEffect(() => {}, [userInfo]);
 
   const setGoogleUserAuthInfo = async () => {
     try {
@@ -57,13 +72,15 @@ function Login() {
             response.authentication.accessToken
           )
             .then((userData) => {
-              if (userData) return checkIfUserIsInDB(userData, setUserInfo);
+              if (userData) return checkIfUserIsInDB(userData);
               else return null;
             })
             .then(async (userData) => {
               if (userData) {
-                await AsyncStorage.setItem("user", JSON.stringify(userData));
-                await AsyncStorage.setItem("authProvider", "google");
+                await AsyncStorage.setItem(
+                  "user",
+                  JSON.stringify({ ...userData, provider: "google" })
+                );
               }
             });
         }
@@ -99,52 +116,89 @@ function Login() {
   };
 
   return (
-    <ThemedSafeAreaView>
-      <ThemedText>This is login</ThemedText>
-      <Link href="/">Go back</Link>
-      <ThemedText>User : {userInfo?.name}</ThemedText>
-      <Button
-        title="sign in with google"
-        onPress={async () => {
-          setIsLoggingIn(true);
-          await promptAsync();
-        }}
-      />
-      <Button
-        title="sign out"
-        onPress={() => {
-          logout(setUserInfo);
-        }}
-      />
+    <ThemedSafeAreaView style={{ height: height, width: width }}>
+      <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+      <ThemedView style={{ height: height - 50, ...styles.container }}>
+        <ThemedView style={styles.form}>
+          <ThemedPressable
+            text="Sign in with Google"
+            onPress={async () => {
+              setIsLoggingIn(true);
+              await promptAsync();
+            }}
+            style={styles.googleButton}
+          />
+          {appleAuthAvailable && <AppleAuth setIsLoggingIn={setIsLoggingIn} />}
+        </ThemedView>
+        {isLoggingIn && <ThemedText> We are connecting ...</ThemedText>}
+      </ThemedView>
     </ThemedSafeAreaView>
   );
 }
 
-export async function logout(
-  setUserInfo: React.Dispatch<React.SetStateAction<UserInfoType | null>>
-) {
-  const token = await AsyncStorage.getItem("user");
-  const authProvider = await AsyncStorage.getItem("authProvider");
-  if (token) {
+function AppleAuth({
+  setIsLoggingIn,
+}: {
+  setIsLoggingIn: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const userInfo = useContext(appContext).userInfo;
+  const setUserInfo = useContext(appContext).setUserInfo;
+
+  const login = async () => {
+    let appleUser: UserInfoType | null = null;
+
     try {
-      await revokeAsync(
-        { token },
-        { revocationEndpoint: "https://oauth2.googleapis.com/revoke" }
-      );
-      await AsyncStorage.removeItem("user").then(() => {
-        setUserInfo(null);
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
       });
-      await AsyncStorage.removeItem("authProvider");
-    } catch (error) {
-      console.error("ERROR at logout", error);
+
+      appleUser = {
+        name: credential.fullName?.givenName || "Apple user",
+        email: credential.email || "no email",
+        picture: "",
+        id: credential.user,
+        provider: "apple",
+      };
+      console.log("appleUser", appleUser);
+    } catch (e) {
+      console.error(e);
     }
-  }
+
+    if (appleUser) {
+      checkIfUserIsInDB(appleUser).then(async (userData) => {
+        if (userData) {
+          console.log("userData", userData);
+          await AsyncStorage.setItem(
+            "user",
+            JSON.stringify({ ...userData, provider: "apple" })
+          ).then(() => {
+            setIsLoggingIn(false);
+            router.push("tracks");
+          });
+        } else {
+          console.error("User not found in DB");
+        }
+      });
+    }
+  };
+
+  return (
+    <AppleAuthentication.AppleAuthenticationButton
+      buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+      cornerRadius={5}
+      style={styles.appleSignInButton}
+      onPress={async () => {
+        login();
+      }}
+    />
+  );
 }
 
-export async function checkIfUserIsInDB(
-  userInfo: UserInfoType | null,
-  setUserInfo: React.Dispatch<React.SetStateAction<UserInfoType | null>>
-) {
+async function checkIfUserIsInDB(userInfo: UserInfoType | null) {
   if (!userInfo) return;
 
   const res = await fetch(domain + "/api/mobile/checkUser", {
@@ -154,6 +208,7 @@ export async function checkIfUserIsInDB(
       id: userInfo.id,
       picture: userInfo.picture,
       name: userInfo.name,
+      provider: userInfo.provider,
     }),
   });
 
@@ -164,5 +219,38 @@ export async function checkIfUserIsInDB(
   }
   return null;
 }
+
+const styles = StyleSheet.create({
+  appleSignInButton: {
+    width: 200,
+    height: 50,
+  },
+  backlink: {
+    width: 70,
+    padding: 3,
+    borderRadius: 5,
+  },
+  container: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    padding: 10,
+  },
+  form: {
+    flexDirection: "column",
+    gap: 10,
+    backgroundColor: Colors.primary.background,
+    padding: 10,
+    borderRadius: 10,
+  },
+  googleButton: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    height: 50,
+  },
+});
 
 export default Login;

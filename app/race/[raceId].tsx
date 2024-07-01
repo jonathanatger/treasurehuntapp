@@ -26,7 +26,7 @@ import { transformData } from "../tracks/[raceId]";
 import { appContext, queryClient } from "../_layout";
 import { getDistanceFromLatLonInM } from "../../functions/functions";
 
-export default function RacePage() {
+function RacePage() {
   const [refreshing, setRefreshing] = useState(false);
   const { height, width } = useWindowDimensions();
   const { raceId } = useLocalSearchParams();
@@ -233,3 +233,5 @@ async function advanceToNextObjectiveLogic(
     }
   );
 }
+
+export default RacePage;

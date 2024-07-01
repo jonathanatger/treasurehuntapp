@@ -18,13 +18,13 @@ function Join() {
   const { height, width } = useWindowDimensions();
   return (
     <ThemedSafeAreaView style={{ height: height, ...styles.container }}>
-      <JoinForm />
       <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+      <JoinForm viewerheight={height} />
     </ThemedSafeAreaView>
   );
 }
 
-function JoinForm() {
+function JoinForm({ viewerheight }: { viewerheight: number }) {
   const userInfo = useContext(appContext).userInfo;
   const [error, setError] = useState("");
 
@@ -62,9 +62,9 @@ function JoinForm() {
   };
 
   return (
-    <ThemedView style={{ height: 300, paddingTop: 50 }}>
+    <ThemedView style={{ height: viewerheight - 50, ...styles.joinForm }}>
       <ThemedText type="subtitle">
-        Pour rejoindre une piste, entrez le code ci-dessous
+        To join a race, enter the code below :
       </ThemedText>
       <Controller
         control={control}
@@ -84,6 +84,7 @@ function JoinForm() {
       />
       <ThemedPressable
         onPress={handleSubmit(onSubmit)}
+        style={styles.joinButton}
         text="Join"></ThemedPressable>
       <ThemedText>{error}</ThemedText>
     </ThemedView>
@@ -92,8 +93,9 @@ function JoinForm() {
 
 const styles = StyleSheet.create({
   backlink: {
-    height: 50,
-    borderRadius: 100,
+    height: 40,
+    width: 100,
+    borderRadius: 10,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -105,12 +107,26 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "space-between",
   },
+  joinButton: {
+    flexDirection: "column",
+    justifyContent: "center",
+    width: "100%",
+    alignItems: "center",
+    height: 48,
+    borderRadius: 100,
+  },
+  joinForm: {
+    paddingTop: 50,
+    flexDirection: "column",
+    gap: 10,
+    justifyContent: "center",
+  },
   input: {
     height: 50,
     borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 10,
+    borderRadius: 100,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

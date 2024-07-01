@@ -2,12 +2,12 @@ import { PressableLink } from "@/components/PressableLink";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { useContext, useState } from "react";
-import { Button, StyleSheet, TextInput } from "react-native";
+import { ScrollView, StyleSheet, TextInput } from "react-native";
 import { appContext } from "../_layout";
 import { Colors } from "@/constants/Colors";
 import { Controller, set, useForm } from "react-hook-form";
 import { domain } from "@/constants/data";
-import { logout } from "../login";
+import { logout } from "@/functions/functions";
 import { router } from "expo-router";
 import { ThemedPressable } from "@/components/Pressable";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,42 +16,50 @@ function Profile() {
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
   const [isEditing, setIsEditing] = useState(false);
-  const [variableName, setVariableName] = useState("");
+  console.log(userInfo?.name);
 
   return (
-    <ThemedSafeAreaView style={styles.container}>
-      <PressableLink text="Go back" style={styles.backlink}></PressableLink>
-      <ThemedText type="title">Profile</ThemedText>
-      <ThemedView style={styles.main}>
-        {!isEditing ? (
-          <>
-            <ThemedText style={{ paddingVertical: 20 }} type="subtitle" primary>
-              {userInfo?.name ? userInfo?.name : "No user connected."}
-            </ThemedText>
-            <ThemedPressable
-              onPress={() => {
-                setIsEditing(true);
-              }}
-              text="Edit my name"
-              style={styles.editButton}></ThemedPressable>
-          </>
-        ) : (
-          <EditNameForm setIsEditing={setIsEditing} />
-        )}
-      </ThemedView>
-      <ThemedPressable
-        style={styles.editButton}
-        text="Log out"
-        onPress={() => {
-          logout(setUserInfo);
-          router.push("/login");
-        }}></ThemedPressable>
-      <ThemedPressable
-        style={styles.editButton}
-        text="Support"
-        onPress={() => {
-          router.push("/support");
-        }}></ThemedPressable>
+    <ThemedSafeAreaView>
+      <ScrollView>
+        <ThemedView style={styles.container}>
+          <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+          <ThemedText type="title">Profile</ThemedText>
+          <ThemedView style={styles.main}>
+            {!isEditing ? (
+              <>
+                <ThemedText
+                  style={{ paddingVertical: 20 }}
+                  type="subtitle"
+                  primary>
+                  {userInfo?.name ? userInfo?.name : "No user connected."}
+                </ThemedText>
+                <ThemedPressable
+                  onPress={() => {
+                    setIsEditing(true);
+                  }}
+                  text="Edit my name"
+                  style={styles.editButton}></ThemedPressable>
+              </>
+            ) : (
+              <EditNameForm setIsEditing={setIsEditing} />
+            )}
+          </ThemedView>
+          <ThemedPressable
+            style={styles.editButton}
+            text="Log out"
+            onPress={() => {
+              logout(setUserInfo);
+              router.push("/");
+            }}></ThemedPressable>
+          <ThemedPressable
+            style={styles.editButton}
+            text="Support"
+            onPress={() => {
+              router.push("support");
+            }}></ThemedPressable>
+          <DeleteUserComponent />
+        </ThemedView>
+      </ScrollView>
     </ThemedSafeAreaView>
   );
 }
@@ -126,6 +134,45 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
   );
 }
 
+function DeleteUserComponent() {
+  const userInfo = useContext(appContext).userInfo;
+  const setUserInfo = useContext(appContext).setUserInfo;
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState("");
+  return (
+    <ThemedView style={styles.deletionView}>
+      {isDeleting ? (
+        <>
+          <ThemedText primary>
+            Are you sure you want to delete your account ? You will lose access
+            to all the races you have entered. Please confirm below.
+          </ThemedText>
+          <ThemedPressable
+            text="Keep my account"
+            onPress={() => {
+              setIsDeleting(false);
+            }}
+            style={styles.editButton}></ThemedPressable>
+          <ThemedPressable
+            text="Delete !"
+            onPress={() => {
+              deleteUserLogic(userInfo, setUserInfo, setError);
+            }}
+            style={styles.deleteButton}></ThemedPressable>
+          <ThemedText primary>{error}</ThemedText>
+        </>
+      ) : (
+        <ThemedPressable
+          text="Delete my account"
+          onPress={() => {
+            setIsDeleting(true);
+          }}
+          style={styles.editButton}></ThemedPressable>
+      )}
+    </ThemedView>
+  );
+}
+
 const styles = StyleSheet.create({
   backlink: {
     width: 70,
@@ -147,6 +194,27 @@ const styles = StyleSheet.create({
     padding: 5,
     flexDirection: "column",
     gap: 10,
+  },
+  deleteButton: {
+    flexDirection: "column",
+    justifyContent: "center",
+    width: "100%",
+    alignItems: "center",
+    height: 48,
+    borderRadius: 100,
+    backgroundColor: Colors.primary.background,
+    borderColor: Colors.primary.text,
+    borderWidth: 1,
+  },
+  deletionView: {
+    flexDirection: "column",
+    justifyContent: "center",
+    width: "100%",
+    gap: 10,
+    alignItems: "center",
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: Colors.primary.background,
   },
   editButton: {
     flexDirection: "column",
@@ -192,5 +260,29 @@ const styles = StyleSheet.create({
     color: Colors.primary.text,
   },
 });
+
+async function deleteUserLogic(
+  userInfo: any,
+  setUserInfo: React.Dispatch<React.SetStateAction<any>>,
+  setError: React.Dispatch<React.SetStateAction<string>>
+) {
+  const res = await fetch(domain + "/api/mobile/deleteUser", {
+    method: "POST",
+    body: JSON.stringify({ userId: userInfo.id, userEmail: userInfo.email }),
+  });
+
+  const responseData = (await res.json()) as {
+    deleted: boolean;
+    result: string;
+  };
+
+  if (responseData.deleted) {
+    await AsyncStorage.removeItem("user");
+    setUserInfo(null);
+    router.push("/login");
+  } else {
+    setError(responseData.result);
+  }
+}
 
 export default Profile;

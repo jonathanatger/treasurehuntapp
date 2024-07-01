@@ -15,4 +15,5 @@ export type UserInfoType = {
   name?: string;
   picture?: string;
   verified_email?: string;
+  provider?: string;
 };

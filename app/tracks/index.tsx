@@ -10,7 +10,6 @@ import { fetchRaces, fetchRacesKey } from "../../queries/queries";
 
 function RacesMainPage() {
   const { height, width } = useWindowDimensions();
-  const [tracksIds, setTracksIds] = useState([1, 2, 3, 4]);
   const userInfo = useContext(appContext).userInfo;
   const [refreshing, setRefreshing] = useState(false);
 
@@ -38,7 +37,10 @@ function RacesMainPage() {
             onRefresh={() => refreshFunction()}
           />
         }>
-        <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+        <PressableLink
+          text="Go back"
+          route="/"
+          style={styles.backlink}></PressableLink>
         <ThemedText type="title">This is tracks main page !</ThemedText>
         {isLoading ? (
           <ThemedText type="title">Loading...</ThemedText>

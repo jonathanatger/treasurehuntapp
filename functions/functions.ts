@@ -1,3 +1,7 @@
+import { UserInfoType } from "@/constants/data";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { revokeAsync } from "expo-auth-session";
+
 export function getDistanceFromLatLonInM(
   lat1: number,
   lon1: number,
@@ -20,4 +24,25 @@ export function getDistanceFromLatLonInM(
 
 function deg2rad(deg: number) {
   return deg * (Math.PI / 180);
+}
+
+export async function logout(
+  setUserInfo: React.Dispatch<React.SetStateAction<UserInfoType | null>>
+) {
+  const token = await AsyncStorage.getItem("user");
+  const authProvider = await AsyncStorage.getItem("authProvider");
+  if (token) {
+    try {
+      await revokeAsync(
+        { token },
+        { revocationEndpoint: "https://oauth2.googleapis.com/revoke" }
+      );
+      await AsyncStorage.removeItem("user").then(() => {
+        setUserInfo(null);
+      });
+      await AsyncStorage.removeItem("authProvider");
+    } catch (error) {
+      console.error("ERROR at logout", error);
+    }
+  }
 }

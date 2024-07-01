@@ -302,7 +302,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
 });
-export default SpecificRacePage;
 
 export function transformData(data: RaceData) {
   let returnData = [] as TransformedTeamsData;
@@ -355,7 +354,6 @@ async function createNewTeamLogic(
   raceId: string | string[] | undefined,
   userInfo: UserInfoType | null
 ) {
-  console.log(raceId);
   if (!raceId || Array.isArray(raceId) || userInfo?.id === undefined)
     throw new Error("No id provided");
   const res = await createNewTeam(name, Number(raceId), userInfo?.id);
@@ -367,6 +365,7 @@ async function createNewTeamLogic(
   }
   return true;
 }
+
 async function quitTeamLogic(
   teamId: number,
   userId: string,
@@ -440,3 +439,5 @@ async function deleteTeamLogic(
   }
   return true;
 }
+
+export default SpecificRacePage;

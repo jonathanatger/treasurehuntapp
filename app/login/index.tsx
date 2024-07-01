@@ -5,7 +5,7 @@ import * as Google from "expo-auth-session/providers/google";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { makeRedirectUri } from "expo-auth-session";
 import { useContext, useEffect, useState } from "react";
-import { useWindowDimensions } from "react-native";
+import { TextInput, View, useWindowDimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appContext } from "../_layout";
 import { UserInfoType, domain } from "@/constants/data";
@@ -14,6 +14,7 @@ import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedPressable } from "@/components/Pressable";
 import { ThemedText } from "@/components/ThemedText";
+import { Controller, useForm } from "react-hook-form";
 
 function Login() {
   const userInfo = useContext(appContext).userInfo;
@@ -129,6 +130,14 @@ function Login() {
             style={styles.googleButton}
           />
           {appleAuthAvailable && <AppleAuth setIsLoggingIn={setIsLoggingIn} />}
+          <View
+            style={{
+              height: 10,
+              borderBottomColor: Colors.primary.text,
+              borderBottomWidth: 1,
+            }}
+          />
+          <EmailAuth setIsLoggingIn={setIsLoggingIn} />
         </ThemedView>
         {isLoggingIn && <ThemedText> We are connecting ...</ThemedText>}
       </ThemedView>
@@ -146,6 +155,7 @@ function AppleAuth({
 
   const login = async () => {
     let appleUser: UserInfoType | null = null;
+    setIsLoggingIn(true);
 
     try {
       const credential = await AppleAuthentication.signInAsync({
@@ -198,6 +208,111 @@ function AppleAuth({
   );
 }
 
+function EmailAuth({
+  setIsLoggingIn,
+}: {
+  setIsLoggingIn: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const setUserInfo = useContext(appContext).setUserInfo;
+  const [error, setError] = useState<string>("");
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ defaultValues: { Email: "", Password: "" } });
+
+  function errorMessage() {
+    const emailError = errors.Email?.message;
+    const passwordError = errors.Password?.message;
+    let message: string = "";
+    if (emailError) message += emailError;
+    if (emailError && passwordError) {
+      message += "\n";
+    }
+    if (passwordError) message += passwordError;
+    return message;
+  }
+
+  const onSubmit = async (data: { Email: string; Password: string }) => {
+    const reqBody = { email: data.Email, password: data.Password };
+    console.log("reqBody", reqBody);
+
+    // const res = await fetch(domain + "/api/mobile/guestSubscription", {
+    //   method: "POST",
+    //   body: JSON.stringify(reqBody),
+    // });
+
+    // const responseData = (await res.json()) as {
+    //   created: boolean;
+    //   result: UserInfoType;
+    //   error: string;
+    // };
+
+    // if (responseData.created) {
+    //   const newUser = { ...responseData.result };
+    //   setUserInfo(newUser);
+    //   await AsyncStorage.setItem("user", JSON.stringify(newUser));
+    //   router.push("/");
+    // } else {
+    //   console.error("Error creating user", responseData.error);
+    // }
+    // return responseData;
+  };
+
+  return (
+    <ThemedView style={styles.emailLogin}>
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          pattern: {
+            value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+            message: "Invalid email address",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            placeholder="Email"
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            style={styles.input}
+          />
+        )}
+        name="Email"
+      />
+      <Controller
+        control={control}
+        rules={{
+          required: "Password is required",
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            placeholder="Password"
+            textContentType="password"
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            style={styles.input}
+            secureTextEntry={true}
+          />
+        )}
+        name="Password"
+      />
+      <ThemedPressable
+        onPress={() => {
+          setError(errorMessage());
+          handleSubmit(onSubmit)();
+        }}
+        style={styles.googleButton}
+        text="Sign in"
+      />
+      <ThemedText style={styles.errorMessage}>{error}</ThemedText>
+    </ThemedView>
+  );
+}
+
 async function checkIfUserIsInDB(userInfo: UserInfoType | null) {
   if (!userInfo) return;
 
@@ -237,6 +352,17 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 10,
   },
+  emailLogin: {
+    flexDirection: "column",
+    gap: 10,
+    backgroundColor: Colors.primary.background,
+  },
+  errorMessage: {
+    color: Colors.primary.text,
+    fontWeight: 600,
+    fontSize: 18,
+    textAlign: "center",
+  },
   form: {
     flexDirection: "column",
     gap: 10,
@@ -250,6 +376,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
     height: 50,
+  },
+  input: {
+    height: 50,
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
+    fontSize: 18,
+    width: "100%",
+    backgroundColor: Colors.light.background,
   },
 });
 

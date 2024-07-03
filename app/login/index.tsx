@@ -1,5 +1,5 @@
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import * as AppleAuthentication from "expo-apple-authentication";
@@ -14,7 +14,7 @@ import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { ThemedPressable } from "@/components/Pressable";
 import { ThemedText } from "@/components/ThemedText";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 
 function Login() {
   const userInfo = useContext(appContext).userInfo;
@@ -172,8 +172,8 @@ function AppleAuth({
         id: credential.user,
         provider: "apple",
       };
-      console.log("appleUser", appleUser);
     } catch (e) {
+      setIsLoggingIn(false);
       console.error(e);
     }
 
@@ -307,6 +307,10 @@ function EmailAuth({
         }}
         style={styles.googleButton}
         text="Sign in"
+      />
+      <PressableLink
+        text="Do not have an account ? Sign up here"
+        route="register/index"
       />
       <ThemedText style={styles.errorMessage}>{error}</ThemedText>
     </ThemedView>

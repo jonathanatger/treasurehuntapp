@@ -13,13 +13,10 @@ import { PressableLink } from "@/components/PressableLink";
 import { ScrollView } from "react-native";
 import { router } from "expo-router";
 
-function NoAuthLogin() {
+function RegisterEmail() {
   const { height, width } = useWindowDimensions();
   const userInfo = useContext(appContext).userInfo;
 
-  useEffect(() => {
-    if (userInfo) router.push("/");
-  }, []);
 
   return (
     <ThemedSafeAreaView>
@@ -49,7 +46,6 @@ function NoAuthLogin() {
 function ChooseNameForm() {
   const setUserInfo = useContext(appContext).setUserInfo;
   const [error, setError] = useState("");
-  console.log("error", error);
 
   const {
     control,
@@ -57,8 +53,9 @@ function ChooseNameForm() {
     formState: { errors },
   } = useForm({ defaultValues: { Name: "" } });
 
-  console.log("errors", errors);
   const onSubmit = async (data: { Name: string }) => {
+    console.log(data);
+
     const reqBody = { name: data.Name };
 
     const res = await fetch(domain + "/api/mobile/guestSubscription", {
@@ -89,7 +86,6 @@ function ChooseNameForm() {
         control={control}
         rules={{
           required: true,
-          minLength: 6,
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
@@ -103,18 +99,10 @@ function ChooseNameForm() {
         name="Name"
       />
       <ThemedPressable
-        onPress={() => {
-          setError("");
-          if (errors.Name?.type === "minLength")
-            setError("Name must be at least 6 characters");
-
-          handleSubmit(onSubmit)();
-        }}
+        onPress={handleSubmit(onSubmit)}
         style={styles.editButton}
         text="Let's Go"></ThemedPressable>
-      <ThemedText style={{ color: Colors.primary.text, textAlign: "center" }}>
-        {error}
-      </ThemedText>
+      <ThemedText>{error}</ThemedText>
     </ThemedView>
   );
 }
@@ -166,4 +154,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NoAuthLogin;
+export default RegisterEmail;

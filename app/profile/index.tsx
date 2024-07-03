@@ -31,7 +31,7 @@ function Profile() {
                   style={{ paddingVertical: 20 }}
                   type="subtitle"
                   primary>
-                  {userInfo?.name ? userInfo?.name : "No user connected."}
+                  {userInfo?.name ? userInfo?.name : "No name "}
                 </ThemedText>
                 <ThemedPressable
                   onPress={() => {

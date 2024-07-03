@@ -82,6 +82,10 @@ function Layout() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
+                name="register/index"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
                 name="support/index"
                 options={{ headerShown: false }}
               />

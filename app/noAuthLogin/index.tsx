@@ -49,7 +49,6 @@ function NoAuthLogin() {
 function ChooseNameForm() {
   const setUserInfo = useContext(appContext).setUserInfo;
   const [error, setError] = useState("");
-  console.log("error", error);
 
   const {
     control,
@@ -57,7 +56,6 @@ function ChooseNameForm() {
     formState: { errors },
   } = useForm({ defaultValues: { Name: "" } });
 
-  console.log("errors", errors);
   const onSubmit = async (data: { Name: string }) => {
     const reqBody = { name: data.Name };
 

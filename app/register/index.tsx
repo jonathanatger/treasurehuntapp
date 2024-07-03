@@ -17,7 +17,6 @@ function RegisterEmail() {
   const { height, width } = useWindowDimensions();
   const userInfo = useContext(appContext).userInfo;
 
-
   return (
     <ThemedSafeAreaView>
       <ScrollView contentContainerStyle={{ padding: 10, height: height }}>

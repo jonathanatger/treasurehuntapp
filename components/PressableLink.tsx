@@ -7,6 +7,7 @@ export type PressableLinkProps = PressableProps & {
   textType?: ThemedTextProps["type"];
   route?: string;
   text: string;
+  color?: string;
 };
 
 export function PressableLink({
@@ -14,6 +15,7 @@ export function PressableLink({
   route,
   textType,
   text,
+  color,
   ...rest
 }: PressableLinkProps) {
   return (
@@ -23,7 +25,11 @@ export function PressableLink({
         return [
           {
             backgroundColor: pressed
-              ? Colors.secondary.muted
+              ? color === "primary"
+                ? Colors.primary.muted
+                : Colors.secondary.muted
+              : color === "primary"
+              ? Colors.primary.background
               : Colors.secondary.background,
           },
           style,

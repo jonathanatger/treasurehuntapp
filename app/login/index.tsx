@@ -310,7 +310,9 @@ function EmailAuth({
       />
       <PressableLink
         text="Do not have an account ? Sign up here"
-        route="register/index"
+        route="register"
+        style={styles.registerLink}
+        color="primary"
       />
       <ThemedText style={styles.errorMessage}>{error}</ThemedText>
     </ThemedView>
@@ -394,6 +396,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     width: "100%",
     backgroundColor: Colors.light.background,
+  },
+  registerLink: {
+    borderRadius: 10,
+    borderColor: Colors.primary.text,
+    borderWidth: 1,
+    padding: 5,
+    marginTop: 10,
   },
 });
 

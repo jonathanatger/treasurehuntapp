@@ -70,6 +70,10 @@ function Layout() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
+                name="register/index"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
                 name="join/index"
                 options={{ headerShown: false }}
               />
@@ -79,10 +83,6 @@ function Layout() {
               />
               <Stack.Screen
                 name="profile/index"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="register/index"
                 options={{ headerShown: false }}
               />
               <Stack.Screen

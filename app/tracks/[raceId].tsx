@@ -118,7 +118,7 @@ function SpecificRacePage() {
         <ThemedText type="subtitle" style={{ fontSize: 24 }}>
           {currentRace?.races.name || "Préparation des équipes"}
         </ThemedText>
-        <NewTeamForm raceId={raceId} userInfo={userInfo} />
+        {!raceLaunched && <NewTeamForm raceId={raceId} userInfo={userInfo} />}
         {teamsIsLoading ? (
           <ThemedText>Waiting for teams to load...</ThemedText>
         ) : teamsData?.length === 0 ? (

@@ -25,6 +25,7 @@ import {
 import { transformData } from "../tracks/[raceId]";
 import { appContext, queryClient } from "../_layout";
 import { getDistanceFromLatLonInM } from "../../functions/functions";
+import { ThemedPressable } from "@/components/Pressable";
 
 function RacePage() {
   const [refreshing, setRefreshing] = useState(false);
@@ -112,9 +113,9 @@ function RacePage() {
     projectObjectives?.result?.length! <= userCurrentTeamData?.objectiveIndex!;
 
   return (
-    <ThemedSafeAreaView style={{ height: height }}>
+    <ThemedSafeAreaView style={{ height: height, flexDirection: "column" }}>
       <ScrollView
-        contentContainerStyle={styles.container}
+        contentContainerStyle={{ flex: 1, ...styles.container }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -163,19 +164,21 @@ function InRaceScreen({
   numberId: number;
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const { height } = useWindowDimensions();
+
   return (
-    <ThemedView>
-      <ThemedView>
+    <ThemedView style={{ flex: 1, ...styles.main }}>
+      <ThemedView style={styles.raceMessageView}>
         {finished ? (
+          <CongratulationsMessage />
+        ) : (
           <ObjectiveInfo
             message={currentObjective?.message}
             retryMessage={retryMessage}
           />
-        ) : (
-          <CongratulionsMessage />
         )}
       </ThemedView>
-      <ThemedView>
+      <ThemedView style={styles.raceButtonView}>
         {finished ? (
           <AdvanceToNextObjectiveButton
             userCurrentTeamData={userCurrentTeamData}
@@ -203,7 +206,7 @@ function ObjectiveInfo({
   retryMessage: boolean;
 }) {
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={styles.objectiveInfoView}>
       <ThemedText type="subtitle">{message}</ThemedText>
       {retryMessage && (
         <ThemedText> Vous n'êtes pas encore au bon endroit...</ThemedText>
@@ -212,10 +215,10 @@ function ObjectiveInfo({
   );
 }
 
-function CongratulionsMessage() {
+function CongratulationsMessage() {
   return (
     <ThemedView style={styles.container}>
-      <ThemedText>Bravo, dernier objectif atteint !</ThemedText>
+      <ThemedText>Congratulations, you found the objective !</ThemedText>
     </ThemedView>
   );
 }
@@ -240,7 +243,7 @@ function AdvanceToNextObjectiveButton({
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <Pressable
+    <ThemedPressable
       onPress={() => {
         advanceToNextObjectiveLogic(
           userCurrentTeamData?.id!,
@@ -250,9 +253,9 @@ function AdvanceToNextObjectiveButton({
         );
         setFinished(false);
       }}
-      style={styles.button}>
-      <ThemedText>Passer au prochain objectif !</ThemedText>
-    </Pressable>
+      text="Advance to next objective !"
+      style={styles.button}
+    />
   );
 }
 function CheckLocationButton({
@@ -265,7 +268,7 @@ function CheckLocationButton({
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <Pressable
+    <ThemedPressable
       onPress={async () => {
         if (
           await checkLocation(
@@ -282,9 +285,10 @@ function CheckLocationButton({
           }, 5000);
         }
       }}
-      style={styles.button}>
-      <ThemedText>Vous pensez etre au bon endroit ?</ThemedText>
-    </Pressable>
+      text="Check your location !"
+      themeColor="primary"
+      style={styles.button}
+    />
   );
 }
 
@@ -309,13 +313,40 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   button: {
-    backgroundColor: Colors.primary.background,
+    borderRadius: 105,
+    textAlign: "center",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    height: 200,
+    width: 200,
   },
   container: {
     fontSize: 30,
     padding: 10,
     flexDirection: "column",
     gap: 10,
+  },
+  main: {
+    flexDirection: "column",
+    gap: 10,
+  },
+  objectiveInfoView: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+  },
+  raceButtonView: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  raceMessageView: {
+    flex: 1,
   },
 });
 

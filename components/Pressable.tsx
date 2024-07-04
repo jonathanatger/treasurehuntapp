@@ -8,6 +8,7 @@ export type ThemedPressableProps = PressableProps & {
   route?: string;
   text?: string;
   onPress: any;
+  themeColor?: string;
 };
 
 export function ThemedPressable({
@@ -15,6 +16,7 @@ export function ThemedPressable({
   route,
   textType,
   text,
+  themeColor,
   ...rest
 }: ThemedPressableProps) {
   return (
@@ -24,7 +26,11 @@ export function ThemedPressable({
         return [
           {
             backgroundColor: pressed
-              ? Colors.secondary.muted
+              ? themeColor === "primary"
+                ? Colors.primary.muted
+                : Colors.secondary.muted
+              : themeColor === "primary"
+              ? Colors.primary.background
               : Colors.secondary.background,
           },
           style,

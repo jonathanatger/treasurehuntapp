@@ -3,12 +3,9 @@ import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import * as Location from "expo-location";
 import {
-  Button,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TextInput,
   useWindowDimensions,
 } from "react-native";
 import { PressableLink } from "@/components/PressableLink";
@@ -22,7 +19,7 @@ import {
   fetchTeams,
   fetchTeamsKey,
 } from "@/queries/queries";
-import { transformData } from "../tracks/[raceId]";
+import { transformTeamsData } from "../../functions/functions";
 import { appContext, queryClient } from "../_layout";
 import { getDistanceFromLatLonInM } from "../../functions/functions";
 import { ThemedPressable } from "@/components/Pressable";
@@ -94,7 +91,7 @@ function RacePage() {
   const { userInfo } = useContext(appContext);
   const userEmail = userInfo?.email ? userInfo.email : "";
 
-  const teamsData = transformData(teamsRawData);
+  const teamsData = transformTeamsData(teamsRawData);
   const userCurrentTeamData = teamsData?.find((team) => {
     const users = team.users;
     for (const user of users) {
@@ -225,8 +222,10 @@ function CongratulationsMessage() {
 
 function VictoryScreen() {
   return (
-    <ThemedView>
-      <ThemedText>Bravo, dernier objectif atteint !</ThemedText>
+    <ThemedView style={styles.victoryScreen}>
+      <ThemedText type="title" primary>
+        Bravo, dernier objectif atteint !
+      </ThemedText>
     </ThemedView>
   );
 }
@@ -347,6 +346,16 @@ const styles = StyleSheet.create({
   },
   raceMessageView: {
     flex: 1,
+  },
+  victoryScreen: {
+    flex: 1,
+    margin: 10,
+    backgroundColor: Colors.primary.background,
+    borderRadius: 10,
+    color: Colors.primary.text,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
   },
 });
 

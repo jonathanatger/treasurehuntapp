@@ -1,4 +1,5 @@
 import { UserInfoType } from "@/constants/data";
+import { RaceData } from "@/queries/queries";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { revokeAsync } from "expo-auth-session";
 
@@ -45,4 +46,50 @@ export async function logout(
       console.error("ERROR at logout", error);
     }
   }
+}
+
+export type TransformedTeamsData = {
+  id: number;
+  name: string;
+  users: { name: string; email: string }[];
+  currentLongitude: number;
+  currentLatitude: number;
+  objectiveIndex: number;
+}[];
+
+export function transformTeamsData(data: RaceData) {
+  let returnData = [] as TransformedTeamsData;
+
+  if (!data) return undefined;
+  for (const user of data.result) {
+    let found = false;
+
+    for (const team of returnData) {
+      if (team.id === user.teams.id) {
+        team.users.push({
+          name: user.users?.name ? user.users.name : "",
+          email: user.users?.email ? user.users.email : "",
+        });
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      returnData.push({
+        id: user.teams.id,
+        name: user.teams.name,
+        users: [
+          {
+            name: user.users?.name ? user.users.name : "",
+            email: user.users?.email ? user.users.email : "",
+          },
+        ],
+        currentLatitude: user.teams.currentLatitude,
+        currentLongitude: user.teams.currentLongitude,
+        objectiveIndex: user.teams.objectiveIndex,
+      });
+    }
+  }
+  return returnData;
 }

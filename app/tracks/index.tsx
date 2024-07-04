@@ -1,18 +1,16 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { appContext, queryClient } from "../_layout";
 import { PressableLink } from "@/components/PressableLink";
 import { RefreshControl } from "react-native";
 import { fetchRaces, fetchRacesKey } from "../../queries/queries";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function RacesMainPage() {
   const { height, width } = useWindowDimensions();
   const userInfo = useContext(appContext).userInfo;
-  const setUserInfo = useContext(appContext).setUserInfo;
   const [refreshing, setRefreshing] = useState(false);
 
   const { data, isLoading, error } = useQuery({
@@ -39,15 +37,12 @@ function RacesMainPage() {
             onRefresh={() => refreshFunction()}
           />
         }>
-        <PressableLink
-          text="Go back"
-          route="/"
-          style={styles.backlink}></PressableLink>
+        <PressableLink text="Go back" style={styles.backlink}></PressableLink>
         <ThemedText type="title">Your races</ThemedText>
         {isLoading ? (
           <ThemedText type="title">Loading...</ThemedText>
         ) : data ? (
-          <ThemedView>
+          <ThemedView style={styles.racesContainer}>
             {data.data.map((race) => {
               return (
                 <PressableLink
@@ -91,13 +86,16 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
   },
+  racesContainer: {
+    gap: 10,
+  },
   trackCard: {
     flexDirection: "column",
     justifyContent: "center",
     alignContent: "center",
     height: 150,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 10,
   },
   title: {
     fontSize: 30,

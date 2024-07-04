@@ -1,8 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
-import { Link, router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import {
-  Button,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -29,8 +28,12 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { appContext, queryClient } from "../_layout";
 import { UserInfoType } from "@/constants/data";
-import { Controller, set, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { ThemedPressable } from "@/components/Pressable";
+import {
+  TransformedTeamsData,
+  transformTeamsData,
+} from "@/functions/functions";
 
 function SpecificRacePage() {
   const { height, width } = useWindowDimensions();
@@ -43,14 +46,17 @@ function SpecificRacePage() {
     queryClient.invalidateQueries({
       queryKey: [fetchTeamsKey + raceId],
     });
+
     queryClient
       .refetchQueries({ queryKey: [fetchTeamsKey + raceId] })
       .then(() => {
         setRefreshing(false);
       });
+
     queryClient.invalidateQueries({ queryKey: [fetchRacesKey] });
     queryClient.refetchQueries({ queryKey: [fetchRacesKey] });
   };
+
   const {
     data: raceData,
     isLoading: raceIsLoading,
@@ -66,6 +72,8 @@ function SpecificRacePage() {
   const currentRace = raceData?.data.filter(
     (race) => race.races.id === raceNumberId
   )[0];
+
+  const raceLaunched = currentRace?.races.launched ? true : false;
 
   const {
     data: projectObjectives,
@@ -90,7 +98,11 @@ function SpecificRacePage() {
     },
   });
 
-  const teamsData = transformData(teamsRawData);
+  const userEmail = userInfo?.email ? userInfo.email : "";
+  const teamsData = transformTeamsData(teamsRawData);
+  const userCurrentTeam = teamsData?.filter(
+    (team) => team.users.filter((user) => user.email === userEmail).length > 0
+  );
 
   return (
     <ThemedSafeAreaView style={{ height: height, ...styles.main }}>
@@ -103,36 +115,74 @@ function SpecificRacePage() {
           />
         }>
         <PressableLink text="Go back" style={styles.backlink}></PressableLink>
-        <ThemedText type="title">
+        <ThemedText type="subtitle" style={{ fontSize: 24 }}>
           {currentRace?.races.name || "Préparation des équipes"}
         </ThemedText>
-        {currentRace?.races.launched ? (
-          <PressableLink
-            text="Entrer dans la course"
-            style={styles.backlink}
-            route={`/race/${raceId}`}></PressableLink>
-        ) : (
-          <ThemedText type="subtitle">La course n'a pas commencé !</ThemedText>
-        )}
         <NewTeamForm raceId={raceId} userInfo={userInfo} />
         {teamsIsLoading ? (
-          <ThemedText>En attente des équipes...</ThemedText>
+          <ThemedText>Waiting for teams to load...</ThemedText>
         ) : teamsData?.length === 0 ? (
           <ThemedText
             style={{
               fontWeight: 200,
               fontStyle: "italic",
             }}>
-            (Aucune équipe n'a encore été créée)
+            (No team has been created yet)
           </ThemedText>
         ) : (
-          <TeamCards teams={teamsData} userInfo={userInfo} raceId={raceId} />
+          <TeamCards
+            raceLaunched={raceLaunched}
+            teams={teamsData}
+            userInfo={userInfo}
+            raceId={raceId}
+          />
         )}
       </ScrollView>
+      <ThemedView style={styles.raceEnterContainer}>
+        {currentRace?.races.launched ? (
+          <EnterRaceButton raceId={raceId} userCurrentTeam={userCurrentTeam} />
+        ) : (
+          <ThemedText type="subtitle">Race has not started yet!</ThemedText>
+        )}
+      </ThemedView>
     </ThemedSafeAreaView>
   );
 }
 
+function EnterRaceButton({
+  raceId,
+  userCurrentTeam,
+}: {
+  raceId: string | string[] | undefined;
+  userCurrentTeam: any;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  if (userCurrentTeam && userCurrentTeam.length > 0) {
+    return (
+      <ThemedPressable
+        text="Enter the race"
+        themeColor="secondary"
+        style={styles.enterRaceButton}
+        onPress={() => {
+          if (!raceId || typeof raceId !== "string") return;
+          const route = "/race/" + raceId;
+          router.push(route);
+        }}
+      />
+    );
+  }
+
+  return (
+    <ThemedPressable
+      text="Enter a team to join the race"
+      style={styles.joinTeamBeforeRaceButton}
+      onPress={() => {
+        ///
+      }}
+    />
+  );
+}
 const NewTeamForm = ({
   raceId,
   userInfo,
@@ -164,9 +214,6 @@ const NewTeamForm = ({
             onChangeText={onChange}
             value={value}
             style={styles.newTeamInput}
-            onSubmitEditing={() => {
-              handleSubmit(onSubmit);
-            }}
           />
         )}
         name="Name"
@@ -184,10 +231,12 @@ const TeamCards = ({
   teams,
   userInfo,
   raceId,
+  raceLaunched,
 }: {
   teams: TransformedTeamsData | undefined;
   userInfo: UserInfoType | null;
   raceId: string | string[] | undefined;
+  raceLaunched: boolean;
 }) => {
   const [loading, setLoading] = useState(false);
   const userName = userInfo?.name ? userInfo.name : "";
@@ -201,33 +250,49 @@ const TeamCards = ({
         .map((team, index) => {
           return (
             <ThemedView style={styles.teamsCard} key={team.id}>
-              <ThemedText type="title">{team.name}</ThemedText>
-              <ThemedText type="subtitle">
-                {team.users.map((user) => user.name).join(", ")}
+              <ThemedText type="title" style={{ fontSize: 24 }}>
+                {team.name}
+              </ThemedText>
+              <ThemedText>
+                {team.users.map((user) => user.name).join("\n")}
               </ThemedText>
               <ThemedView style={styles.teamButtons}>
                 {team.users.filter((user) => user.email === userEmail).length >
                 0 ? (
                   <Pressable
+                    disabled={raceLaunched}
                     onPress={() => quitTeamLogic(team.id, userId, raceId)}
-                    style={{ ...styles.teamSingleButton, flex: 1 }}>
-                    <ThemedText>Quitter</ThemedText>
+                    style={{
+                      ...styles.teamSingleButton,
+                      flex: 1,
+                      opacity: raceLaunched ? 0.5 : 1,
+                    }}>
+                    <ThemedText>Quit</ThemedText>
                   </Pressable>
                 ) : (
                   <Pressable
+                    disabled={raceLaunched}
                     onPress={() => {
                       enterTeamLogic(team.id, userId, userEmail, teams, raceId);
                     }}
-                    style={{ ...styles.teamSingleButton, flex: 1 }}>
-                    <ThemedText secondary>Rejoindre</ThemedText>
+                    style={{
+                      ...styles.teamSingleButton,
+                      flex: 1,
+                      opacity: raceLaunched ? 0.5 : 1,
+                    }}>
+                    <ThemedText secondary>Join</ThemedText>
                   </Pressable>
                 )}
                 {team.users.length > 0 && team.users[0].email === "" && (
                   <Pressable
+                    disabled={raceLaunched}
                     onPress={() => {
                       deleteTeamLogic(team.id, raceId);
                     }}
-                    style={styles.teamSingleButton}>
+                    style={{
+                      opacity: raceLaunched ? 0.5 : 1,
+                      ...styles.teamSingleButton,
+                    }}>
                     <ThemedText secondary>X</ThemedText>
                   </Pressable>
                 )}
@@ -254,6 +319,15 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     gap: 10,
   },
+  enterRaceButton: {
+    padding: 10,
+    borderRadius: 10,
+  },
+  joinTeamBeforeRaceButton: {
+    backgroundColor: Colors.primary.muted,
+    padding: 10,
+    borderRadius: 10,
+  },
   main: {
     flexDirection: "column",
   },
@@ -273,6 +347,13 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     marginRight: 10,
   },
+  raceEnterContainer: {
+    minHeight: 40,
+    shadowColor: "black",
+    padding: 10,
+    borderTopColor: Colors.light.icon,
+    borderTopWidth: 1,
+  },
   teamSingleButton: {
     backgroundColor: Colors.primary.background,
     borderWidth: 1,
@@ -291,6 +372,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary.background,
     borderRadius: 18,
     padding: 10,
+    gap: 5,
   },
 
   teamsView: {
@@ -303,52 +385,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export function transformData(data: RaceData) {
-  let returnData = [] as TransformedTeamsData;
-
-  if (!data) return undefined;
-  for (const user of data.result) {
-    let found = false;
-
-    for (const team of returnData) {
-      if (team.id === user.teams.id) {
-        team.users.push({
-          name: user.users?.name ? user.users.name : "",
-          email: user.users?.email ? user.users.email : "",
-        });
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      returnData.push({
-        id: user.teams.id,
-        name: user.teams.name,
-        users: [
-          {
-            name: user.users?.name ? user.users.name : "",
-            email: user.users?.email ? user.users.email : "",
-          },
-        ],
-        currentLatitude: user.teams.currentLatitude,
-        currentLongitude: user.teams.currentLongitude,
-        objectiveIndex: user.teams.objectiveIndex,
-      });
-    }
-  }
-  return returnData;
-}
-
-type TransformedTeamsData = {
-  id: number;
-  name: string;
-  users: { name: string; email: string }[];
-  currentLongitude: number;
-  currentLatitude: number;
-  objectiveIndex: number;
-}[];
-
 async function createNewTeamLogic(
   name: string,
   raceId: string | string[] | undefined,
@@ -356,6 +392,7 @@ async function createNewTeamLogic(
 ) {
   if (!raceId || Array.isArray(raceId) || userInfo?.id === undefined)
     throw new Error("No id provided");
+
   const res = await createNewTeam(name, Number(raceId), userInfo?.id);
 
   if (!res || res.result === "error") return false;

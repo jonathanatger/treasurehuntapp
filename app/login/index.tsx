@@ -82,6 +82,7 @@ function Login() {
                   "user",
                   JSON.stringify({ ...userData, provider: "google" })
                 );
+                setUserInfo(userData);
               }
             });
         }
@@ -139,7 +140,9 @@ function Login() {
           />
           <EmailAuth setIsLoggingIn={setIsLoggingIn} />
         </ThemedView>
-        {isLoggingIn && <ThemedText> We are connecting ...</ThemedText>}
+        <ThemedText style={{ minHeight: 24 }}>
+          {isLoggingIn ? "We are connecting ..." : ""}
+        </ThemedText>
       </ThemedView>
     </ThemedSafeAreaView>
   );
@@ -174,13 +177,11 @@ function AppleAuth({
       };
     } catch (e) {
       setIsLoggingIn(false);
-      console.error(e);
     }
 
     if (appleUser) {
       checkIfUserIsInDB(appleUser).then(async (userData) => {
         if (userData) {
-          console.log("userData", userData);
           await AsyncStorage.setItem(
             "user",
             JSON.stringify({ ...userData, provider: "apple" })
@@ -236,28 +237,27 @@ function EmailAuth({
 
   const onSubmit = async (data: { Email: string; Password: string }) => {
     const reqBody = { email: data.Email, password: data.Password };
-    console.log("reqBody", reqBody);
 
-    // const res = await fetch(domain + "/api/mobile/guestSubscription", {
-    //   method: "POST",
-    //   body: JSON.stringify(reqBody),
-    // });
+    const res = await fetch(domain + "/api/mobile/emailLogin", {
+      method: "POST",
+      body: JSON.stringify(reqBody),
+    });
 
-    // const responseData = (await res.json()) as {
-    //   created: boolean;
-    //   result: UserInfoType;
-    //   error: string;
-    // };
+    const responseData = (await res.json()) as {
+      message: string;
+      user: UserInfoType;
+      status: boolean;
+    };
 
-    // if (responseData.created) {
-    //   const newUser = { ...responseData.result };
-    //   setUserInfo(newUser);
-    //   await AsyncStorage.setItem("user", JSON.stringify(newUser));
-    //   router.push("/");
-    // } else {
-    //   console.error("Error creating user", responseData.error);
-    // }
-    // return responseData;
+    if (responseData.status) {
+      const newUser = { ...responseData.user };
+      setUserInfo(newUser);
+      await AsyncStorage.setItem("user", JSON.stringify(newUser));
+      router.push("/");
+    } else {
+      setError(responseData.message);
+    }
+    return responseData;
   };
 
   return (
@@ -343,7 +343,7 @@ async function checkIfUserIsInDB(userInfo: UserInfoType | null) {
 
 const styles = StyleSheet.create({
   appleSignInButton: {
-    width: 200,
+    width: "auto",
     height: 50,
   },
   backlink: {
@@ -375,6 +375,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary.background,
     padding: 10,
     borderRadius: 10,
+    minWidth: 300,
   },
   googleButton: {
     flexDirection: "row",

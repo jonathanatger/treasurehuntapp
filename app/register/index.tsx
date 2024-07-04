@@ -19,23 +19,17 @@ function RegisterEmail() {
 
   return (
     <ThemedSafeAreaView>
-      <ScrollView contentContainerStyle={{ padding: 10, height: height }}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: 10,
+          height: height,
+          flexDirection: "column",
+          justifyContent: "center",
+        }}>
         <PressableLink text="Go back" style={styles.backlink}></PressableLink>
         <ThemedView style={{ height: height - 50, ...styles.main }}>
-          <ThemedText type="title">Choose a name to start </ThemedText>
+          <ThemedText type="subtitle">Welcome</ThemedText>
           <ChooseNameForm />
-          <ThemedText
-            type="default"
-            style={{
-              textAlign: "center",
-              fontSize: 14,
-              lineHeight: 20,
-              fontStyle: "italic",
-              padding: 10,
-            }}>
-            As a guest, you will not have access to an account to create new
-            races, and will loose access to all your races when you log out.
-          </ThemedText>
         </ThemedView>
       </ScrollView>
     </ThemedSafeAreaView>
@@ -50,37 +44,58 @@ function ChooseNameForm() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues: { Name: "" } });
+  } = useForm({
+    defaultValues: { Name: "", Email: "", Password: "", RepeatPassword: "" },
+  });
 
-  const onSubmit = async (data: { Name: string }) => {
-    console.log(data);
+  function errorMessage() {
+    const nameError = errors.Name?.message;
+    const emailError = errors.Email?.message;
+    const passwordError = errors.Password?.message;
+    const repeatPasswordError = errors.RepeatPassword?.message;
+    const errorArray = [
+      nameError,
+      emailError,
+      passwordError,
+      repeatPasswordError,
+    ];
 
-    const reqBody = { name: data.Name };
+    return errorArray.filter((e) => e).join("\n");
+  }
 
-    const res = await fetch(domain + "/api/mobile/guestSubscription", {
-      method: "POST",
-      body: JSON.stringify(reqBody),
-    });
+  const onSubmit = async (data: {
+    Name: string;
+    Email: string;
+    Password: string;
+    RepeatPassword: string;
+  }) => {
+    if (data.Password !== data.RepeatPassword || data.Password === "") {
+      setError("Passwords do not match");
+      return;
+    }
+    console.log("data", data);
 
-    const responseData = (await res.json()) as {
-      created: boolean;
-      result: UserInfoType;
-      error: string;
-    };
+    const responseData = await emailRegisterCall(
+      data.Name,
+      data.Email,
+      data.Password
+    );
+    console.log("responseData", responseData);
 
-    if (responseData.created) {
-      const newUser = { ...responseData.result };
+    if (responseData?.status) {
+      const newUser = { ...responseData.user };
       setUserInfo(newUser);
       await AsyncStorage.setItem("user", JSON.stringify(newUser));
       router.push("/");
     } else {
-      setError(responseData.error);
+      setError(responseData.message);
     }
     return responseData;
   };
 
   return (
     <ThemedView style={styles.form}>
+      <ThemedText style={styles.formText}>Name</ThemedText>
       <Controller
         control={control}
         rules={{
@@ -88,7 +103,7 @@ function ChooseNameForm() {
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-            placeholder="New name"
+            placeholder="Your name here"
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -97,8 +112,68 @@ function ChooseNameForm() {
         )}
         name="Name"
       />
+      <ThemedText style={styles.formText}>Email</ThemedText>
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+          pattern: {
+            value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+            message: "Invalid email address",
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            placeholder="someone@example.com"
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            style={styles.input}
+          />
+        )}
+        name="Email"
+      />
+      <ThemedText style={styles.formText}>Password</ThemedText>
+      <Controller
+        control={control}
+        rules={{
+          required: "Password is required",
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            placeholder="Password"
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            style={styles.input}
+            secureTextEntry={true}
+          />
+        )}
+        name="Password"
+      />
+      <Controller
+        control={control}
+        rules={{
+          required: "Repeat password to confirm",
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            placeholder="Repeat Password"
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            style={styles.input}
+            textContentType="password"
+            secureTextEntry={true}
+          />
+        )}
+        name="RepeatPassword"
+      />
       <ThemedPressable
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => {
+          setError(errorMessage());
+          handleSubmit(onSubmit)();
+        }}
         style={styles.editButton}
         text="Let's Go"></ThemedPressable>
       <ThemedText>{error}</ThemedText>
@@ -130,6 +205,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     color: Colors.primary.text,
   },
+  formText: {
+    textAlign: "left",
+    paddingTop: 10,
+    width: "100%",
+    color: Colors.primary.text,
+  },
   input: {
     height: 50,
     borderStyle: "solid",
@@ -153,4 +234,25 @@ const styles = StyleSheet.create({
   },
 });
 
+async function emailRegisterCall(
+  name: string,
+  email: string,
+  password: string
+) {
+  const res = await fetch(domain + "/api/mobile/emailRegister", {
+    method: "POST",
+    body: JSON.stringify({
+      name: name,
+      email: email,
+      password: password,
+    }),
+  });
+
+  const data = (await res.json()) as {
+    message: string;
+    status: boolean;
+    user: UserInfoType;
+  };
+  return data;
+}
 export default RegisterEmail;

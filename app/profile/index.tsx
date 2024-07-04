@@ -16,7 +16,6 @@ function Profile() {
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
   const [isEditing, setIsEditing] = useState(false);
-  console.log(userInfo?.name);
 
   return (
     <ThemedSafeAreaView>
@@ -77,7 +76,6 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
 
   const onSubmit = async (data: { Name: string }) => {
     if (!userInfo?.id) return;
-    console.log(data);
 
     const reqBody = { name: data.Name, userId: userInfo.id };
 
@@ -99,7 +97,6 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
     } else {
       setError(responseData.result);
     }
-    console.log(responseData);
     return responseData;
   };
 

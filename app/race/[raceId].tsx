@@ -12,7 +12,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { PressableLink } from "@/components/PressableLink";
-import { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -32,7 +32,24 @@ function RacePage() {
   const { raceId } = useLocalSearchParams();
   const numberId = raceId ? Number(raceId) : 0;
   const [finished, setFinished] = useState(false);
-  const [retryMessage, setRetryMessage] = useState("");
+  const [retryMessage, setRetryMessage] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestBackgroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Activez la géolocalisation pour pouvoir utiliser l'appli");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
 
   async function refreshFunction() {
     setFinished(false);
@@ -106,82 +123,168 @@ function RacePage() {
         }>
         <PressableLink text="Go back" style={styles.backlink}></PressableLink>
         {projectObjectivesIsLoading ? (
-          <ThemedText>En attente des objectifs...</ThemedText>
+          <LoadingScreen />
         ) : userHasFinishedRace ? (
           <VictoryScreen />
         ) : (
-          <ObjectiveInfo
-            title={currentObjective?.title}
-            message={currentObjective?.message}
+          <InRaceScreen
+            currentObjective={currentObjective}
+            userCurrentTeamData={userCurrentTeamData}
+            numberId={numberId}
+            finished={finished}
+            setRetryMessage={setRetryMessage}
+            retryMessage={retryMessage}
+            setFinished={setFinished}
           />
         )}
-        <ThemedView>
-          {retryMessage && <ThemedText>{retryMessage}</ThemedText>}
-        </ThemedView>
-        {finished && (
-          <ThemedView>
-            <ThemedText> Bravo, objectif atteint !</ThemedText>
-            <Pressable
-              onPress={() => {
-                advanceToNextObjectiveLogic(
-                  userCurrentTeamData?.id!,
-                  numberId,
-                  currentObjective?.order!,
-                  currentObjective?.title!
-                );
-                setFinished(false);
-              }}
-              style={styles.button}>
-              <ThemedText>Passer au prochain objectif !</ThemedText>
-            </Pressable>
-          </ThemedView>
-        )}
       </ScrollView>
-      {!userHasFinishedRace && (
-        <Pressable
-          onPress={async () => {
-            if (
-              await checkLocation(
-                currentObjective?.latitude!,
-                currentObjective?.longitude!
-              )
-            ) {
-              setFinished(true);
-            } else {
-              setRetryMessage("Ce n'est pas ici ! :)");
-
-              setTimeout(() => {
-                setRetryMessage("");
-              }, 5000);
-            }
-          }}
-          style={styles.button}>
-          <ThemedText>Vous pensez etre au bon endroit ?</ThemedText>
-        </Pressable>
-      )}
     </ThemedSafeAreaView>
   );
 }
 
-function ObjectiveInfo({
-  title,
-  message,
+function LoadingScreen() {
+  return <ThemedText>En attente des objectifs...</ThemedText>;
+}
+
+function InRaceScreen({
+  finished,
+  setRetryMessage,
+  retryMessage,
+  currentObjective,
+  userCurrentTeamData,
+  numberId,
+  setFinished,
 }: {
-  title: string | undefined;
-  message: string | undefined;
+  finished: boolean;
+  setRetryMessage: React.Dispatch<React.SetStateAction<boolean>>;
+  retryMessage: boolean;
+  currentObjective: any;
+  userCurrentTeamData: any;
+  numberId: number;
+  setFinished: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="subtitle">{title}</ThemedText>
-      <ThemedText type="subtitle">{message}</ThemedText>
+    <ThemedView>
+      <ThemedView>
+        {finished ? (
+          <ObjectiveInfo
+            message={currentObjective?.message}
+            retryMessage={retryMessage}
+          />
+        ) : (
+          <CongratulionsMessage />
+        )}
+      </ThemedView>
+      <ThemedView>
+        {finished ? (
+          <AdvanceToNextObjectiveButton
+            userCurrentTeamData={userCurrentTeamData}
+            numberId={numberId}
+            currentObjective={currentObjective}
+            setFinished={setFinished}
+          />
+        ) : (
+          <CheckLocationButton
+            setFinished={setFinished}
+            currentObjective={currentObjective}
+            setRetryMessage={setRetryMessage}
+          />
+        )}
+      </ThemedView>
     </ThemedView>
   );
 }
+
+function ObjectiveInfo({
+  message,
+  retryMessage,
+}: {
+  message: string | undefined;
+  retryMessage: boolean;
+}) {
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedText type="subtitle">{message}</ThemedText>
+      {retryMessage && (
+        <ThemedText> Vous n'êtes pas encore au bon endroit...</ThemedText>
+      )}
+    </ThemedView>
+  );
+}
+
+function CongratulionsMessage() {
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedText>Bravo, dernier objectif atteint !</ThemedText>
+    </ThemedView>
+  );
+}
+
 function VictoryScreen() {
   return (
     <ThemedView>
       <ThemedText>Bravo, dernier objectif atteint !</ThemedText>
     </ThemedView>
+  );
+}
+
+function AdvanceToNextObjectiveButton({
+  userCurrentTeamData,
+  numberId,
+  currentObjective,
+  setFinished,
+}: {
+  userCurrentTeamData: any;
+  numberId: number;
+  currentObjective: any;
+  setFinished: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  return (
+    <Pressable
+      onPress={() => {
+        advanceToNextObjectiveLogic(
+          userCurrentTeamData?.id!,
+          numberId,
+          currentObjective?.order!,
+          currentObjective?.title!
+        );
+        setFinished(false);
+      }}
+      style={styles.button}>
+      <ThemedText>Passer au prochain objectif !</ThemedText>
+    </Pressable>
+  );
+}
+function CheckLocationButton({
+  currentObjective,
+  setRetryMessage,
+  setFinished,
+}: {
+  currentObjective: any;
+  setRetryMessage: React.Dispatch<React.SetStateAction<boolean>>;
+  setFinished: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  return (
+    <Pressable
+      onPress={async () => {
+        if (
+          await checkLocation(
+            currentObjective?.latitude!,
+            currentObjective?.longitude!
+          )
+        ) {
+          setFinished(true);
+        } else {
+          setRetryMessage(true);
+
+          setTimeout(() => {
+            setRetryMessage(false);
+          }, 5000);
+        }
+      }}
+      style={styles.button}>
+      <ThemedText>Vous pensez etre au bon endroit ?</ThemedText>
+    </Pressable>
   );
 }
 

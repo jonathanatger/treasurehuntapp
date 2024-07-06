@@ -114,7 +114,10 @@ function SpecificRacePage() {
             onRefresh={() => refreshFunction()}
           />
         }>
-        <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+        <PressableLink
+          text="Go back"
+          route="/tracks"
+          style={styles.backlink}></PressableLink>
         <ThemedText type="subtitle" style={{ fontSize: 24 }}>
           {currentRace?.races.name || "Préparation des équipes"}
         </ThemedText>

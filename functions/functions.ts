@@ -1,6 +1,7 @@
 import { UserInfoType } from "@/constants/data";
 import * as Location from "expo-location";
-import { RaceData } from "@/queries/queries";
+import * as TaskManager from "expo-task-manager";
+import { RaceData, setTeamLocation } from "@/queries/queries";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { revokeAsync } from "expo-auth-session";
 
@@ -95,22 +96,6 @@ export function transformTeamsData(data: RaceData) {
   return returnData;
 }
 
-export const LOCATION_TASK_NAME = "background-location-task";
-
-export const backgroundLocationFetch = async () => {
-  const { status } = await Location.requestBackgroundPermissionsAsync();
-  if (status === "granted") {
-    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-      accuracy: Location.Accuracy.Balanced,
-      timeInterval: 10000,
-      foregroundService: {
-        notificationTitle: "Treasurio",
-        notificationBody: "Getting your location",
-      },
-    });
-  }
-};
-
 export const requestLocationPermissions = async () => {
   const { status: foregroundStatus } =
     await Location.requestForegroundPermissionsAsync();
@@ -123,3 +108,66 @@ export const requestLocationPermissions = async () => {
   }
   return false;
 };
+
+export const LOCATION_TASK_NAME = "background-location-task";
+
+export const backgroundLocationFetch = async () => {
+  const { status } = await Location.requestBackgroundPermissionsAsync();
+  if (status === "granted") {
+    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+      showsBackgroundLocationIndicator: true,
+      accuracy: Location.Accuracy.Balanced,
+      timeInterval: 2000,
+      distanceInterval: 40,
+      foregroundService: {
+        notificationTitle: "Treasurio",
+        notificationBody: "Getting your location",
+      },
+    });
+  }
+  const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+    LOCATION_TASK_NAME
+  );
+};
+
+export let currentTeamId = 0;
+export let currentLocationTimestamp = 0;
+
+TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
+  if (error) {
+    console.error(error);
+    return;
+  }
+  if (data) {
+    const typedData = data as locationDataType;
+
+    if (typedData.locations[0].timestamp > currentLocationTimestamp + 3000) {
+      currentLocationTimestamp = typedData.locations[0].timestamp;
+
+      console.log("Location data: ", typedData.locations);
+
+      setTeamLocation(
+        typedData.locations[0].coords.latitude,
+        typedData.locations[0].coords.longitude,
+        1
+      );
+    }
+  }
+});
+
+type locationDataType = {
+  locations: {
+    coords: {
+      accuracy: number;
+      altitude: number;
+      altitudeAccuracy: number;
+      latitude: number;
+      longitude: number;
+    };
+    timestamp: number;
+  }[];
+};
+
+export async function stopTracking() {
+  await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+}

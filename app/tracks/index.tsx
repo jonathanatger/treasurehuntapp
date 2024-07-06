@@ -37,7 +37,10 @@ function RacesMainPage() {
             onRefresh={() => refreshFunction()}
           />
         }>
-        <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+        <PressableLink
+          text="Go back"
+          route="/"
+          style={styles.backlink}></PressableLink>
         <ThemedText type="title">Your races</ThemedText>
         {isLoading ? (
           <ThemedText type="title">Loading...</ThemedText>

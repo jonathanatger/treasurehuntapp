@@ -183,16 +183,16 @@ export const setTeamLocation = async (
 ) => {
   if (!latitude || !longitude || !teamId) throw new Error("No data provided");
 
-  const res = await fetch(domain + "/api/mobile/setTeamLocation", {
-    method: "POST",
-    body: JSON.stringify({
-      latitude: latitude,
-      longitude: longitude,
-      teamId: teamId,
-    }),
-  });
+  // const res = await fetch(domain + "/api/mobile/setTeamLocation", {
+  //   method: "POST",
+  //   body: JSON.stringify({
+  //     latitude: latitude,
+  //     longitude: longitude,
+  //     teamId: teamId,
+  //   }),
+  // });
 
-  const data = (await res.json()) as { check: boolean };
+  // const data = (await res.json()) as { check: boolean };
 
-  return data;
+  // return data;
 };

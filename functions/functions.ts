@@ -1,4 +1,5 @@
 import { UserInfoType } from "@/constants/data";
+import * as Location from "expo-location";
 import { RaceData } from "@/queries/queries";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { revokeAsync } from "expo-auth-session";
@@ -93,3 +94,32 @@ export function transformTeamsData(data: RaceData) {
   }
   return returnData;
 }
+
+export const LOCATION_TASK_NAME = "background-location-task";
+
+export const backgroundLocationFetch = async () => {
+  const { status } = await Location.requestBackgroundPermissionsAsync();
+  if (status === "granted") {
+    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+      accuracy: Location.Accuracy.Balanced,
+      timeInterval: 10000,
+      foregroundService: {
+        notificationTitle: "Treasurio",
+        notificationBody: "Getting your location",
+      },
+    });
+  }
+};
+
+export const requestLocationPermissions = async () => {
+  const { status: foregroundStatus } =
+    await Location.requestForegroundPermissionsAsync();
+  if (foregroundStatus === "granted") {
+    const { status: backgroundStatus } =
+      await Location.requestBackgroundPermissionsAsync();
+    if (backgroundStatus === "granted") {
+      return true;
+    }
+  }
+  return false;
+};

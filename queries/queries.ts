@@ -175,3 +175,24 @@ export async function advanceObjective(
     body: JSON.stringify({ teamId, raceId, objectiveIndex, objectiveName }),
   });
 }
+
+export const setTeamLocation = async (
+  latitude: number,
+  longitude: number,
+  teamId: number
+) => {
+  if (!latitude || !longitude || !teamId) throw new Error("No data provided");
+
+  const res = await fetch(domain + "/api/mobile/setTeamLocation", {
+    method: "POST",
+    body: JSON.stringify({
+      latitude: latitude,
+      longitude: longitude,
+      teamId: teamId,
+    }),
+  });
+
+  const data = (await res.json()) as { check: boolean };
+
+  return data;
+};

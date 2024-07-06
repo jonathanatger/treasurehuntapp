@@ -15,21 +15,17 @@ function Homescreen() {
   const { height, width } = useWindowDimensions();
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
-  const [location, setLocation] = useState<Location.LocationObject | null>(
-    null
-  );
-  const [errorMsg, setErrorMsg] = useState<string | null>("");
+  const [isLocationEnabled, setIsLocationEnabled] = useState(true);
 
   useEffect(() => {
     (async () => {
+      let { status: firstStatus } =
+        await Location.requestForegroundPermissionsAsync();
       let { status } = await Location.requestBackgroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Activez la géolocalisation pour pouvoir utiliser l'appli");
+        setIsLocationEnabled(false);
         return;
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
     })();
   }, []);
 
@@ -57,10 +53,7 @@ function Homescreen() {
         Treasurio
       </ThemedText>
       <ThemedView style={styles.main}>
-        <ThemedText type="subtitle" style={styles.title}>
-          {errorMsg}
-        </ThemedText>
-        {errorMsg && (
+        {!isLocationEnabled && (
           <Pressable
             onPress={() =>
               Location.requestBackgroundPermissionsAsync

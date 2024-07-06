@@ -2,6 +2,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import * as Location from "expo-location";
+import * as TaskManager from "expo-task-manager";
 import {
   RefreshControl,
   ScrollView,
@@ -18,11 +19,17 @@ import {
   fetchProjectObjectivesKey,
   fetchTeams,
   fetchTeamsKey,
+  setTeamLocation,
 } from "@/queries/queries";
 import { transformTeamsData } from "../../functions/functions";
 import { appContext, queryClient } from "../_layout";
 import { getDistanceFromLatLonInM } from "../../functions/functions";
 import { ThemedPressable } from "@/components/Pressable";
+import {
+  LOCATION_TASK_NAME,
+  backgroundLocationFetch,
+  requestLocationPermissions,
+} from "../../functions/functions";
 
 function RacePage() {
   const [refreshing, setRefreshing] = useState(false);
@@ -35,19 +42,20 @@ function RacePage() {
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
+  const [isLocationEnabled, setIsLocationEnabled] = useState(true);
 
   useEffect(() => {
-    (async () => {
+    // get location
+    async () => {
       let { status } = await Location.requestBackgroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Activez la géolocalisation pour pouvoir utiliser l'appli");
+        setIsLocationEnabled(false);
         return;
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
+    };
   }, []);
+
+  backgroundLocationFetch();
 
   async function refreshFunction() {
     setFinished(false);
@@ -119,7 +127,17 @@ function RacePage() {
             onRefresh={() => refreshFunction()}
           />
         }>
-        <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+        <ThemedView
+          style={{
+            width: "auto",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}>
+          <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+          {!isLocationEnabled && (
+            <PermissionsButton isSetLocationEnabled={setIsLocationEnabled} />
+          )}
+        </ThemedView>
         {projectObjectivesIsLoading ? (
           <LoadingScreen />
         ) : userHasFinishedRace ? (
@@ -229,6 +247,36 @@ function VictoryScreen() {
     </ThemedView>
   );
 }
+
+const PermissionsButton = ({
+  isSetLocationEnabled,
+}: {
+  isSetLocationEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+}) => (
+  <ThemedView>
+    <ThemedPressable
+      onPress={() => {
+        requestLocationPermissions().then((result) => {
+          if (result) isSetLocationEnabled(true);
+        });
+      }}
+      text="Enable background location"
+      style={{ ...styles.backlink, minWidth: 200 }}
+    />
+  </ThemedView>
+);
+
+TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
+  if (error) {
+    // Error occurred - check `error.message` for more details.
+    console.error(error);
+    return;
+  }
+  if (data) {
+    // do something with the locations captured in the background
+    console.log(" Location data: ", data);
+  }
+});
 
 function AdvanceToNextObjectiveButton({
   userCurrentTeamData,

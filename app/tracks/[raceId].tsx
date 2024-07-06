@@ -322,6 +322,9 @@ const styles = StyleSheet.create({
   enterRaceButton: {
     padding: 10,
     borderRadius: 10,
+    textAlign: "center",
+    flexDirection: "row",
+    justifyContent: "center",
   },
   joinTeamBeforeRaceButton: {
     backgroundColor: Colors.primary.muted,

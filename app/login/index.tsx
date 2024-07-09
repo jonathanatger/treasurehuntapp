@@ -36,7 +36,7 @@ function Login() {
   WebBrowser.maybeCompleteAuthSession();
 
   const redirectUri = makeRedirectUri({
-    scheme: "com.anonymous.treasurehuntapp",
+    scheme: "com.jonathanatger.treasurehuntapp",
     path: "/login",
   });
 

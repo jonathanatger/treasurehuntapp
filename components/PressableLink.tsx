@@ -37,8 +37,7 @@ export function PressableLink({
       }}
       onPress={() => {
         if (route) {
-          // router.push(route);
-          router.replace(route);
+          router.push(route);
         } else {
           router.back();
         }

@@ -29,8 +29,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.anonymous.treasurehuntapp</string>
-          <string>com.anonymous.treasurehuntapp</string>
+          <string>com.jonathanatger.treasurehuntapp</string>
+          <string>com.jonathanatger.treasurehuntapp</string>
         </array>
       </dict>
     </array>

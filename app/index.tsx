@@ -36,7 +36,7 @@ function Homescreen() {
   const { data, isLoading, error } = useQuery({
     queryKey: [fetchRacesKey],
     queryFn: () => {
-      return fetchRaces(userInfo?.email);
+      return fetchRaces(userInfo?.id);
     },
   });
 

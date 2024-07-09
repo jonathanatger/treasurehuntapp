@@ -1,4 +1,4 @@
-package com.anonymous.treasurehuntapp
+package com.jonathanatger.treasurehuntapp
 
 import android.os.Build
 import android.os.Bundle

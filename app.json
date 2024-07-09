@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "com.anonymous.treasurehuntapp",
+    "scheme": "com.jonathanatger.treasurehuntapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -13,8 +13,9 @@
       "backgroundColor": "#FEF9F6"
     },
     "ios": {
+      "buildNumber": "1",
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.treasurehuntapp",
+      "bundleIdentifier": "com.jonathanatger.treasurehuntapp",
       "usesAppleSignIn": true,
       "infoPlist": {
         "infoPlist": {
@@ -37,7 +38,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.treasurehuntapp"
+      "package": "com.jonathanatger.treasurehuntapp",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",

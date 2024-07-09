@@ -18,7 +18,10 @@ function Join() {
   const { height, width } = useWindowDimensions();
   return (
     <ThemedSafeAreaView style={{ height: height, ...styles.container }}>
-      <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+      <PressableLink
+        text="Go back"
+        route="/"
+        style={styles.backlink}></PressableLink>
       <JoinForm viewerheight={height} />
     </ThemedSafeAreaView>
   );

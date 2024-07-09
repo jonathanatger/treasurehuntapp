@@ -130,10 +130,19 @@ export const backgroundLocationFetch = async () => {
   );
 };
 
-export let currentTeamId = 0;
+export function setCurrentTeamId(id: number) {
+  currentTeamId = id;
+}
+
+export function setNumberOfTeamMembers(number: number) {
+  numberOfTeamMembers = number;
+}
+
+let numberOfTeamMembers = 1;
+let currentTeamId = 0;
 export let currentLocationTimestamp = 0;
 
-TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
+TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
   if (error) {
     console.error(error);
     return;
@@ -141,16 +150,18 @@ TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
   if (data) {
     const typedData = data as locationDataType;
 
-    if (typedData.locations[0].timestamp > currentLocationTimestamp + 3000) {
+    if (typedData.locations[0].timestamp > currentLocationTimestamp + 30000) {
       currentLocationTimestamp = typedData.locations[0].timestamp;
 
-      console.log("Location data: ", typedData.locations);
-
-      setTeamLocation(
+      const res = await setTeamLocation(
         typedData.locations[0].coords.latitude,
         typedData.locations[0].coords.longitude,
-        1
+        currentTeamId
       );
+
+      if (res.res.raceFinished) {
+        await stopTracking();
+      }
     }
   }
 });

@@ -7,16 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		02E261D63E1C4E498F517359 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47911C31E47D4E93AA29DDBD /* noop-file.swift */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		3EE1B6C6B3A4D55E9E89F041 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84365A5E0BA7AED13057362A /* PrivacyInfo.xcprivacy */; };
+		509CF35FAEAFC5A658BCD360 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D074E4AE05DBA36D0B17463F /* PrivacyInfo.xcprivacy */; };
+		5D507B1C3A564A92B4F251CC /* Oswald-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 30C9016AE4B94A669ED65809 /* Oswald-Medium.ttf */; };
 		96905EF65AED1B983A6B3ABC /* libPods-treasurehuntapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-treasurehuntapp.a */; };
+		9DD2F9A2C7974A8A8E5B2DC7 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F24DEA159754C2DACF692B3 /* noop-file.swift */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		C5F07634272846A1AD3EB81E /* Oswald-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 70B347A98C9243B29FAE0E85 /* Oswald-Medium.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,15 +26,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = treasurehuntapp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = treasurehuntapp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = treasurehuntapp/main.m; sourceTree = "<group>"; };
-		35F65BAAA6E042768485CA69 /* treasurehuntapp-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "treasurehuntapp-Bridging-Header.h"; path = "treasurehuntapp/treasurehuntapp-Bridging-Header.h"; sourceTree = "<group>"; };
-		47911C31E47D4E93AA29DDBD /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "treasurehuntapp/noop-file.swift"; sourceTree = "<group>"; };
+		30C9016AE4B94A669ED65809 /* Oswald-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Oswald-Medium.ttf"; path = "../assets/fonts/Oswald-Medium.ttf"; sourceTree = "<group>"; };
+		3F24DEA159754C2DACF692B3 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "treasurehuntapp/noop-file.swift"; sourceTree = "<group>"; };
 		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-treasurehuntapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-treasurehuntapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2E3173556A471DD304B334 /* Pods-treasurehuntapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-treasurehuntapp.debug.xcconfig"; path = "Target Support Files/Pods-treasurehuntapp/Pods-treasurehuntapp.debug.xcconfig"; sourceTree = "<group>"; };
-		70B347A98C9243B29FAE0E85 /* Oswald-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Oswald-Medium.ttf"; path = "../assets/fonts/Oswald-Medium.ttf"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-treasurehuntapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-treasurehuntapp.release.xcconfig"; path = "Target Support Files/Pods-treasurehuntapp/Pods-treasurehuntapp.release.xcconfig"; sourceTree = "<group>"; };
-		84365A5E0BA7AED13057362A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = treasurehuntapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		9B98DEB517834557A3B093FD /* treasurehuntapp-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "treasurehuntapp-Bridging-Header.h"; path = "treasurehuntapp/treasurehuntapp-Bridging-Header.h"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = treasurehuntapp/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		D074E4AE05DBA36D0B17463F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = treasurehuntapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-treasurehuntapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -61,20 +61,11 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				47911C31E47D4E93AA29DDBD /* noop-file.swift */,
-				35F65BAAA6E042768485CA69 /* treasurehuntapp-Bridging-Header.h */,
-				84365A5E0BA7AED13057362A /* PrivacyInfo.xcprivacy */,
+				3F24DEA159754C2DACF692B3 /* noop-file.swift */,
+				9B98DEB517834557A3B093FD /* treasurehuntapp-Bridging-Header.h */,
+				D074E4AE05DBA36D0B17463F /* PrivacyInfo.xcprivacy */,
 			);
 			name = treasurehuntapp;
-			sourceTree = "<group>";
-		};
-		215CB672168E4B26B49D2037 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				70B347A98C9243B29FAE0E85 /* Oswald-Medium.ttf */,
-			);
-			name = Resources;
-			path = "";
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -102,7 +93,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D65327D7A22EEC0BE12398D9 /* Pods */,
 				D7E4C46ADA2E9064B798F356 /* ExpoModulesProviders */,
-				215CB672168E4B26B49D2037 /* Resources */,
+				93C153FB9C1B4048B42DBFAD /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -123,6 +114,15 @@
 				FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */,
 			);
 			name = treasurehuntapp;
+			sourceTree = "<group>";
+		};
+		93C153FB9C1B4048B42DBFAD /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				30C9016AE4B94A669ED65809 /* Oswald-Medium.ttf */,
+			);
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -159,13 +159,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "treasurehuntapp" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				FEC11EF73418717224A3F080 /* [Expo] Configure project */,
+				C02D5A0974285C088DBDA4F2 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				FC4395046BA56A7358B4B718 /* [CP] Embed Pods Frameworks */,
+				1DBC2FBFECC7AD8AFC06FB1C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -215,8 +215,8 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				C5F07634272846A1AD3EB81E /* Oswald-Medium.ttf in Resources */,
-				3EE1B6C6B3A4D55E9E89F041 /* PrivacyInfo.xcprivacy in Resources */,
+				5D507B1C3A564A92B4F251CC /* Oswald-Medium.ttf in Resources */,
+				509CF35FAEAFC5A658BCD360 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,6 +260,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		1DBC2FBFECC7AD8AFC06FB1C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-treasurehuntapp/Pods-treasurehuntapp-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-treasurehuntapp/Pods-treasurehuntapp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -292,25 +310,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-treasurehuntapp/Pods-treasurehuntapp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		FC4395046BA56A7358B4B718 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-treasurehuntapp/Pods-treasurehuntapp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-treasurehuntapp/Pods-treasurehuntapp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		FEC11EF73418717224A3F080 /* [Expo] Configure project */ = {
+		C02D5A0974285C088DBDA4F2 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -339,7 +339,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				02E261D63E1C4E498F517359 /* noop-file.swift in Sources */,
+				9DD2F9A2C7974A8A8E5B2DC7 /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,7 +369,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.treasurehuntapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jonathanatger.treasurehuntapp;
 				PRODUCT_NAME = treasurehuntapp;
 				SWIFT_OBJC_BRIDGING_HEADER = "treasurehuntapp/treasurehuntapp-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -397,7 +397,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.treasurehuntapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jonathanatger.treasurehuntapp;
 				PRODUCT_NAME = treasurehuntapp;
 				SWIFT_OBJC_BRIDGING_HEADER = "treasurehuntapp/treasurehuntapp-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

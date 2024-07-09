@@ -19,8 +19,14 @@ import {
   fetchTeams,
   fetchTeamsKey,
   setTeamLocation,
+  teamFinishedRace,
 } from "@/queries/queries";
-import { stopTracking, transformTeamsData } from "../../functions/functions";
+import {
+  setCurrentTeamId,
+  setNumberOfTeamMembers,
+  stopTracking,
+  transformTeamsData,
+} from "../../functions/functions";
 import { appContext, queryClient } from "../_layout";
 import { getDistanceFromLatLonInM } from "../../functions/functions";
 import { ThemedPressable } from "@/components/Pressable";
@@ -29,6 +35,7 @@ import {
   backgroundLocationFetch,
   requestLocationPermissions,
 } from "../../functions/functions";
+import { set } from "react-hook-form";
 
 function RacePage() {
   const [refreshing, setRefreshing] = useState(false);
@@ -84,6 +91,7 @@ function RacePage() {
   const teamsData = transformTeamsData(teamsRawData);
   const userCurrentTeamData = teamsData?.find((team) => {
     const users = team.users;
+
     for (const user of users) {
       if (user.email === userEmail) {
         return true;
@@ -91,6 +99,9 @@ function RacePage() {
     }
     return false;
   });
+
+  setNumberOfTeamMembers(userCurrentTeamData?.users.length!);
+  setCurrentTeamId(userCurrentTeamData?.id!);
 
   const currentObjective = projectObjectives?.result.filter(
     (obj) => obj.order === userCurrentTeamData?.objectiveIndex
@@ -119,16 +130,18 @@ function RacePage() {
             text="Go back"
             route={"/tracks/" + raceId}
             style={styles.backlink}></PressableLink>
-          {isLocationEnabled ? (
+          {isLocationEnabled && !userHasFinishedRace ? (
             <StopTrackingButton raceId={raceId} />
           ) : (
-            <PermissionsButton isSetLocationEnabled={setIsLocationEnabled} />
+            !isLocationEnabled && (
+              <PermissionsButton isSetLocationEnabled={setIsLocationEnabled} />
+            )
           )}
         </ThemedView>
         {projectObjectivesIsLoading ? (
           <LoadingScreen />
         ) : userHasFinishedRace ? (
-          <VictoryScreen />
+          <VictoryScreen currentTeamId={userCurrentTeamData?.id!} />
         ) : (
           <InRaceScreen
             currentObjective={currentObjective}
@@ -242,9 +255,10 @@ function CongratulationsMessage() {
   );
 }
 
-function VictoryScreen() {
+function VictoryScreen({ currentTeamId }: { currentTeamId: number }) {
   useEffect(() => {
     stopTracking();
+    teamFinishedRace(currentTeamId);
   }, []);
 
   return (
@@ -270,7 +284,7 @@ const StopTrackingButton = ({
           router.push("/tracks/" + raceId);
         }
       }}
-      text="Stop tracking"
+      text="Stop racing for now"
       style={{ ...styles.backlink, minWidth: 200 }}
     />
   </ThemedView>
@@ -429,16 +443,14 @@ async function advanceToNextObjectiveLogic(
   order: number,
   title: string
 ) {
-  const res = await advanceObjective(teamId, raceId, order, title).then(
-    async () => {
-      queryClient.invalidateQueries({
-        queryKey: [fetchTeamsKey + raceId],
-      });
-      queryClient.refetchQueries({
-        queryKey: [fetchTeamsKey + raceId],
-      });
-    }
-  );
+  await advanceObjective(teamId, raceId, order, title).then(async (data) => {
+    queryClient.invalidateQueries({
+      queryKey: [fetchTeamsKey + raceId],
+    });
+    queryClient.refetchQueries({
+      queryKey: [fetchTeamsKey + raceId],
+    });
+  });
 }
 
 export default RacePage;

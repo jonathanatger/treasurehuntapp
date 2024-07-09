@@ -1,3 +1,4 @@
+import { stopTracking } from "@/functions/functions";
 import { domain } from "../constants/data";
 
 export const fetchRaces = async (id: string | undefined) => {
@@ -174,6 +175,14 @@ export async function advanceObjective(
     method: "POST",
     body: JSON.stringify({ teamId, raceId, objectiveIndex, objectiveName }),
   });
+
+  const data = (await res.json()) as {
+    check: boolean;
+    teamHasAlreadyAdvanced: boolean;
+    error: string;
+  };
+
+  return data;
 }
 
 export const setTeamLocation = async (
@@ -183,16 +192,38 @@ export const setTeamLocation = async (
 ) => {
   if (!latitude || !longitude || !teamId) throw new Error("No data provided");
 
-  // const res = await fetch(domain + "/api/mobile/setTeamLocation", {
-  //   method: "POST",
-  //   body: JSON.stringify({
-  //     latitude: latitude,
-  //     longitude: longitude,
-  //     teamId: teamId,
-  //   }),
-  // });
+  const res = await fetch(domain + "/api/mobile/setTeamLocation", {
+    method: "POST",
+    body: JSON.stringify({
+      latitude: latitude,
+      longitude: longitude,
+      teamId: teamId,
+    }),
+  });
 
-  // const data = (await res.json()) as { check: boolean };
+  const data = (await res.json()) as {
+    res: {
+      status: boolean;
+      message: string;
+      raceFinished: boolean;
+    };
+  };
 
-  // return data;
+  return data;
+};
+export const teamFinishedRace = async (teamId: number) => {
+  if (!teamId) throw new Error("No data provided");
+
+  const res = await fetch(domain + "/api/mobile/teamFinishedRace", {
+    method: "POST",
+    body: JSON.stringify({
+      teamId: teamId,
+    }),
+  });
+
+  const data = (await res.json()) as {
+    result: boolean;
+  };
+
+  return data;
 };

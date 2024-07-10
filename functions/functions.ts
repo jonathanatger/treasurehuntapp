@@ -122,6 +122,7 @@ export const backgroundLocationFetch = async () => {
       foregroundService: {
         notificationTitle: "Treasurio",
         notificationBody: "Getting your location",
+        killServiceOnDestroy: true,
       },
     });
   }

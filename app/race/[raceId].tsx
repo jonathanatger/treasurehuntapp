@@ -152,6 +152,7 @@ function RacePage() {
             retryMessage={retryMessage}
             setFinished={setFinished}
             setIsLocationEnabled={setIsLocationEnabled}
+            refreshFunction={() => refreshFunction()}
           />
         )}
       </ScrollView>
@@ -172,6 +173,7 @@ function InRaceScreen({
   numberId,
   setFinished,
   setIsLocationEnabled,
+  refreshFunction,
 }: {
   finished: boolean;
   setRetryMessage: React.Dispatch<React.SetStateAction<boolean>>;
@@ -181,6 +183,7 @@ function InRaceScreen({
   numberId: number;
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
   setIsLocationEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  refreshFunction: any;
 }) {
   const { height } = useWindowDimensions();
 
@@ -223,6 +226,7 @@ function InRaceScreen({
             setFinished={setFinished}
             currentObjective={currentObjective}
             setRetryMessage={setRetryMessage}
+            refreshFunction={refreshFunction}
           />
         )}
       </ThemedView>
@@ -241,7 +245,7 @@ function ObjectiveInfo({
     <ThemedView style={styles.objectiveInfoView}>
       <ThemedText type="subtitle">{message}</ThemedText>
       {retryMessage && (
-        <ThemedText> Vous n'êtes pas encore au bon endroit...</ThemedText>
+        <ThemedText>You are not at the right place yet...</ThemedText>
       )}
     </ThemedView>
   );
@@ -339,10 +343,12 @@ function CheckLocationButton({
   currentObjective,
   setRetryMessage,
   setFinished,
+  refreshFunction,
 }: {
   currentObjective: any;
   setRetryMessage: React.Dispatch<React.SetStateAction<boolean>>;
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
+  refreshFunction: any;
 }) {
   return (
     <ThemedPressable
@@ -355,6 +361,7 @@ function CheckLocationButton({
         ) {
           setFinished(true);
         } else {
+          refreshFunction();
           setRetryMessage(true);
 
           setTimeout(() => {

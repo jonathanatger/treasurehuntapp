@@ -166,6 +166,7 @@ function EnterRaceButton({
       <ThemedPressable
         text="Enter the race"
         themeColor="secondary"
+        textType="subtitle"
         style={styles.enterRaceButton}
         onPress={() => {
           if (!raceId || typeof raceId !== "string") return;
@@ -328,6 +329,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
+    minHeight: 60,
   },
   joinTeamBeforeRaceButton: {
     backgroundColor: Colors.primary.muted,

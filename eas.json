@@ -19,6 +19,16 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "../treasurehunt-419116-bb01bc160b0f.json",
+        "track": "internal"
+      },
+      "ios": {
+        "appleId": "jonathan.atger@gmail.com",
+        "ascAppId": "6526486124",
+        "appleTeamId": "7DJNU69M7Q"
+      }
+    }
   }
 }

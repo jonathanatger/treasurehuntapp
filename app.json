@@ -2,7 +2,7 @@
   "expo": {
     "name": "treasurehuntapp",
     "slug": "treasurehuntapp",
-    "version": "1.0.0",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "com.jonathanatger.treasurehuntapp",
@@ -13,7 +13,7 @@
       "backgroundColor": "#FEF9F6"
     },
     "ios": {
-      "buildNumber": "1",
+      "buildNumber": "2",
       "supportsTablet": true,
       "bundleIdentifier": "com.jonathanatger.treasurehuntapp",
       "usesAppleSignIn": true,
@@ -39,7 +39,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.jonathanatger.treasurehuntapp",
-      "versionCode": 1
+      "versionCode": 7
     },
     "web": {
       "bundler": "metro",

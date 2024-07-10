@@ -17,7 +17,7 @@ export function ThemedText({
   darkColor,
   primary,
   secondary,
-  type = "default",
+  type = "defaultSemiBold",
   ...rest
 }: ThemedTextProps) {
   const color =
@@ -33,10 +33,12 @@ export function ThemedText({
   const minHeight =
     type === "title" ? 60 : type === "subtitle" ? 25 : undefined;
 
+  const letterSpacing = 0.8;
+
   return (
     <Text
       style={[
-        { color, fontFamily, minHeight },
+        { color, fontFamily, minHeight, letterSpacing },
         type === "default" ? styles.default : undefined,
         type === "title" ? styles.title : undefined,
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,

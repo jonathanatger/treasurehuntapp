@@ -1,11 +1,11 @@
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { makeRedirectUri } from "expo-auth-session";
 import { useContext, useEffect, useState } from "react";
-import { TextInput, View, useWindowDimensions } from "react-native";
+import { Platform, TextInput, View, useWindowDimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appContext } from "../_layout";
 import { UserInfoType, domain } from "@/constants/data";
@@ -16,6 +16,13 @@ import { ThemedPressable } from "@/components/Pressable";
 import { ThemedText } from "@/components/ThemedText";
 import { Controller, set, useForm } from "react-hook-form";
 
+export const ANDROID_CLIENT_ID =
+  "499556521140-mofu5nq6upk5q8jk4a3bsvh7ho8v47t2.apps.googleusercontent.com";
+export const IOS_CLIENT_ID =
+  "499556521140-u23ghdeve49lepfqhjthtast2gl2epha.apps.googleusercontent.com";
+export const WEB_CLIENT_ID =
+  "499556521140-dgd0u528ipkgn8m5gdnlukptgfmv0mn7.apps.googleusercontent.com";
+
 function Login() {
   const userInfo = useContext(appContext).userInfo;
   const [appleAuthAvailable, setAppleAuthAvailable] = useState(false);
@@ -25,14 +32,16 @@ function Login() {
 
   // Apple Auth -----------------------
   useEffect(() => {
-    const checkAvailable = async () => {
-      const isAvailable = await AppleAuthentication.isAvailableAsync();
-      setAppleAuthAvailable(isAvailable);
-    };
-    checkAvailable();
+    if (Platform.OS === "ios") {
+      const checkAvailable = async () => {
+        const isAvailable = await AppleAuthentication.isAvailableAsync();
+        setAppleAuthAvailable(isAvailable);
+      };
+      checkAvailable();
+    }
   }, []);
 
-  // Google Auth -----------------------
+  //Google Auth -----------------------
   WebBrowser.maybeCompleteAuthSession();
 
   const redirectUri = makeRedirectUri({
@@ -41,9 +50,9 @@ function Login() {
   });
 
   const googleAuthRequestConfig = {
-    androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
-    iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
-    webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+    androidClientId: ANDROID_CLIENT_ID,
+    iosClientId: IOS_CLIENT_ID,
+    webClientId: WEB_CLIENT_ID,
     redirectUri,
   };
 
@@ -118,7 +127,7 @@ function Login() {
   };
 
   return (
-    <ThemedSafeAreaView style={{ height: height, width: width }}>
+    <ThemedSafeAreaView style={{ height: height, width: width, padding: 10 }}>
       <PressableLink text="Go back" style={styles.backlink}></PressableLink>
       <ThemedView style={{ height: height - 50, ...styles.container }}>
         <ThemedView style={styles.form}>
@@ -141,7 +150,7 @@ function Login() {
           <EmailAuth setIsLoggingIn={setIsLoggingIn} />
         </ThemedView>
         <ThemedText style={{ minHeight: 24 }}>
-          {isLoggingIn ? "We are connecting ..." : ""}
+          {isLoggingIn ? "We are connecting..." : ""}
         </ThemedText>
       </ThemedView>
     </ThemedSafeAreaView>
@@ -155,6 +164,9 @@ function AppleAuth({
 }) {
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
+
+  if (Platform.OS !== "ios")
+    return <ThemedText>No Apple Auth on Android</ThemedText>;
 
   const login = async () => {
     let appleUser: UserInfoType | null = null;

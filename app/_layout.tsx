@@ -11,6 +11,7 @@ import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppContextType, UserInfoType } from "@/constants/data";
+import { stopTracking } from "@/functions/functions";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,6 +37,12 @@ function Layout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  useEffect(() => {
+    return () => {
+      stopTracking();
+    };
+  }, []);
 
   if (!loaded) {
     return null;

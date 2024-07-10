@@ -10,12 +10,15 @@ import { PressableLink } from "@/components/PressableLink";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRaces, fetchRacesKey } from "@/queries/queries";
 import * as Location from "expo-location";
+import { stopTracking } from "@/functions/functions";
 
 function Homescreen() {
   const { height, width } = useWindowDimensions();
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
   const [isLocationEnabled, setIsLocationEnabled] = useState(true);
+
+  if (!userInfo) stopTracking();
 
   useEffect(() => {
     (async () => {
@@ -64,15 +67,18 @@ function Homescreen() {
             <PressableLink
               text="Go to Races"
               route="tracks"
+              textType="subtitle"
               style={styles.links}></PressableLink>
             <PressableLink
               route="join"
               text="Join a Race"
+              textType="subtitle"
               style={styles.links}
             />
             <PressableLink
               text="Profile"
               route="profile"
+              textType="subtitle"
               style={styles.links}></PressableLink>
           </>
         ) : (
@@ -80,10 +86,12 @@ function Homescreen() {
             <PressableLink
               text="Login"
               route="login"
+              textType="subtitle"
               style={styles.links}></PressableLink>
             <PressableLink
               text="Continue as guest"
               route="noAuthLogin"
+              textType="subtitle"
               style={styles.links}></PressableLink>
           </>
         )}

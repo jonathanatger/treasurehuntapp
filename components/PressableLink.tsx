@@ -31,6 +31,11 @@ export function PressableLink({
               : color === "primary"
               ? Colors.primary.background
               : Colors.secondary.background,
+            minHeight: 48,
+            flexDirection: "row",
+            alignItems: "center",
+            paddingHorizontal: 5,
+            minWidth: 80,
           },
           style,
         ];
@@ -43,7 +48,9 @@ export function PressableLink({
         }
       }}
       {...rest}>
-      <ThemedText secondary={true} type={textType}>
+      <ThemedText
+        secondary={true}
+        type={textType ? textType : "defaultSemiBold"}>
         {text}
       </ThemedText>
     </Pressable>

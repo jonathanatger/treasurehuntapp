@@ -63,17 +63,21 @@ function SpecificRacePage() {
     error: raceError,
   } = useQuery({
     queryKey: ["userRaces"],
-    queryFn: () => {
-      return fetchRaces(userInfo?.id);
+    queryFn: async () => {
+      const data = await fetchRaces(userInfo?.id);
+      return data;
     },
   });
 
   const raceNumberId = raceId ? Number(raceId) : 0;
-  const currentRace = raceData?.data.filter(
-    (race) => race.races.id === raceNumberId
-  )[0];
+  let currentRace = null;
+  let raceLaunched = false;
 
-  const raceLaunched = currentRace?.races.launched ? true : false;
+  if (raceData) {
+    currentRace = raceData?.filter((race) => race.races.id === raceNumberId)[0];
+
+    raceLaunched = currentRace?.races.launched ? true : false;
+  }
 
   const {
     data: projectObjectives,

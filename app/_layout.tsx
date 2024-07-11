@@ -26,7 +26,7 @@ export const AppContextProvider = appContext.Provider;
 
 function Layout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
+  const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     OswaldMedium: require("../assets/fonts/Oswald-Medium.ttf"),
   });
@@ -36,17 +36,12 @@ function Layout() {
     if (loaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+    if (error) {
+      console.error(error);
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
 
-  useEffect(() => {
-    return () => {
-      stopTracking();
-    };
-  }, []);
-
-  if (!loaded) {
-    return null;
-  }
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <SafeAreaProvider>

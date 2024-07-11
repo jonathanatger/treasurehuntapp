@@ -73,14 +73,12 @@ function ChooseNameForm() {
       setError("Passwords do not match");
       return;
     }
-    console.log("data", data);
 
     const responseData = await emailRegisterCall(
       data.Name,
       data.Email,
       data.Password
     );
-    console.log("responseData", responseData);
 
     if (responseData?.status) {
       const newUser = { ...responseData.user };

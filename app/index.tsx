@@ -18,7 +18,11 @@ function Homescreen() {
   const setUserInfo = useContext(appContext).setUserInfo;
   const [isLocationEnabled, setIsLocationEnabled] = useState(true);
 
-  if (!userInfo) stopTracking();
+  if (!userInfo) {
+    try {
+      stopTracking();
+    } catch {}
+  }
 
   useEffect(() => {
     (async () => {

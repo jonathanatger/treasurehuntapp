@@ -135,7 +135,7 @@ function Login() {
 
   return (
     <ThemedSafeAreaView style={{ height: height, width: width, padding: 10 }}>
-      <PressableLink text="Go back" style={styles.backlink}></PressableLink>
+      <PressableLink text="Go back" route="/" style={styles.backlink} />
       <ThemedView style={{ height: height - 50, ...styles.container }}>
         <ThemedView style={styles.form}>
           <ThemedPressable
@@ -205,7 +205,6 @@ function AppleAuth({
 
     if (appleUser) {
       const user = await checkIfUserIsInDB(appleUser);
-      console.log("user", user);
 
       if (user) {
         await AsyncStorage.setItem(

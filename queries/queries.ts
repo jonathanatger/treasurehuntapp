@@ -10,18 +10,16 @@ export const fetchRaces = async (id: string | undefined) => {
   });
 
   const data = (await res.json()) as {
-    data: {
-      races: {
-        id: number;
-        code: string;
-        createdAt: Date;
-        projectId: number;
-        name: string;
-        launched: boolean;
-      };
-      raceOnUserJoin: { userEmail: string; raceId: number };
-    }[];
-  };
+    races: {
+      id: number;
+      code: string;
+      createdAt: Date;
+      projectId: number;
+      name: string;
+      launched: boolean;
+    };
+    raceOnUserJoin: { userEmail: string; raceId: number };
+  }[];
   return data;
 };
 export const fetchRacesKey = "userRaces";

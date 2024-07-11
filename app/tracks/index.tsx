@@ -7,6 +7,7 @@ import { appContext, queryClient } from "../_layout";
 import { PressableLink } from "@/components/PressableLink";
 import { RefreshControl } from "react-native";
 import { fetchRaces, fetchRacesKey } from "../../queries/queries";
+import { Colors } from "@/constants/Colors";
 
 function RacesMainPage() {
   const { height, width } = useWindowDimensions();
@@ -15,13 +16,13 @@ function RacesMainPage() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["userRaces"],
-    queryFn: () => {
-      const data = fetchRaces(userInfo?.id);
-      console.log("data", data);
-      console.log("userInfo", userInfo);
+    queryFn: async () => {
+      const data = await fetchRaces(userInfo?.id);
       return data;
     },
   });
+
+  const raceData = data ? (data.length > 0 ? data : null) : null;
 
   const refreshFunction = async () => {
     setRefreshing(true);
@@ -47,9 +48,9 @@ function RacesMainPage() {
         <ThemedText type="title">Your races</ThemedText>
         {isLoading ? (
           <ThemedText type="title">Loading...</ThemedText>
-        ) : data ? (
+        ) : raceData ? (
           <ThemedView style={styles.racesContainer}>
-            {data.data.map((race) => {
+            {raceData.map((race) => {
               return (
                 <PressableLink
                   route={`/tracks/${race.races.id}`}
@@ -61,10 +62,16 @@ function RacesMainPage() {
               );
             })}
           </ThemedView>
-        ) : (
+        ) : error ? (
           <ThemedText>
             It seems there is an error, are you connected to the internet ?
           </ThemedText>
+        ) : (
+          <PressableLink
+            route="/join"
+            text="You have no races yet, join one !"
+            style={styles.joinButton}
+          />
         )}
         <ThemedText style={{ textAlign: "center", fontStyle: "italic" }}>
           Pull down to refresh
@@ -84,6 +91,10 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: "column",
     gap: 10,
+  },
+  joinButton: {
+    backgroundColor: Colors.primary.background,
+    minHeight: 70,
   },
   main: {
     height: 300,

@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
   backlink: {
     height: 40,
     width: 100,
-    borderRadius: 10,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

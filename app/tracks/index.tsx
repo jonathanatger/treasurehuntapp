@@ -16,7 +16,10 @@ function RacesMainPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["userRaces"],
     queryFn: () => {
-      return fetchRaces(userInfo?.id);
+      const data = fetchRaces(userInfo?.id);
+      console.log("data", data);
+      console.log("userInfo", userInfo);
+      return data;
     },
   });
 
@@ -75,7 +78,6 @@ const styles = StyleSheet.create({
   backlink: {
     width: 70,
     padding: 3,
-    borderRadius: 5,
   },
   container: {
     fontSize: 30,

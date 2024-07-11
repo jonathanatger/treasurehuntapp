@@ -65,16 +65,16 @@ function Homescreen() {
         {userInfo ? (
           <>
             <PressableLink
-              text="Go to Races"
-              route="tracks"
-              textType="subtitle"
-              style={styles.links}></PressableLink>
-            <PressableLink
               route="join"
               text="Join a Race"
               textType="subtitle"
               style={styles.links}
             />
+            <PressableLink
+              text="Go to Races"
+              route="tracks"
+              textType="subtitle"
+              style={styles.links}></PressableLink>
             <PressableLink
               text="Profile"
               route="profile"

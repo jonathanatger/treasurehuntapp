@@ -34,8 +34,10 @@ export function PressableLink({
             minHeight: 48,
             flexDirection: "row",
             alignItems: "center",
+            justifyContent: "center",
             paddingHorizontal: 5,
-            minWidth: 80,
+            minWidth: 90,
+            borderRadius: 10,
           },
           style,
         ];

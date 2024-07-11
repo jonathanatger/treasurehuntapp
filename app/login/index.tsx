@@ -29,6 +29,7 @@ function Login() {
   const setUserInfo = useContext(appContext).setUserInfo;
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { height, width } = useWindowDimensions();
+  const [error, setError] = useState("");
 
   // Apple Auth -----------------------
   useEffect(() => {
@@ -81,9 +82,11 @@ function Login() {
             //@ts-ignore
             response.authentication.accessToken
           )
-            .then((userData) => {
-              if (userData) return checkIfUserIsInDB(userData);
-              else return null;
+            .then(async (userData) => {
+              if (userData) {
+                const user = await checkIfUserIsInDB(userData);
+                return user;
+              } else return null;
             })
             .then(async (userData) => {
               if (userData) {
@@ -91,13 +94,15 @@ function Login() {
                   "user",
                   JSON.stringify({ ...userData, provider: "google" })
                 );
+
                 setUserInfo(userData);
               }
             });
         }
       });
     } catch (error) {
-      console.error("Error retrieving user data from AsyncStorage:", error);
+      setError("Error retrieving user data from phone storage.");
+      setIsLoggingIn(false);
     }
   };
 
@@ -122,6 +127,8 @@ function Login() {
         //@ts-ignore
         response.statusText
       );
+      setError("Failed to fetch user data.");
+      setIsLoggingIn(false);
       return null;
     }
   };
@@ -139,7 +146,9 @@ function Login() {
             }}
             style={styles.googleButton}
           />
-          {appleAuthAvailable && <AppleAuth setIsLoggingIn={setIsLoggingIn} />}
+          {appleAuthAvailable && (
+            <AppleAuth setIsLoggingIn={setIsLoggingIn} setError={setError} />
+          )}
           <View
             style={{
               height: 10,
@@ -152,6 +161,7 @@ function Login() {
         <ThemedText style={{ minHeight: 24 }}>
           {isLoggingIn ? "We are connecting..." : ""}
         </ThemedText>
+        <ThemedText style={{ minHeight: 24 }}>{error}</ThemedText>
       </ThemedView>
     </ThemedSafeAreaView>
   );
@@ -159,8 +169,10 @@ function Login() {
 
 function AppleAuth({
   setIsLoggingIn,
+  setError,
 }: {
   setIsLoggingIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setError: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
@@ -192,19 +204,22 @@ function AppleAuth({
     }
 
     if (appleUser) {
-      checkIfUserIsInDB(appleUser).then(async (userData) => {
-        if (userData) {
-          await AsyncStorage.setItem(
-            "user",
-            JSON.stringify({ ...userData, provider: "apple" })
-          ).then(() => {
-            setIsLoggingIn(false);
-            router.push("tracks");
-          });
-        } else {
-          console.error("User not found in DB");
-        }
-      });
+      const user = await checkIfUserIsInDB(appleUser);
+      console.log("user", user);
+
+      if (user) {
+        await AsyncStorage.setItem(
+          "user",
+          JSON.stringify({ ...user, provider: "apple" })
+        ).then(() => {
+          setUserInfo(user);
+          setIsLoggingIn(false);
+          router.push("tracks");
+        });
+      } else {
+        setError("Could not connect to the service.");
+        setIsLoggingIn(false);
+      }
     }
   };
 
@@ -345,7 +360,10 @@ async function checkIfUserIsInDB(userInfo: UserInfoType | null) {
     }),
   });
 
-  const data = (await res.json()) as { found: boolean; user: UserInfoType };
+  const data = (await res.json()) as {
+    found: boolean;
+    user: UserInfoType | undefined;
+  };
 
   if (data) {
     return data.user;
@@ -361,7 +379,6 @@ const styles = StyleSheet.create({
   backlink: {
     width: 70,
     padding: 3,
-    borderRadius: 5,
   },
   container: {
     flexDirection: "column",

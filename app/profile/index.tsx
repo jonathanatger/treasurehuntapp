@@ -174,7 +174,6 @@ const styles = StyleSheet.create({
   backlink: {
     width: 70,
     padding: 3,
-    borderRadius: 5,
   },
   backButton: {
     flexDirection: "column",

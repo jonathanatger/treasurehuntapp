@@ -121,6 +121,7 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
       <ThemedPressable
         onPress={handleSubmit(onSubmit)}
         style={styles.editButton}
+        async
         text="Change"></ThemedPressable>
       <ThemedPressable
         onPress={() => setIsEditing(false)}

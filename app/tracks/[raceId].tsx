@@ -65,7 +65,7 @@ function SpecificRacePage() {
     queryKey: ["userRaces"],
     queryFn: async () => {
       const data = await fetchRaces(userInfo?.id);
-      return data;
+      return data.data;
     },
   });
 

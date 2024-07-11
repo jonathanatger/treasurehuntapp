@@ -42,8 +42,9 @@ function Homescreen() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: [fetchRacesKey],
-    queryFn: () => {
-      return fetchRaces(userInfo?.id);
+    queryFn: async () => {
+      const data = await fetchRaces(userInfo?.id);
+      return data.data;
     },
   });
 

@@ -142,6 +142,7 @@ function SpecificRacePage() {
             teams={teamsData}
             userInfo={userInfo}
             raceId={raceId}
+            userCurrentTeam={userCurrentTeam}
           />
         )}
       </ScrollView>
@@ -183,7 +184,7 @@ function EnterRaceButton({
 
   return (
     <ThemedPressable
-      text="Enter a team to join the race"
+      text="Enter a team to jointhe race"
       style={styles.joinTeamBeforeRaceButton}
       onPress={() => {
         ///
@@ -241,11 +242,13 @@ const TeamCards = ({
   userInfo,
   raceId,
   raceLaunched,
+  userCurrentTeam,
 }: {
   teams: TransformedTeamsData | undefined;
   userInfo: UserInfoType | null;
   raceId: string | string[] | undefined;
   raceLaunched: boolean;
+  userCurrentTeam: any;
 }) => {
   const [loading, setLoading] = useState(false);
   const userName = userInfo?.name ? userInfo.name : "";
@@ -259,10 +262,10 @@ const TeamCards = ({
         .map((team, index) => {
           return (
             <ThemedView style={styles.teamsCard} key={team.id}>
-              <ThemedText type="title" style={{ fontSize: 24 }}>
+              <ThemedText type="title" primary style={{ fontSize: 24 }}>
                 {team.name}
               </ThemedText>
-              <ThemedText>
+              <ThemedText primary style={{ textAlign: "center" }}>
                 {team.users.map((user) => user.name).join("\n")}
               </ThemedText>
               <ThemedView style={styles.teamButtons}>
@@ -281,7 +284,7 @@ const TeamCards = ({
                 ) : (
                   <ThemedPressable
                     async
-                    disabled={raceLaunched}
+                    disabled={raceLaunched && userCurrentTeam.length !== 0}
                     text="Join"
                     onPress={() =>
                       enterTeamLogic(team.id, userId, userEmail, teams, raceId)
@@ -289,7 +292,8 @@ const TeamCards = ({
                     style={{
                       ...styles.teamSingleButton,
                       flex: 1,
-                      opacity: raceLaunched ? 0.5 : 1,
+                      opacity:
+                        raceLaunched && userCurrentTeam.length !== 0 ? 0.5 : 1,
                     }}></ThemedPressable>
                 )}
                 {team.users.length > 0 && team.users[0].email === "" && (

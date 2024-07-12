@@ -154,7 +154,8 @@ function DeleteUserComponent() {
             style={styles.editButton}></ThemedPressable>
           <ThemedPressable
             text="Delete !"
-            onPress={() => {
+            async
+            onPress={async () => {
               deleteUserLogic(userInfo, setUserInfo, setError);
             }}
             style={styles.deleteButton}></ThemedPressable>

@@ -140,6 +140,7 @@ function Login() {
         <ThemedView style={styles.form}>
           <ThemedPressable
             text="Sign in with Google"
+            async
             onPress={async () => {
               setIsLoggingIn(true);
               await promptAsync();

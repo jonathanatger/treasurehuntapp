@@ -227,6 +227,7 @@ const NewTeamForm = ({
         name="Name"
       />
       <ThemedPressable
+        async
         onPress={handleSubmit(onSubmit)}
         style={styles.newTeamButton}
         text="+"
@@ -267,42 +268,44 @@ const TeamCards = ({
               <ThemedView style={styles.teamButtons}>
                 {team.users.filter((user) => user.email === userEmail).length >
                 0 ? (
-                  <Pressable
+                  <ThemedPressable
+                    async
+                    text="Quit"
                     disabled={raceLaunched}
                     onPress={() => quitTeamLogic(team.id, userId, raceId)}
                     style={{
                       ...styles.teamSingleButton,
                       flex: 1,
                       opacity: raceLaunched ? 0.5 : 1,
-                    }}>
-                    <ThemedText>Quit</ThemedText>
-                  </Pressable>
+                    }}></ThemedPressable>
                 ) : (
-                  <Pressable
+                  <ThemedPressable
+                    async
                     disabled={raceLaunched}
-                    onPress={() => {
-                      enterTeamLogic(team.id, userId, userEmail, teams, raceId);
-                    }}
+                    text="Join"
+                    onPress={() =>
+                      enterTeamLogic(team.id, userId, userEmail, teams, raceId)
+                    }
                     style={{
                       ...styles.teamSingleButton,
                       flex: 1,
                       opacity: raceLaunched ? 0.5 : 1,
-                    }}>
-                    <ThemedText secondary>Join</ThemedText>
-                  </Pressable>
+                    }}></ThemedPressable>
                 )}
                 {team.users.length > 0 && team.users[0].email === "" && (
-                  <Pressable
+                  <ThemedPressable
+                    async
+                    text="X"
                     disabled={raceLaunched}
-                    onPress={() => {
-                      deleteTeamLogic(team.id, raceId);
-                    }}
+                    onPress={() => deleteTeamLogic(team.id, raceId)}
                     style={{
                       opacity: raceLaunched ? 0.5 : 1,
                       ...styles.teamSingleButton,
-                    }}>
-                    <ThemedText secondary>X</ThemedText>
-                  </Pressable>
+                      minWidth: 50,
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}></ThemedPressable>
                 )}
               </ThemedView>
             </ThemedView>
@@ -450,8 +453,7 @@ async function enterTeamLogic(
     else return acc;
   }, 0);
 
-  if (!raceId || Array.isArray(raceId) || userId === undefined)
-    throw new Error("No id provided");
+  if (!raceId || Array.isArray(raceId) || userId === undefined) return false;
   const res = await enterTeam(teamId, userId, existingTeamId);
 
   if (!res || res.result === "error") return false;

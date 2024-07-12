@@ -66,7 +66,7 @@ function JoinForm({ viewerheight }: { viewerheight: number }) {
 
   return (
     <ThemedView style={{ height: viewerheight - 50, ...styles.joinForm }}>
-      <ThemedText type="subtitle">
+      <ThemedText type="subtitle" style={{ textAlign: "center" }}>
         To join a race, enter the code below :
       </ThemedText>
       <Controller
@@ -86,10 +86,11 @@ function JoinForm({ viewerheight }: { viewerheight: number }) {
         name="Code"
       />
       <ThemedPressable
+        async
         onPress={handleSubmit(onSubmit)}
         style={styles.joinButton}
         text="Join"></ThemedPressable>
-      <ThemedText>{error}</ThemedText>
+      <ThemedText style={{ textAlign: "center" }}>{error}</ThemedText>
     </ThemedView>
   );
 }

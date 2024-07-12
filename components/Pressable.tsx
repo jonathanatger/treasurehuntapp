@@ -10,6 +10,7 @@ import { ThemedText, ThemedTextProps } from "./ThemedText";
 import { StyleSheet } from "react-native";
 import { useState } from "react";
 import { act } from "react-test-renderer";
+import { set } from "react-hook-form";
 
 export type ThemedPressableProps = PressableProps & {
   textType?: ThemedTextProps["type"];
@@ -31,6 +32,14 @@ export function ThemedPressable({
   ...rest
 }: ThemedPressableProps) {
   const [loading, setLoading] = useState(false);
+  const checkForStyleProp = (prop: string) => {
+    if (style?.hasOwnProperty(prop)) {
+      //@ts-ignore
+      return style[prop];
+    } else {
+      return 0;
+    }
+  };
 
   return (
     <Pressable
@@ -53,9 +62,7 @@ export function ThemedPressable({
       onPress={async () => {
         if (async) {
           setLoading(true);
-          await onPress().then(() => {
-            setLoading(false);
-          });
+          await onPress().then(() => setLoading(false));
         } else {
           onPress();
         }
@@ -65,7 +72,22 @@ export function ThemedPressable({
         {text}
       </ThemedText>
       {loading && (
-        <ActivityIndicator style={styles.activityLoader}></ActivityIndicator>
+        <View
+          style={{
+            borderRadius: checkForStyleProp("borderRadius"),
+            backgroundColor: "white",
+            opacity: 0.5,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+          <ActivityIndicator style={styles.activityLoader}></ActivityIndicator>
+        </View>
       )}
     </Pressable>
   );

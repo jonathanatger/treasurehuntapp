@@ -46,7 +46,8 @@ function Profile() {
           <ThemedPressable
             style={styles.editButton}
             text="Log out"
-            onPress={() => {
+            async
+            onPress={async () => {
               logout(setUserInfo);
               router.push("/");
             }}></ThemedPressable>

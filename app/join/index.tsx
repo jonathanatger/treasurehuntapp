@@ -53,7 +53,6 @@ function JoinForm({ viewerheight }: { viewerheight: number }) {
         result: string;
       };
     };
-    console.log(responseData);
 
     if (responseData.result.joined) {
       router.push("tracks");

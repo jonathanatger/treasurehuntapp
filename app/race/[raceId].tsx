@@ -289,7 +289,15 @@ const StopTrackingButton = ({
         }
       }}
       text="Stop racing for now"
-      style={{ ...styles.backlink, minWidth: 200 }}
+      style={{
+        ...styles.backlink,
+        minWidth: 200,
+        minHeight: 50,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 10,
+      }}
     />
   </ThemedView>
 );

@@ -51,7 +51,7 @@ function JoinForm({ viewerheight }: { viewerheight: number }) {
       result: {
         joined: boolean;
         result: string;
-      };
+     };
     };
 
     if (responseData.result.joined) {

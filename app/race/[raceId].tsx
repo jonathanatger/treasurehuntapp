@@ -267,8 +267,8 @@ function VictoryScreen({ currentTeamId }: { currentTeamId: number }) {
 
   return (
     <ThemedView style={styles.victoryScreen}>
-      <ThemedText type="title" primary>
-        Bravo, dernier objectif atteint !
+      <ThemedText type="title" primary style={{ textAlign: "center" }}>
+        Well played, you finished the race !
       </ThemedText>
     </ThemedView>
   );

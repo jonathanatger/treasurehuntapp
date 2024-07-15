@@ -1,8 +1,13 @@
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
 import React, { useContext, useEffect, useState } from "react";
-import { Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appContext } from "./_layout";
 import { Link } from "expo-router";
@@ -56,10 +61,15 @@ function Homescreen() {
   };
 
   return (
-    <ThemedView style={{ height: height, ...styles.container }}>
-      <ThemedText type="title" style={styles.title}>
-        Treasurio
-      </ThemedText>
+    <ThemedSafeAreaView style={{ height: height, ...styles.container }}>
+      <ThemedView style={{ flexDirection: "column", alignItems: "center" }}>
+        <Image
+          source={require("@/assets/images/adaptive-icon.png")}
+          style={{ height: 100, width: 100 }}></Image>
+        <ThemedText type="title" style={styles.title}>
+          Treasurio
+        </ThemedText>
+      </ThemedView>
       <ThemedView style={styles.main}>
         {!isLocationEnabled && (
           <Pressable
@@ -101,7 +111,7 @@ function Homescreen() {
           </>
         )}
       </ThemedView>
-    </ThemedView>
+    </ThemedSafeAreaView>
   );
 }
 
@@ -134,12 +144,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   title: {
-    fontSize: 30,
+    fontSize: 50,
     height: "auto",
     paddingBottom: 20,
     textAlign: "center",
     lineHeight: 34,
-    paddingTop: 30,
+    paddingTop: 20,
+    color: Colors.secondary.background,
   },
 });
 

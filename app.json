@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "treasurehuntapp",
+    "name": "Treasurio",
     "slug": "treasurehuntapp",
-    "version": "1.0.7",
+    "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "com.jonathanatger.treasurehuntapp",
@@ -13,7 +13,7 @@
       "backgroundColor": "#FEF9F6"
     },
     "ios": {
-      "buildNumber": "3",
+      "buildNumber": "5",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -26,9 +26,9 @@
       "infoPlist": {
         "infoPlist": {
           "UIBackgroundModes": ["location", "fetch", "remote-notification"],
-          "NSLocationWhenInUseUsageDescription": "This app requires access to your location when open.",
-          "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires access to your location even when closed.",
-          "NSLocationAlwaysUsageDescription": "This app requires access to your location when open.",
+          "NSLocationWhenInUseUsageDescription": "This app checks if you are advancing in your races.",
+          "NSLocationAlwaysAndWhenInUseUsageDescription": "This app will let the organisers of the races you are in know where you are.",
+          "NSLocationAlwaysUsageDescription": "This app will let the organisers of the races you are in know where you are.",
           "CFBundleURLTypes": [
             {
               "CFBundleURLSchemes": [
@@ -45,7 +45,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.jonathanatger.treasurehuntapp",
-      "versionCode": 7,
+      "versionCode": 8,
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -70,7 +70,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "locationAlwaysAndWhenInUsePermission": "This app will let the organisers of the races you are in know where you are.",
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }

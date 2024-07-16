@@ -2,7 +2,7 @@
   "expo": {
     "name": "Treasurio",
     "slug": "treasurehuntapp",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "com.jonathanatger.treasurehuntapp",
@@ -13,7 +13,7 @@
       "backgroundColor": "#FEF9F6"
     },
     "ios": {
-      "buildNumber": "5",
+      "buildNumber": "6",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -70,7 +70,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "This app will let the organisers of the races you are in know where you are.",
+          "locationAlwaysPermission": "This app checks if you are advancing in your races.",
+          "locationWhenInUsePermission": "This app needs your location to check if you are advancing in your races.",
+          "locationAlwaysAndWhenInUsePermission": "This app will let the organisers of the races you are participating in know where you are.",
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }

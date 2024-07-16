@@ -2,7 +2,12 @@ import { PressableLink } from "@/components/PressableLink";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { useContext, useState } from "react";
-import { ScrollView, StyleSheet, TextInput } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  useWindowDimensions,
+} from "react-native";
 import { appContext } from "../_layout";
 import { Colors } from "@/constants/Colors";
 import { Controller, set, useForm } from "react-hook-form";
@@ -16,9 +21,10 @@ function Profile() {
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
   const [isEditing, setIsEditing] = useState(false);
+  const { height, width } = useWindowDimensions();
 
   return (
-    <ThemedSafeAreaView>
+    <ThemedSafeAreaView style={{ height: height, width: width }}>
       <ScrollView>
         <ThemedView style={styles.container}>
           <PressableLink text="Go back" style={styles.backlink}></PressableLink>

@@ -7,11 +7,15 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { createContext, useEffect, useState } from "react";
 import { useFonts } from "expo-font";
-import { useColorScheme } from "react-native";
+import { useColorScheme, useWindowDimensions } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppContextType, UserInfoType } from "@/constants/data";
-import { stopTracking } from "@/functions/functions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Onboarding from "react-native-onboarding-swiper";
+import { Image } from "react-native";
+import * as Location from "expo-location";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -31,16 +35,93 @@ function Layout() {
     OswaldMedium: require("../assets/fonts/Oswald-Medium.ttf"),
   });
   const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(true);
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
-    if (loaded) {
+    const check = checkFirstTime(setIsChecking, setIsFirstTime);
+  }, []);
+
+  useEffect(() => {
+    if (loaded && !isChecking) {
       SplashScreen.hideAsync();
     }
     if (error) {
       console.error(error);
       SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [loaded, error, isChecking]);
+
+  const onboardingPages = [
+    {
+      backgroundColor: "#FEF9F6",
+      image: (
+        <Image
+          style={{ width: 200, height: 200 }}
+          source={require("../assets/images/splash.png")}
+        />
+      ),
+      title: "Welcome !",
+      subtitle: "Let's get you ready for your treasure hunt.",
+    },
+    {
+      backgroundColor: "#FEF9F6",
+      image: (
+        <Image
+          style={{ width: 200, height: 200 }}
+          source={require("../assets/images/splash.png")}
+        />
+      ),
+      title: "We will ask you for your location",
+      titleStyles: { padding: 10 },
+      subtitle:
+        "It is required to be able to advance in your game, and let the organizers know where you are.",
+      subTitleStyles: { padding: 10 },
+      width: width,
+    },
+    {
+      backgroundColor: "#FEF9F6",
+      image: (
+        <Image
+          style={{ width: 200, height: 200 }}
+          source={require("../assets/images/splash.png")}
+        />
+      ),
+      title: "Want a change ?",
+      titleStyles: { padding: 10 },
+      subtitle:
+        "The location permissions of the app can be changed anytime in the settings of your device.",
+      subTitleStyles: { padding: 10 },
+      width: width,
+    },
+    {
+      backgroundColor: "#FEF9F6",
+      image: (
+        <Image
+          style={{ width: 200, height: 200 }}
+          source={require("../assets/images/splash.png")}
+        />
+      ),
+      title: "An account is possible - but not required",
+      titleStyles: { padding: 10 },
+      subtitle:
+        "You can create an account, this way you'll let us save your progress, and will be able to see it on the website. You can also skip this step, and keep your info accessible only until you uninstall the app.",
+      subTitleStyles: { padding: 10 },
+      width: width,
+    },
+  ];
+
+  const onboardingPageCallback = (pageIndex: number) => {
+    if (pageIndex === 2) {
+      getLocationPermission();
+    }
+  };
+
+  function onboardingDone() {
+    AsyncStorage.setItem("isFirstTime", "false");
+    setIsFirstTime(false);
+  }
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
@@ -52,46 +133,55 @@ function Layout() {
               setUserInfo: setUserInfo,
               AuthProvider: null,
             }}>
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="race/[raceId]"
-                options={{ headerShown: false }}
+            {isFirstTime ? (
+              <Onboarding
+                pages={onboardingPages}
+                showSkip={false}
+                pageIndexCallback={onboardingPageCallback}
+                onDone={onboardingDone}
               />
-              <Stack.Screen
-                name="tracks/[raceId]"
-                options={{ headerShown: false }}
-              />
+            ) : (
+              <Stack>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="race/[raceId]"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="tracks/[raceId]"
+                  options={{ headerShown: false }}
+                />
 
-              <Stack.Screen
-                name="tracks/index"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="login/index"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="register/index"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="join/index"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="noAuthLogin/index"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="profile/index"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="support/index"
-                options={{ headerShown: false }}
-              />
-            </Stack>
+                <Stack.Screen
+                  name="tracks/index"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="login/index"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="register/index"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="join/index"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="noAuthLogin/index"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="profile/index"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="support/index"
+                  options={{ headerShown: false }}
+                />
+              </Stack>
+            )}
           </AppContextProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
@@ -100,3 +190,23 @@ function Layout() {
 }
 
 export default Layout;
+
+async function checkFirstTime(
+  setIsChecking: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsFirstTime: React.Dispatch<React.SetStateAction<boolean>>
+) {
+  const isFirstTimeInStorage = await AsyncStorage.getItem("isFirstTime");
+
+  if (isFirstTimeInStorage !== null) {
+    setIsFirstTime(false);
+  }
+  setIsChecking(false);
+}
+
+async function getLocationPermission() {
+  (async () => {
+    let { status: firstStatus } =
+      await Location.requestForegroundPermissionsAsync();
+    let { status } = await Location.requestBackgroundPermissionsAsync();
+  })();
+}

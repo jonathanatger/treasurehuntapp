@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appContext } from "./_layout";
-import { Link } from "expo-router";
 import { PressableLink } from "@/components/PressableLink";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRaces, fetchRacesKey } from "@/queries/queries";

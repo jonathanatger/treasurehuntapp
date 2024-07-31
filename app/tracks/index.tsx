@@ -45,9 +45,13 @@ function RacesMainPage() {
           text="Go back"
           route="/"
           style={styles.backlink}></PressableLink>
-        <ThemedText type="title">Your races</ThemedText>
+        <ThemedText light type="title">
+          Your races
+        </ThemedText>
         {isLoading ? (
-          <ThemedText type="title">Loading...</ThemedText>
+          <ThemedText light type="title">
+            Loading...
+          </ThemedText>
         ) : raceData ? (
           <ThemedView style={styles.racesContainer}>
             {raceData.map((race) => {
@@ -63,17 +67,16 @@ function RacesMainPage() {
             })}
           </ThemedView>
         ) : error ? (
-          <ThemedText>
+          <ThemedText light>
             It seems there is an error, are you connected to the internet ?
           </ThemedText>
         ) : (
           <PressableLink
             route="/join"
             text="You have no races yet, join one !"
-            style={styles.joinButton}
           />
         )}
-        <ThemedText style={{ textAlign: "center", fontStyle: "italic" }}>
+        <ThemedText light style={{ textAlign: "center", fontStyle: "italic" }}>
           Pull down to refresh
         </ThemedText>
       </ScrollView>

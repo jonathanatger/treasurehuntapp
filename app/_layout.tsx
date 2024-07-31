@@ -15,7 +15,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Onboarding from "react-native-onboarding-swiper";
 import { Image } from "react-native";
 import * as Location from "expo-location";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -25,6 +24,7 @@ export const appContext = createContext<AppContextType>({
   userInfo: null,
   setUserInfo: () => {},
   AuthProvider: null,
+  setIsFirstTime: () => true,
 });
 export const AppContextProvider = appContext.Provider;
 
@@ -55,7 +55,7 @@ function Layout() {
 
   const onboardingPages = [
     {
-      backgroundColor: "#FEF9F6",
+      backgroundColor: "#C03F0C",
       image: (
         <Image
           style={{ width: 200, height: 200 }}
@@ -63,10 +63,16 @@ function Layout() {
         />
       ),
       title: "Welcome !",
+      titleStyles: {
+        padding: 10,
+        fontFamily: "Oswald-Medium",
+        color: "#FEF9F6",
+      },
       subtitle: "Let's get you ready for your treasure hunt.",
+      subTitleStyles: { padding: 10, color: "#FEF9F6" },
     },
     {
-      backgroundColor: "#FEF9F6",
+      backgroundColor: "#C03F0C",
       image: (
         <Image
           style={{ width: 200, height: 200 }}
@@ -74,40 +80,52 @@ function Layout() {
         />
       ),
       title: "We will ask you for your location",
-      titleStyles: { padding: 10 },
+      titleStyles: {
+        padding: 10,
+        fontFamily: "Oswald-Medium",
+        color: "#FEF9F6",
+      },
       subtitle:
         "It is required to be able to advance in your game, and let the organizers know where you are.",
-      subTitleStyles: { padding: 10 },
+      subTitleStyles: { padding: 10, color: "#FEF9F6" },
       width: width,
     },
     {
-      backgroundColor: "#FEF9F6",
+      backgroundColor: "#C03F0C",
       image: (
         <Image
           style={{ width: 200, height: 200 }}
           source={require("../assets/images/splash.png")}
         />
       ),
+      titleStyles: {
+        padding: 10,
+        fontFamily: "Oswald-Medium",
+        color: "#FEF9F6",
+      },
       title: "Want a change ?",
-      titleStyles: { padding: 10 },
       subtitle:
         "The location permissions of the app can be changed anytime in the settings of your device.",
-      subTitleStyles: { padding: 10 },
+      subTitleStyles: { padding: 10, color: "#FEF9F6" },
       width: width,
     },
     {
-      backgroundColor: "#FEF9F6",
+      backgroundColor: "#C03F0C",
       image: (
         <Image
           style={{ width: 200, height: 200 }}
           source={require("../assets/images/splash.png")}
         />
       ),
-      title: "An account is possible - but not required",
-      titleStyles: { padding: 10 },
+      title: "An account is possible - \n but not required",
+      titleStyles: {
+        padding: 10,
+        fontFamily: "Oswald-Medium",
+        color: "#FEF9F6",
+      },
       subtitle:
-        "You can create an account, this way you'll let us save your progress, and will be able to see it on the website. You can also skip this step, and keep your info accessible only until you uninstall the app.",
-      subTitleStyles: { padding: 10 },
+        "You can create an account, this way you'll let us save your progress, and will be able to access it later on.",
+      subTitleStyles: { padding: 10, color: "#FEF9F6" },
       width: width,
     },
   ];
@@ -132,6 +150,7 @@ function Layout() {
               userInfo: userInfo,
               setUserInfo: setUserInfo,
               AuthProvider: null,
+              setIsFirstTime: setIsFirstTime,
             }}>
             {isFirstTime ? (
               <Onboarding

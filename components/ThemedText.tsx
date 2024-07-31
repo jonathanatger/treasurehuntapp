@@ -6,7 +6,7 @@ import { Colors } from "@/constants/Colors";
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  primary?: boolean;
+  light?: boolean;
   secondary?: boolean;
   type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link";
 };
@@ -15,13 +15,13 @@ export function ThemedText({
   style,
   lightColor,
   darkColor,
-  primary,
+  light,
   secondary,
   type = "defaultSemiBold",
   ...rest
 }: ThemedTextProps) {
   const color =
-    primary || secondary
+    light || secondary
       ? Colors.primary.text
       : useThemeColor({ light: lightColor, dark: darkColor }, "text");
 

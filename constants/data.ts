@@ -4,6 +4,7 @@ export type AppContextType = {
   userInfo: UserInfoType | null;
   setUserInfo: React.Dispatch<React.SetStateAction<UserInfoType | null>>;
   AuthProvider: string | null;
+  setIsFirstTime: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export type UserInfoType = {

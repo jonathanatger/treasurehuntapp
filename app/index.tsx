@@ -1,8 +1,8 @@
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
+  Animated,
   Image,
   Pressable,
   StyleSheet,
@@ -20,7 +20,24 @@ function Homescreen() {
   const { height, width } = useWindowDimensions();
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
+  const setIsFirstTime = useContext(appContext).setIsFirstTime;
   const [isLocationEnabled, setIsLocationEnabled] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim2 = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(fadeAnim2, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   if (!userInfo) {
     try {
@@ -60,24 +77,25 @@ function Homescreen() {
   };
 
   return (
-    <ThemedSafeAreaView style={{ height: height, ...styles.container }}>
-      <ThemedView style={{ flexDirection: "column", alignItems: "center" }}>
-        <Image
-          source={require("@/assets/images/adaptive-icon.png")}
-          style={{ height: 100, width: 100 }}></Image>
-        <ThemedText type="title" style={styles.title}>
-          Treasurio
-        </ThemedText>
+    <ThemedSafeAreaView primary style={{ height: height, ...styles.container }}>
+      <ThemedView
+        primary
+        style={{ flexDirection: "column", alignItems: "center" }}>
+        <Animated.Image
+          source={require("@/assets/images/icon.png")}
+          style={{
+            opacity: fadeAnim2,
+            height: 100,
+            width: 100,
+          }}></Animated.Image>
       </ThemedView>
-      <ThemedView style={styles.main}>
-        {!isLocationEnabled && (
-          <Pressable
-            onPress={() =>
-              Location.requestBackgroundPermissionsAsync
-            }></Pressable>
-        )}
+      <ThemedView primary style={styles.main}>
         {userInfo ? (
-          <>
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              ...styles.buttonContainer,
+            }}>
             <PressableLink
               route="join"
               text="Join a Race"
@@ -94,9 +112,20 @@ function Homescreen() {
               route="profile"
               textType="subtitle"
               style={styles.links}></PressableLink>
-          </>
+            <Pressable
+              onPress={() => setIsFirstTime(true)}
+              style={{
+                height: 30,
+                width: "100%",
+                backgroundColor: "#FEF9F6",
+              }}></Pressable>
+          </Animated.View>
         ) : (
-          <>
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              ...styles.buttonContainer,
+            }}>
             <PressableLink
               text="Login"
               route="login"
@@ -107,7 +136,14 @@ function Homescreen() {
               route="noAuthLogin"
               textType="subtitle"
               style={styles.links}></PressableLink>
-          </>
+            <Pressable
+              onPress={() => setIsFirstTime(true)}
+              style={{
+                height: 30,
+                width: "100%",
+                backgroundColor: "#FEF9F6",
+              }}></Pressable>
+          </Animated.View>
         )}
       </ThemedView>
     </ThemedSafeAreaView>
@@ -115,6 +151,12 @@ function Homescreen() {
 }
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: "column",
+    width: "100%",
+    height: "100%",
+    gap: 10,
+  },
   container: {
     fontSize: 30,
     borderColor: "#20232a",
@@ -133,14 +175,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   main: {
-    borderRadius: 24,
     height: 300,
     flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "center",
-    gap: 10,
   },
   title: {
     fontSize: 50,

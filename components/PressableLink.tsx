@@ -25,12 +25,12 @@ export function PressableLink({
         return [
           {
             backgroundColor: pressed
-              ? color === "primary"
-                ? Colors.primary.muted
-                : Colors.secondary.muted
-              : color === "primary"
-              ? Colors.primary.background
-              : Colors.secondary.background,
+              ? color === "secondary"
+                ? Colors.secondary.muted
+                : Colors.light.muted
+              : color === "secondary"
+              ? Colors.secondary.background
+              : Colors.light.background,
             minHeight: 48,
             flexDirection: "row",
             alignItems: "center",
@@ -50,9 +50,7 @@ export function PressableLink({
         }
       }}
       {...rest}>
-      <ThemedText
-        secondary={true}
-        type={textType ? textType : "defaultSemiBold"}>
+      <ThemedText type={textType ? textType : "defaultSemiBold"}>
         {text}
       </ThemedText>
     </Pressable>

@@ -7,26 +7,30 @@ import { Colors } from "@/constants/Colors";
 export type ThemedViewProps = ViewProps & {
   lightColor?: string;
   darkColor?: string;
-  primary?: boolean;
+  light?: boolean;
   secondary?: boolean;
+  primary?: boolean;
 };
 
 export function ThemedView({
   style,
   lightColor,
   darkColor,
-  primary,
+  light,
   secondary,
+  primary,
   ...otherProps
 }: ThemedViewProps) {
-  const backgroundColor = primary
-    ? Colors.primary.background
+  const backgroundColor = light
+    ? Colors.light.background
     : secondary
     ? Colors.secondary.background
+    : primary
+    ? Colors.primary.background
     : useThemeColor({ light: lightColor, dark: darkColor }, "background");
 
-  const text = primary
-    ? Colors.primary.text
+  const text = light
+    ? Colors.light.text
     : secondary
     ? Colors.secondary.text
     : useThemeColor({ light: lightColor, dark: darkColor }, "text");
@@ -38,15 +42,15 @@ export function ThemedSafeAreaView({
   style,
   lightColor,
   darkColor,
-  primary,
+  light,
   secondary,
   ...otherProps
 }: ThemedViewProps) {
-  const backgroundColor = primary
-    ? Colors.primary.background
+  const backgroundColor = light
+    ? Colors.light.background
     : secondary
     ? Colors.secondary.background
-    : useThemeColor({ light: lightColor, dark: darkColor }, "background");
+    : Colors.primary.background; //useThemeColor({ light: lightColor, dark: darkColor }, "background");
 
   return <SafeAreaView style={[{ backgroundColor }, style]} {...otherProps} />;
 }

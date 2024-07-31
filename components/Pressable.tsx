@@ -51,10 +51,14 @@ export function ThemedPressable({
               pressed || loading
                 ? themeColor === "primary"
                   ? Colors.primary.muted
-                  : Colors.secondary.muted
+                  : themeColor === "secondary"
+                  ? Colors.secondary.muted
+                  : Colors.light.muted
                 : themeColor === "primary"
                 ? Colors.primary.background
-                : Colors.secondary.background,
+                : themeColor === "secondary"
+                ? Colors.secondary.background
+                : Colors.light.background,
           },
           style,
         ];
@@ -68,9 +72,7 @@ export function ThemedPressable({
         }
       }}
       {...rest}>
-      <ThemedText secondary={true} type={textType}>
-        {text}
-      </ThemedText>
+      <ThemedText type={textType}>{text}</ThemedText>
       {loading && (
         <View
           style={{

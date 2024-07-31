@@ -66,7 +66,7 @@ function JoinForm({ viewerheight }: { viewerheight: number }) {
   return (
     <ThemedView
       primary
-      style={{ height: viewerheight - 50, ...styles.joinForm }}>
+      style={{ height: viewerheight - 200, ...styles.joinForm }}>
       <ThemedText type="subtitle" light style={{ textAlign: "center" }}>
         To join a race, enter the code below :
       </ThemedText>
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     padding: 10,
     flexDirection: "column",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
   },
   joinButton: {
     flexDirection: "column",

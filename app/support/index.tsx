@@ -8,17 +8,21 @@ function SupportPage() {
 
   return (
     <ThemedSafeAreaView
+      primary
       style={{ height: height, width: width, ...styles.container }}>
       <PressableLink text="Go back" style={styles.backlink}></PressableLink>
-      <ThemedText type="title">Support</ThemedText>
-      <ThemedText type="subtitle">
+      <ThemedText light type="title">
+        Support
+      </ThemedText>
+      <ThemedText light type="subtitle">
         Contact us for any questions or feedback :
       </ThemedText>
-      <ThemedText>jonathan.atger@gmail.com</ThemedText>
-      <ThemedText type="subtitle">
+      <ThemedText light>jonathan.atger@gmail.com</ThemedText>
+      <ThemedText light type="subtitle">
         To view our privacy policy, please visit :
       </ThemedText>
       <ThemedText
+        light
         onPress={() =>
           Linking.openURL("https://treasurehunt-jet.vercel.app/privacypolicy")
         }

@@ -1,4 +1,4 @@
-import { Pressable, PressableProps, StyleProp } from "react-native";
+import { Pressable, PressableProps, StyleProp, TextStyle } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import { ThemedText, ThemedTextProps } from "./ThemedText";
@@ -8,6 +8,7 @@ export type PressableLinkProps = PressableProps & {
   route?: string;
   text: string;
   color?: string;
+  textStyle?: StyleProp<TextStyle>;
 };
 
 export function PressableLink({
@@ -16,6 +17,7 @@ export function PressableLink({
   textType,
   text,
   color,
+  textStyle,
   ...rest
 }: PressableLinkProps) {
   return (
@@ -27,9 +29,13 @@ export function PressableLink({
             backgroundColor: pressed
               ? color === "secondary"
                 ? Colors.secondary.muted
+                : color === "primary"
+                ? Colors.primary.muted
                 : Colors.light.muted
               : color === "secondary"
               ? Colors.secondary.background
+              : color === "primary"
+              ? Colors.primary.background
               : Colors.light.background,
             minHeight: 48,
             flexDirection: "row",
@@ -50,7 +56,10 @@ export function PressableLink({
         }
       }}
       {...rest}>
-      <ThemedText type={textType ? textType : "defaultSemiBold"}>
+      <ThemedText
+        style={textStyle}
+        light={color === "primary" || color === "secondary" ? true : false}
+        type={textType ? textType : "defaultSemiBold"}>
         {text}
       </ThemedText>
     </Pressable>

@@ -3,6 +3,7 @@ import {
   Pressable,
   PressableProps,
   StyleProp,
+  TextStyle,
   View,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
@@ -14,6 +15,7 @@ import { set } from "react-hook-form";
 
 export type ThemedPressableProps = PressableProps & {
   textType?: ThemedTextProps["type"];
+  textStyle?: StyleProp<TextStyle>;
   route?: string;
   text?: string;
   onPress: any;
@@ -26,6 +28,7 @@ export function ThemedPressable({
   route,
   textType,
   text,
+  textStyle,
   themeColor,
   async,
   onPress,
@@ -73,6 +76,7 @@ export function ThemedPressable({
       }}
       {...rest}>
       <ThemedText
+        style={textStyle}
         light={
           themeColor === "primary" || themeColor === "secondary" ? true : false
         }

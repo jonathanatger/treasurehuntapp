@@ -134,11 +134,20 @@ function Login() {
   };
 
   return (
-    <ThemedSafeAreaView style={{ height: height, width: width, padding: 10 }}>
+    <ThemedSafeAreaView
+      primary
+      style={{
+        height: height,
+        width: width,
+        padding: 10,
+        flexDirection: "column",
+        gap: 10,
+      }}>
       <PressableLink text="Go back" route="/" style={styles.backlink} />
-      <ThemedView style={{ height: height - 50, ...styles.container }}>
+      <ThemedView primary style={{ flex: 1, ...styles.container }}>
         <ThemedView style={styles.form}>
           <ThemedPressable
+            themeColor="primary"
             text="Sign in with Google"
             async
             onPress={async () => {
@@ -152,9 +161,12 @@ function Login() {
           )}
           <View
             style={{
-              height: 10,
-              borderBottomColor: Colors.primary.text,
+              height: 1,
+              borderBottomColor: Colors.primary.background,
               borderBottomWidth: 1,
+              borderWidth: 1,
+              borderColor: Colors.light.background,
+              marginVertical: 10,
             }}
           />
           <EmailAuth setIsLoggingIn={setIsLoggingIn} />
@@ -162,7 +174,9 @@ function Login() {
         <ThemedText style={{ minHeight: 24 }}>
           {isLoggingIn ? "We are connecting..." : ""}
         </ThemedText>
-        <ThemedText style={{ minHeight: 24 }}>{error}</ThemedText>
+        <ThemedText light style={{ minHeight: 30 }}>
+          {error}
+        </ThemedText>
       </ThemedView>
     </ThemedSafeAreaView>
   );
@@ -226,7 +240,7 @@ function AppleAuth({
   return (
     <AppleAuthentication.AppleAuthenticationButton
       buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
       cornerRadius={5}
       style={styles.appleSignInButton}
       onPress={async () => {
@@ -300,7 +314,8 @@ function EmailAuth({
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-            placeholder="Email"
+            placeholder="your@email.com"
+            placeholderTextColor={Colors.primary.placeholder}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -317,6 +332,7 @@ function EmailAuth({
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="Password"
+            placeholderTextColor={Colors.primary.placeholder}
             textContentType="password"
             onBlur={onBlur}
             onChangeText={onChange}
@@ -328,6 +344,7 @@ function EmailAuth({
         name="Password"
       />
       <ThemedPressable
+        themeColor="primary"
         onPress={() => {
           setError(errorMessage());
           handleSubmit(onSubmit)();
@@ -336,10 +353,16 @@ function EmailAuth({
         text="Sign in"
       />
       <PressableLink
+        color="light"
         text="Do not have an account ? Sign up here"
+        textStyle={{
+          textAlign: "center",
+          fontWeight: "400",
+          fontStyle: "italic",
+          fontSize: 14,
+        }}
         route="register"
         style={styles.registerLink}
-        color="primary"
       />
       <ThemedText style={styles.errorMessage}>{error}</ThemedText>
     </ThemedView>
@@ -375,6 +398,7 @@ const styles = StyleSheet.create({
   appleSignInButton: {
     width: "auto",
     height: 50,
+    borderRadius: 10,
   },
   backlink: {
     width: 70,
@@ -385,12 +409,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 10,
+    borderRadius: 10,
     padding: 10,
   },
   emailLogin: {
     flexDirection: "column",
     gap: 10,
-    backgroundColor: Colors.primary.background,
   },
   errorMessage: {
     color: Colors.primary.text,
@@ -401,10 +425,10 @@ const styles = StyleSheet.create({
   form: {
     flexDirection: "column",
     gap: 10,
-    backgroundColor: Colors.primary.background,
     padding: 10,
     borderRadius: 10,
-    minWidth: 300,
+    borderWidth: 1,
+    borderColor: Colors.light.background,
   },
   googleButton: {
     flexDirection: "row",
@@ -428,9 +452,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
   },
   registerLink: {
-    borderRadius: 10,
-    borderColor: Colors.primary.text,
     borderWidth: 1,
+    borderColor: Colors.primary.background,
+    borderRadius: 10,
     padding: 5,
     marginTop: 10,
   },

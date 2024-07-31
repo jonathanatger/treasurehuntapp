@@ -24,21 +24,21 @@ function Profile() {
   const { height, width } = useWindowDimensions();
 
   return (
-    <ThemedSafeAreaView style={{ height: height, width: width }}>
+    <ThemedSafeAreaView primary style={{ height: height, width: width }}>
       <ScrollView>
-        <ThemedView style={styles.container}>
+        <ThemedView primary style={styles.container}>
           <PressableLink text="Go back" style={styles.backlink}></PressableLink>
-          <ThemedText type="title">Profile</ThemedText>
-          <ThemedView style={styles.main}>
+          <ThemedText light type="title">
+            Profile
+          </ThemedText>
+          <ThemedView light style={styles.main}>
             {!isEditing ? (
               <>
-                <ThemedText
-                  style={{ paddingVertical: 20 }}
-                  type="subtitle"
-                  primary>
+                <ThemedText style={{ paddingVertical: 20 }} type="subtitle">
                   {userInfo?.name ? userInfo?.name : "No name "}
                 </ThemedText>
                 <ThemedPressable
+                  themeColor="primary"
                   onPress={() => {
                     setIsEditing(true);
                   }}
@@ -108,7 +108,7 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
   };
 
   return (
-    <ThemedView style={styles.form}>
+    <ThemedView light style={styles.form}>
       <Controller
         control={control}
         rules={{
@@ -117,6 +117,7 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="New name"
+            placeholderTextColor={Colors.primary.placeholder}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -131,6 +132,7 @@ function EditNameForm({ setIsEditing }: { setIsEditing: any }) {
         async
         text="Change"></ThemedPressable>
       <ThemedPressable
+        themeColor="primary"
         onPress={() => setIsEditing(false)}
         text="Back"
         style={styles.backButton}></ThemedPressable>
@@ -148,24 +150,26 @@ function DeleteUserComponent() {
     <ThemedView style={styles.deletionView}>
       {isDeleting ? (
         <>
-          <ThemedText primary>
+          <ThemedText>
             Are you sure you want to delete your account ? You will lose access
             to all the races you have entered. Please confirm below.
           </ThemedText>
           <ThemedPressable
+            themeColor="primary"
             text="Keep my account"
             onPress={() => {
               setIsDeleting(false);
             }}
             style={styles.editButton}></ThemedPressable>
           <ThemedPressable
+            themeColor="primary"
             text="Delete !"
             async
             onPress={async () => {
               deleteUserLogic(userInfo, setUserInfo, setError);
             }}
             style={styles.deleteButton}></ThemedPressable>
-          <ThemedText primary>{error}</ThemedText>
+          <ThemedText light>{error}</ThemedText>
         </>
       ) : (
         <ThemedPressable
@@ -191,7 +195,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 48,
     borderRadius: 100,
-    backgroundColor: Colors.primary.background,
     borderColor: Colors.primary.text,
     borderWidth: 1,
   },
@@ -219,7 +222,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
     borderRadius: 10,
-    backgroundColor: Colors.primary.background,
   },
   editButton: {
     flexDirection: "column",
@@ -228,6 +230,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 48,
     borderRadius: 100,
+    borderWidth: 1,
+    borderColor: Colors.light.text,
   },
   form: {
     flexDirection: "column",
@@ -235,9 +239,7 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 10,
     width: "100%",
-    backgroundColor: Colors.primary.background,
     borderRadius: 10,
-    color: Colors.primary.text,
   },
   input: {
     height: 50,
@@ -260,7 +262,6 @@ const styles = StyleSheet.create({
     minHeight: 300,
     gap: 10,
     padding: 10,
-    backgroundColor: Colors.primary.background,
     borderRadius: 10,
     color: Colors.primary.text,
   },

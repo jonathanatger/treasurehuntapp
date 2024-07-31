@@ -29,6 +29,7 @@ export const Colors = {
     text: "#FEF9F6",
     background: "#C9420D",
     muted: "#D8470E",
+    placeholder: "#EBA386",
   },
   secondary: {
     text: "#FEF9F6",

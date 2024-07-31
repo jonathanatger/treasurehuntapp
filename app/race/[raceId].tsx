@@ -224,14 +224,14 @@ function InRaceScreen({
         )}
       </ThemedView>
       <ThemedView style={styles.raceButtonView}>
-        {finished ? (
-          <AdvanceToNextObjectiveButton
-            userCurrentTeamData={userCurrentTeamData}
-            numberId={numberId}
-            currentObjective={currentObjective}
-            setFinished={setFinished}
-          />
-        ) : (
+        {/* {finished ? ( */}
+        <AdvanceToNextObjectiveButton
+          userCurrentTeamData={userCurrentTeamData}
+          numberId={numberId}
+          currentObjective={currentObjective}
+          setFinished={setFinished}
+        />
+        {/* ) : (
           <CheckLocationButton
             setFinished={setFinished}
             currentObjective={currentObjective}
@@ -240,7 +240,7 @@ function InRaceScreen({
             setCheckingLocation={setCheckingLocation}
             checkingLocation={checkingLocation}
           />
-        )}
+        )} */}
       </ThemedView>
     </ThemedView>
   );
@@ -300,8 +300,8 @@ function VictoryScreen({ currentTeamId }: { currentTeamId: number }) {
   }, []);
 
   return (
-    <ThemedView style={styles.victoryScreen}>
-      <ThemedText type="title" style={{ textAlign: "center" }}>
+    <ThemedView primary style={styles.victoryScreen}>
+      <ThemedText light type="title" style={{ textAlign: "center" }}>
         Well played, you finished the race !
       </ThemedText>
     </ThemedView>
@@ -363,15 +363,24 @@ function AdvanceToNextObjectiveButton({
   currentObjective: any;
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const [disabled, setDisabled] = useState(false);
   return (
     <ThemedPressable
+      async
+      themeColor="secondary"
+      disabled={disabled}
+      textStyle={{ textAlign: "center" }}
       onPress={() => {
+        setDisabled(true);
+
         advanceToNextObjectiveLogic(
           userCurrentTeamData?.id!,
           numberId,
           currentObjective?.order!,
           currentObjective?.title!
-        );
+        ).then((data) => {
+          setDisabled(false);
+        });
         setFinished(false);
       }}
       text="Advance to next objective !"
@@ -379,6 +388,7 @@ function AdvanceToNextObjectiveButton({
     />
   );
 }
+
 function CheckLocationButton({
   currentObjective,
   setRetryMessage,
@@ -398,11 +408,10 @@ function CheckLocationButton({
 
   useEffect(() => {
     if (checkingLocation) {
-      console.log("start");
       Animated.loop(
         Animated.sequence([
           Animated.timing(pulsationAnim, {
-            toValue: 0.8,
+            toValue: 0.6,
             duration: 800,
             useNativeDriver: true,
             easing: Easing.linear,
@@ -416,39 +425,37 @@ function CheckLocationButton({
         ])
       ).start();
     } else {
-      console.log("stop");
       pulsationAnim.stopAnimation();
     }
   }, [checkingLocation]);
 
   return (
-    <Animated.View>
+    <Animated.View style={{ opacity: pulsationAnim }}>
       <ThemedPressable
         onPress={async () => {
           setCheckingLocation(true);
-          setRetryMessage(true);
-          // if (
-          //   await checkLocation(
-          //     currentObjective?.latitude!,
-          //     currentObjective?.longitude!
-          //   )
-          // ) {
-          //   setFinished(true);
-          //   setCheckingLocation(false);
-          // } else {
-          //   refreshFunction();
-          //   setRetryMessage(true);
-          //   // setCheckingLocation(false);
-
-          setTimeout(() => {
-            setRetryMessage(false);
+          if (
+            await checkLocation(
+              currentObjective?.latitude!,
+              currentObjective?.longitude!
+            )
+          ) {
+            setFinished(true);
             setCheckingLocation(false);
-          }, 5000);
-          // }
+          } else {
+            refreshFunction();
+            setRetryMessage(true);
+            setCheckingLocation(false);
+
+            setTimeout(() => {
+              setRetryMessage(false);
+            }, 5000);
+          }
         }}
         text="Check your location !"
         themeColor="primary"
-        style={{ opacity: pulsationAnim, ...styles.button }}
+        style={styles.button}
+        textStyle={{ textAlign: "center" }}
       />
     </Animated.View>
   );
@@ -526,9 +533,7 @@ const styles = StyleSheet.create({
   victoryScreen: {
     flex: 1,
     margin: 10,
-    backgroundColor: Colors.primary.background,
     borderRadius: 10,
-    color: Colors.primary.text,
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
@@ -541,14 +546,18 @@ async function advanceToNextObjectiveLogic(
   order: number,
   title: string
 ) {
-  await advanceObjective(teamId, raceId, order, title).then(async (data) => {
-    queryClient.invalidateQueries({
-      queryKey: [fetchTeamsKey + raceId],
-    });
-    queryClient.refetchQueries({
-      queryKey: [fetchTeamsKey + raceId],
-    });
-  });
+  const data = await advanceObjective(teamId, raceId, order, title).then(
+    async (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [fetchTeamsKey + raceId],
+      });
+      queryClient.refetchQueries({
+        queryKey: [fetchTeamsKey + raceId],
+      });
+      return data;
+    }
+  );
+  return data;
 }
 
 export default RacePage;

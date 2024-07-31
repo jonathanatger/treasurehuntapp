@@ -191,8 +191,8 @@ function EnterRaceButton({
 
   return (
     <ThemedPressable
-      themeColor="light"
-      text="Enter a team to jointhe race"
+      themeColor="primary"
+      text="Enter a team to join the race"
       style={styles.joinTeamBeforeRaceButton}
       onPress={() => {
         ///
@@ -243,6 +243,7 @@ const NewTeamForm = ({
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="Enter the name of the new team..."
+            placeholderTextColor={Colors.primary.placeholder}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -365,7 +366,6 @@ const styles = StyleSheet.create({
     minHeight: 60,
   },
   joinTeamBeforeRaceButton: {
-    backgroundColor: Colors.primary.muted,
     padding: 10,
     borderRadius: 10,
   },
@@ -389,6 +389,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     borderRadius: 100,
     height: 48,
+    color: Colors.light.text,
   },
   raceEnterContainer: {
     minHeight: 40,

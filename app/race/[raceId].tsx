@@ -3,13 +3,15 @@ import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import * as Location from "expo-location";
 import {
+  Animated,
+  Easing,
   RefreshControl,
   ScrollView,
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
 import { PressableLink } from "@/components/PressableLink";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -45,6 +47,7 @@ function RacePage() {
   const [finished, setFinished] = useState(false);
   const [retryMessage, setRetryMessage] = useState(false);
   const [isLocationEnabled, setIsLocationEnabled] = useState(true);
+  const [checkingLocation, setCheckingLocation] = useState(false);
 
   async function refreshFunction() {
     setFinished(false);
@@ -121,6 +124,7 @@ function RacePage() {
           />
         }>
         <ThemedView
+          primary
           style={{
             width: "auto",
             flexDirection: "row",
@@ -153,6 +157,8 @@ function RacePage() {
             setFinished={setFinished}
             setIsLocationEnabled={setIsLocationEnabled}
             refreshFunction={() => refreshFunction()}
+            setCheckingLocation={setCheckingLocation}
+            checkingLocation={checkingLocation}
           />
         )}
       </ScrollView>
@@ -174,6 +180,8 @@ function InRaceScreen({
   setFinished,
   setIsLocationEnabled,
   refreshFunction,
+  setCheckingLocation,
+  checkingLocation,
 }: {
   finished: boolean;
   setRetryMessage: React.Dispatch<React.SetStateAction<boolean>>;
@@ -184,6 +192,8 @@ function InRaceScreen({
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
   setIsLocationEnabled: React.Dispatch<React.SetStateAction<boolean>>;
   refreshFunction: any;
+  setCheckingLocation: React.Dispatch<React.SetStateAction<boolean>>;
+  checkingLocation: boolean;
 }) {
   const { height } = useWindowDimensions();
 
@@ -227,6 +237,8 @@ function InRaceScreen({
             currentObjective={currentObjective}
             setRetryMessage={setRetryMessage}
             refreshFunction={refreshFunction}
+            setCheckingLocation={setCheckingLocation}
+            checkingLocation={checkingLocation}
           />
         )}
       </ThemedView>
@@ -241,12 +253,34 @@ function ObjectiveInfo({
   message: string | undefined;
   retryMessage: boolean;
 }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (retryMessage) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [retryMessage]);
   return (
     <ThemedView style={styles.objectiveInfoView}>
-      <ThemedText type="subtitle">{message}</ThemedText>
-      {retryMessage && (
-        <ThemedText>You are not at the right place yet...</ThemedText>
-      )}
+      <ThemedView light style={styles.objClueText}>
+        <ThemedText type="subtitle" style={{ textAlign: "center" }}>
+          {message}
+        </ThemedText>
+      </ThemedView>
+      <Animated.View style={{ opacity: fadeAnim }}>
+        <ThemedText style={styles.objLocationErrorMessage}>
+          You are not at the right place yet...
+        </ThemedText>
+      </Animated.View>
     </ThemedView>
   );
 }
@@ -267,7 +301,7 @@ function VictoryScreen({ currentTeamId }: { currentTeamId: number }) {
 
   return (
     <ThemedView style={styles.victoryScreen}>
-      <ThemedText type="title" primary style={{ textAlign: "center" }}>
+      <ThemedText type="title" style={{ textAlign: "center" }}>
         Well played, you finished the race !
       </ThemedText>
     </ThemedView>
@@ -279,27 +313,25 @@ const StopTrackingButton = ({
 }: {
   raceId: string | string[] | undefined;
 }) => (
-  <ThemedView>
-    <ThemedPressable
-      onPress={async () => {
-        await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+  <ThemedPressable
+    onPress={async () => {
+      await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
 
-        if (typeof raceId === "string") {
-          router.push("/tracks/" + raceId);
-        }
-      }}
-      text="Stop racing for now"
-      style={{
-        ...styles.backlink,
-        minWidth: 200,
-        minHeight: 50,
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        borderRadius: 10,
-      }}
-    />
-  </ThemedView>
+      if (typeof raceId === "string") {
+        router.push("/tracks/" + raceId);
+      }
+    }}
+    text="Stop racing for now"
+    style={{
+      ...styles.backlink,
+      minWidth: 200,
+      minHeight: 50,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 10,
+    }}
+  />
 );
 
 const PermissionsButton = ({
@@ -352,35 +384,73 @@ function CheckLocationButton({
   setRetryMessage,
   setFinished,
   refreshFunction,
+  setCheckingLocation,
+  checkingLocation,
 }: {
   currentObjective: any;
   setRetryMessage: React.Dispatch<React.SetStateAction<boolean>>;
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
   refreshFunction: any;
+  setCheckingLocation: React.Dispatch<React.SetStateAction<boolean>>;
+  checkingLocation: boolean;
 }) {
+  const pulsationAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (checkingLocation) {
+      console.log("start");
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulsationAnim, {
+            toValue: 0.8,
+            duration: 800,
+            useNativeDriver: true,
+            easing: Easing.linear,
+          }),
+          Animated.timing(pulsationAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+            easing: Easing.linear,
+          }),
+        ])
+      ).start();
+    } else {
+      console.log("stop");
+      pulsationAnim.stopAnimation();
+    }
+  }, [checkingLocation]);
+
   return (
-    <ThemedPressable
-      onPress={async () => {
-        if (
-          await checkLocation(
-            currentObjective?.latitude!,
-            currentObjective?.longitude!
-          )
-        ) {
-          setFinished(true);
-        } else {
-          refreshFunction();
+    <Animated.View>
+      <ThemedPressable
+        onPress={async () => {
+          setCheckingLocation(true);
           setRetryMessage(true);
+          // if (
+          //   await checkLocation(
+          //     currentObjective?.latitude!,
+          //     currentObjective?.longitude!
+          //   )
+          // ) {
+          //   setFinished(true);
+          //   setCheckingLocation(false);
+          // } else {
+          //   refreshFunction();
+          //   setRetryMessage(true);
+          //   // setCheckingLocation(false);
 
           setTimeout(() => {
             setRetryMessage(false);
+            setCheckingLocation(false);
           }, 5000);
-        }
-      }}
-      text="Check your location !"
-      themeColor="primary"
-      style={styles.button}
-    />
+          // }
+        }}
+        text="Check your location !"
+        themeColor="primary"
+        style={{ opacity: pulsationAnim, ...styles.button }}
+      />
+    </Animated.View>
   );
 }
 
@@ -418,26 +488,40 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: "column",
     gap: 10,
+    borderRadius: 10,
   },
   main: {
     flexDirection: "column",
+    borderRadius: 10,
     gap: 10,
+  },
+  objClueText: {
+    height: "80%",
+    textAlign: "center",
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  objLocationErrorMessage: {
+    flex: 1,
   },
   objectiveInfoView: {
     flex: 1,
     flexDirection: "column",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     padding: 10,
+    borderRadius: 10,
   },
   raceButtonView: {
     flex: 1,
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 10,
   },
   raceMessageView: {
     flex: 1,
+    borderRadius: 10,
   },
   victoryScreen: {
     flex: 1,

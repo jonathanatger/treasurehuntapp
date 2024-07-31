@@ -72,7 +72,13 @@ export function ThemedPressable({
         }
       }}
       {...rest}>
-      <ThemedText type={textType}>{text}</ThemedText>
+      <ThemedText
+        light={
+          themeColor === "primary" || themeColor === "secondary" ? true : false
+        }
+        type={textType}>
+        {text}
+      </ThemedText>
       {loading && (
         <View
           style={{

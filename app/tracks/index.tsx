@@ -41,19 +41,21 @@ function RacesMainPage() {
             onRefresh={() => refreshFunction()}
           />
         }>
-        <PressableLink
-          text="Go back"
-          route="/"
-          style={styles.backlink}></PressableLink>
-        <ThemedText light type="title">
-          Your races
-        </ThemedText>
+        <ThemedView primary style={styles.topBar}>
+          <PressableLink
+            text="Go back"
+            route="/"
+            style={styles.backlink}></PressableLink>
+          <ThemedText light type="title">
+            Your races
+          </ThemedText>
+        </ThemedView>
         {isLoading ? (
           <ThemedText light type="title">
             Loading...
           </ThemedText>
         ) : raceData ? (
-          <ThemedView style={styles.racesContainer}>
+          <ThemedView primary style={styles.racesContainer}>
             {raceData.map((race) => {
               return (
                 <PressableLink
@@ -123,6 +125,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 34,
     paddingTop: 30,
+  },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    height: 50,
   },
 });
 export default RacesMainPage;

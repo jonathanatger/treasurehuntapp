@@ -118,16 +118,21 @@ function SpecificRacePage() {
             onRefresh={() => refreshFunction()}
           />
         }>
-        <PressableLink
-          text="Go back"
-          route="/tracks"
-          style={styles.backlink}></PressableLink>
-        <ThemedText type="subtitle" style={{ fontSize: 24 }}>
-          {currentRace?.races.name || "Préparation des équipes"}
-        </ThemedText>
+        <ThemedView primary style={styles.topBar}>
+          <PressableLink
+            text="Go back"
+            route="/tracks"
+            style={styles.backlink}></PressableLink>
+          <ThemedText
+            light
+            type="subtitle"
+            style={{ fontSize: 20, flexWrap: "wrap", maxWidth: width - 120 }}>
+            {currentRace?.races.name || "Préparation des équipes"}
+          </ThemedText>
+        </ThemedView>
         {!raceLaunched && <NewTeamForm raceId={raceId} userInfo={userInfo} />}
         {teamsIsLoading ? (
-          <ThemedText>Waiting for teams to load...</ThemedText>
+          <ThemedText light>Waiting for teams to load...</ThemedText>
         ) : teamsData?.length === 0 ? (
           <ThemedText
             style={{
@@ -146,11 +151,13 @@ function SpecificRacePage() {
           />
         )}
       </ScrollView>
-      <ThemedView style={styles.raceEnterContainer}>
+      <ThemedView primary style={styles.raceEnterContainer}>
         {currentRace?.races.launched ? (
           <EnterRaceButton raceId={raceId} userCurrentTeam={userCurrentTeam} />
         ) : (
-          <ThemedText type="subtitle">Race has not started yet!</ThemedText>
+          <ThemedText light type="subtitle">
+            Race has not started yet!
+          </ThemedText>
         )}
       </ThemedView>
     </ThemedSafeAreaView>
@@ -169,8 +176,8 @@ function EnterRaceButton({
   if (userCurrentTeam && userCurrentTeam.length > 0) {
     return (
       <ThemedPressable
+        themeColor="light"
         text="Enter the race"
-        themeColor="secondary"
         textType="subtitle"
         style={styles.enterRaceButton}
         onPress={() => {
@@ -184,6 +191,7 @@ function EnterRaceButton({
 
   return (
     <ThemedPressable
+      themeColor="light"
       text="Enter a team to jointhe race"
       style={styles.joinTeamBeforeRaceButton}
       onPress={() => {
@@ -210,7 +218,23 @@ const NewTeamForm = ({
   };
 
   return (
-    <ThemedView style={styles.newTeamForm}>
+    <ThemedView light style={styles.newTeamForm}>
+      <ThemedView
+        light
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+        <ThemedText type="subtitle"> Create a new team</ThemedText>
+        <ThemedPressable
+          async
+          themeColor="primary"
+          onPress={handleSubmit(onSubmit)}
+          style={styles.newTeamButton}
+          text="+"
+          textType="subtitle"></ThemedPressable>
+      </ThemedView>
       <Controller
         control={control}
         rules={{
@@ -218,7 +242,7 @@ const NewTeamForm = ({
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-            placeholder="Nom de la nouvelle équipe"
+            placeholder="Enter the name of the new team..."
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -227,12 +251,6 @@ const NewTeamForm = ({
         )}
         name="Name"
       />
-      <ThemedPressable
-        async
-        onPress={handleSubmit(onSubmit)}
-        style={styles.newTeamButton}
-        text="+"
-        textType="subtitle"></ThemedPressable>
     </ThemedView>
   );
 };
@@ -256,23 +274,24 @@ const TeamCards = ({
   const userId = userInfo?.id ? userInfo.id : "";
 
   return (
-    <ThemedView style={styles.teamsView}>
+    <ThemedView primary style={styles.teamsView}>
       {teams
         ?.sort((a, b) => sortStrings(a.name, b.name))
         .map((team, index) => {
           return (
-            <ThemedView style={styles.teamsCard} key={team.id}>
-              <ThemedText type="title" primary style={{ fontSize: 24 }}>
+            <ThemedView primary style={styles.teamsCard} key={team.id}>
+              <ThemedText light type="title" style={{ fontSize: 24 }}>
                 {team.name}
               </ThemedText>
-              <ThemedText primary style={{ textAlign: "center" }}>
+              <ThemedText light style={{ textAlign: "center" }}>
                 {team.users.map((user) => user.name).join("\n")}
               </ThemedText>
-              <ThemedView style={styles.teamButtons}>
+              <ThemedView light style={styles.teamButtons}>
                 {team.users.filter((user) => user.email === userEmail).length >
                 0 ? (
                   <ThemedPressable
                     async
+                    themeColor="light"
                     text="Quit"
                     disabled={raceLaunched}
                     onPress={() => quitTeamLogic(team.id, userId, raceId)}
@@ -284,6 +303,7 @@ const TeamCards = ({
                 ) : (
                   <ThemedPressable
                     async
+                    themeColor="light"
                     disabled={raceLaunched && userCurrentTeam.length !== 0}
                     text="Join"
                     onPress={() =>
@@ -300,6 +320,7 @@ const TeamCards = ({
                   <ThemedPressable
                     async
                     text="X"
+                    themeColor="light"
                     disabled={raceLaunched}
                     onPress={() => deleteTeamLogic(team.id, raceId)}
                     style={{
@@ -323,6 +344,7 @@ const styles = StyleSheet.create({
   backlink: {
     width: 70,
     padding: 3,
+    height: 50,
   },
   button: {
     backgroundColor: Colors.primary.background,
@@ -351,7 +373,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   newTeamForm: {
-    flexDirection: "row",
+    flexDirection: "column",
+    padding: 5,
+    gap: 5,
+    borderRadius: 10,
   },
   newTeamButton: {
     borderRadius: 100,
@@ -359,22 +384,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   newTeamInput: {
-    flex: 1,
     borderWidth: 1,
-    borderColor: "black",
+    borderColor: Colors.primary.background,
     paddingLeft: 10,
     borderRadius: 100,
-    marginRight: 10,
+    height: 48,
   },
   raceEnterContainer: {
     minHeight: 40,
     shadowColor: "black",
     padding: 10,
-    borderTopColor: Colors.light.icon,
+    borderTopColor: Colors.light.background,
     borderTopWidth: 1,
   },
   teamSingleButton: {
-    backgroundColor: Colors.primary.background,
     borderWidth: 1,
     borderColor: Colors.light.background,
     borderRadius: 100,
@@ -387,8 +410,9 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   teamsCard: {
+    borderWidth: 1,
+    borderColor: Colors.light.background,
     height: "auto",
-    backgroundColor: Colors.primary.background,
     borderRadius: 18,
     padding: 10,
     gap: 5,
@@ -398,9 +422,15 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 10,
     paddingVertical: 10,
-    borderTopColor: "black",
+    borderTopColor: Colors.light.background,
     borderTopWidth: 1,
     flexDirection: "column",
+  },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: "auto",
   },
 });
 

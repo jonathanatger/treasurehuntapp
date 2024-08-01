@@ -1,6 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
-import { Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { TextInput } from "react-native";
 import { appContext } from "../_layout";
@@ -25,21 +25,11 @@ function NoAuthLogin() {
     <ThemedSafeAreaView>
       <ScrollView contentContainerStyle={{ padding: 10, height: height }}>
         <PressableLink text="Go back" style={styles.backlink}></PressableLink>
-        <ThemedView style={{ height: height - 50, ...styles.main }}>
-          <ThemedText type="title">Choose a name to start </ThemedText>
-          <ChooseNameForm />
-          <ThemedText
-            type="default"
-            style={{
-              textAlign: "center",
-              fontSize: 14,
-              lineHeight: 20,
-              fontStyle: "italic",
-              padding: 10,
-            }}>
-            As a guest, you will not have access to an account to create new
-            races, and will loose access to all your races when you log out.
+        <ThemedView primary style={{ height: height - 100, ...styles.main }}>
+          <ThemedText light type="title">
+            Choose a name to start
           </ThemedText>
+          <ChooseNameForm />
         </ThemedView>
       </ScrollView>
     </ThemedSafeAreaView>
@@ -92,6 +82,7 @@ function ChooseNameForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="New name"
+            placeholderTextColor={Colors.primary.placeholder}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -101,6 +92,8 @@ function ChooseNameForm() {
         name="Name"
       />
       <ThemedPressable
+        async
+        themeColor="primary"
         onPress={() => {
           setError("");
           if (errors.Name?.type === "minLength")
@@ -136,7 +129,6 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 10,
     width: "100%",
-    backgroundColor: Colors.primary.background,
     borderRadius: 10,
     color: Colors.primary.text,
   },
@@ -153,6 +145,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     width: "100%",
     backgroundColor: Colors.light.background,
+    color: Colors.light.text,
   },
   main: {
     flexDirection: "column",

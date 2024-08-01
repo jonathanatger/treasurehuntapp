@@ -22,13 +22,13 @@ function RegisterEmail() {
       <ScrollView
         contentContainerStyle={{
           padding: 10,
-          height: height,
+          height: "auto",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "flex-start",
+          backgroundColor: Colors.primary.background,
         }}>
         <PressableLink text="Go back" style={styles.backlink}></PressableLink>
-        <ThemedView style={{ height: height - 50, ...styles.main }}>
-          <ThemedText type="subtitle">Welcome</ThemedText>
+        <ThemedView primary style={{ height: height, ...styles.main }}>
           <ChooseNameForm />
         </ThemedView>
       </ScrollView>
@@ -92,16 +92,19 @@ function ChooseNameForm() {
   };
 
   return (
-    <ThemedView style={styles.form}>
-      <ThemedText style={styles.formText}>Name</ThemedText>
+    <ThemedView primary style={styles.form}>
+      <ThemedText light style={styles.formText}>
+        Name
+      </ThemedText>
       <Controller
         control={control}
         rules={{
-          required: true,
+          required: { value: true, message: "Name is required" },
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="Your name here"
+            placeholderTextColor={Colors.primary.placeholder}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -114,7 +117,7 @@ function ChooseNameForm() {
       <Controller
         control={control}
         rules={{
-          required: true,
+          required: { value: true, message: "Email is required" },
           pattern: {
             value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
             message: "Invalid email address",
@@ -123,6 +126,7 @@ function ChooseNameForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="someone@example.com"
+            placeholderTextColor={Colors.primary.placeholder}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -140,6 +144,7 @@ function ChooseNameForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="Password"
+            placeholderTextColor={Colors.primary.placeholder}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -157,6 +162,7 @@ function ChooseNameForm() {
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="Repeat Password"
+            placeholderTextColor={Colors.primary.placeholder}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -174,7 +180,9 @@ function ChooseNameForm() {
         }}
         style={styles.editButton}
         text="Let's Go"></ThemedPressable>
-      <ThemedText>{error}</ThemedText>
+      <ThemedText light style={{ minHeight: 100 }}>
+        {error}
+      </ThemedText>
     </ThemedView>
   );
 }
@@ -200,6 +208,8 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: Colors.primary.background,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.primary.text,
     color: Colors.primary.text,
   },
   formText: {
@@ -225,9 +235,10 @@ const styles = StyleSheet.create({
   main: {
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     gap: 10,
     padding: 10,
+    paddingTop: 20,
   },
 });
 

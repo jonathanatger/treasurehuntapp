@@ -100,25 +100,21 @@ function Homescreen() {
               route="join"
               text="Join a Race"
               textType="subtitle"
+              textStyle={{ fontFamily: "Oswald-Medium" }}
               style={styles.links}
             />
             <PressableLink
               text="Go to Races"
               route="tracks"
               textType="subtitle"
+              textStyle={{ fontFamily: "Oswald-Medium" }}
               style={styles.links}></PressableLink>
             <PressableLink
               text="Profile"
               route="profile"
               textType="subtitle"
+              textStyle={{ fontFamily: "Oswald-Medium" }}
               style={styles.links}></PressableLink>
-            <Pressable
-              onPress={() => setIsFirstTime(true)}
-              style={{
-                height: 30,
-                width: "100%",
-                backgroundColor: "#FEF9F6",
-              }}></Pressable>
           </Animated.View>
         ) : (
           <Animated.View
@@ -127,22 +123,19 @@ function Homescreen() {
               ...styles.buttonContainer,
             }}>
             <PressableLink
+              color="primary"
+              text="Continue without account"
+              route="noAuthLogin"
+              textType="subtitle"
+              textStyle={{ fontFamily: "Oswald-Medium" }}
+              style={styles.links}></PressableLink>
+            <PressableLink
+              color="primary"
               text="Login"
               route="login"
               textType="subtitle"
+              textStyle={{ fontFamily: "Oswald-Medium" }}
               style={styles.links}></PressableLink>
-            <PressableLink
-              text="Continue as guest"
-              route="noAuthLogin"
-              textType="subtitle"
-              style={styles.links}></PressableLink>
-            <Pressable
-              onPress={() => setIsFirstTime(true)}
-              style={{
-                height: 30,
-                width: "100%",
-                backgroundColor: "#FEF9F6",
-              }}></Pressable>
           </Animated.View>
         )}
       </ThemedView>
@@ -167,13 +160,18 @@ const styles = StyleSheet.create({
     color: "white",
   },
   links: {
-    // ...Shadows.base,
     borderRadius: 24,
+    borderWidth: 1,
+    borderColor: Colors.primary.text,
     flex: 1,
     width: "100%",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "black",
+    shadowOffset: { width: 2, height: 2 },
+    shadowRadius: 4,
+    shadowOpacity: 0.24,
   },
   main: {
     height: 300,

@@ -2,6 +2,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { router, useLocalSearchParams } from "expo-router";
 import {
+  Animated,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -10,7 +11,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { PressableLink } from "@/components/PressableLink";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import {
   RaceData,
@@ -31,6 +32,7 @@ import { UserInfoType } from "@/constants/data";
 import { Controller, useForm } from "react-hook-form";
 import { ThemedPressable } from "@/components/Pressable";
 import {
+  TransformedSingleTeamData,
   TransformedTeamsData,
   transformTeamsData,
 } from "@/functions/functions";
@@ -106,7 +108,7 @@ function SpecificRacePage() {
   const teamsData = transformTeamsData(teamsRawData);
   const userCurrentTeam = teamsData?.filter(
     (team) => team.users.filter((user) => user.email === userEmail).length > 0
-  );
+  )[0];
 
   return (
     <ThemedSafeAreaView style={{ height: height, ...styles.main }}>
@@ -130,7 +132,13 @@ function SpecificRacePage() {
             {currentRace?.races.name || "Préparation des équipes"}
           </ThemedText>
         </ThemedView>
-        {!raceLaunched && <NewTeamForm raceId={raceId} userInfo={userInfo} />}
+        {!raceLaunched && (
+          <NewTeamForm
+            userCurrentTeam={userCurrentTeam}
+            raceId={raceId}
+            userInfo={userInfo}
+          />
+        )}
         {teamsIsLoading ? (
           <ThemedText light>Waiting for teams to load...</ThemedText>
         ) : teamsData?.length === 0 ? (
@@ -173,7 +181,7 @@ function EnterRaceButton({
 }) {
   const [loading, setLoading] = useState(false);
 
-  if (userCurrentTeam && userCurrentTeam.length > 0) {
+  if (userCurrentTeam && userCurrentTeam !== undefined) {
     return (
       <ThemedPressable
         themeColor="light"
@@ -203,9 +211,11 @@ function EnterRaceButton({
 const NewTeamForm = ({
   raceId,
   userInfo,
+  userCurrentTeam,
 }: {
   raceId: string | string[] | undefined;
   userInfo: UserInfoType | null;
+  userCurrentTeam: TransformedSingleTeamData | undefined;
 }) => {
   const { register, handleSubmit, control, reset } = useForm({
     defaultValues: { Name: "" },
@@ -213,8 +223,17 @@ const NewTeamForm = ({
   const onSubmit = async (data: { Name: string }) => {
     if (!userInfo || data.Name === "") return;
 
-    const res = await createNewTeamLogic(data.Name, raceId, userInfo);
-    if (res) reset();
+    const res = await createNewTeamLogic(
+      data.Name,
+      raceId,
+      userInfo.id,
+      userCurrentTeam?.id ?? undefined
+    );
+    if (res) {
+      queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
+      queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
+      reset();
+    }
   };
 
   return (
@@ -280,64 +299,118 @@ const TeamCards = ({
         ?.sort((a, b) => sortStrings(a.name, b.name))
         .map((team, index) => {
           return (
-            <ThemedView primary style={styles.teamsCard} key={team.id}>
-              <ThemedText light type="title" style={{ fontSize: 24 }}>
-                {team.name}
-              </ThemedText>
-              <ThemedText light style={{ textAlign: "center" }}>
-                {team.users.map((user) => user.name).join("\n")}
-              </ThemedText>
-              <ThemedView light style={styles.teamButtons}>
-                {team.users.filter((user) => user.email === userEmail).length >
-                0 ? (
-                  <ThemedPressable
-                    async
-                    themeColor="light"
-                    text="Quit"
-                    disabled={raceLaunched}
-                    onPress={() => quitTeamLogic(team.id, userId, raceId)}
-                    style={{
-                      ...styles.teamSingleButton,
-                      flex: 1,
-                      opacity: raceLaunched ? 0.5 : 1,
-                    }}></ThemedPressable>
-                ) : (
-                  <ThemedPressable
-                    async
-                    themeColor="light"
-                    disabled={raceLaunched && userCurrentTeam.length !== 0}
-                    text="Join"
-                    onPress={() =>
-                      enterTeamLogic(team.id, userId, userEmail, teams, raceId)
-                    }
-                    style={{
-                      ...styles.teamSingleButton,
-                      flex: 1,
-                      opacity:
-                        raceLaunched && userCurrentTeam.length !== 0 ? 0.5 : 1,
-                    }}></ThemedPressable>
-                )}
-                {team.users.length > 0 && team.users[0].email === "" && (
-                  <ThemedPressable
-                    async
-                    text="X"
-                    themeColor="light"
-                    disabled={raceLaunched}
-                    onPress={() => deleteTeamLogic(team.id, raceId)}
-                    style={{
-                      opacity: raceLaunched ? 0.5 : 1,
-                      ...styles.teamSingleButton,
-                      minWidth: 50,
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}></ThemedPressable>
-                )}
-              </ThemedView>
-            </ThemedView>
+            <SingleTeamCard
+              team={team}
+              userId={userId}
+              raceId={raceId}
+              userCurrentTeam={userCurrentTeam}
+              key={team.id}
+              userEmail={userEmail}
+              raceLaunched={raceLaunched}
+            />
           );
         })}
     </ThemedView>
+  );
+};
+
+const SingleTeamCard = ({
+  team,
+  raceId,
+  userId,
+  userEmail,
+  userCurrentTeam,
+  raceLaunched,
+}: {
+  team: TransformedSingleTeamData;
+  raceId: string | string[] | undefined;
+  userId: string;
+  userCurrentTeam: TransformedSingleTeamData | undefined;
+  userEmail: string;
+  raceLaunched: boolean;
+}) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View style={{ opacity: fadeAnim }}>
+      <ThemedView primary style={styles.teamsCard} key={team.id}>
+        <ThemedView primary style={styles.teamCardHeader}>
+          <ThemedText
+            light
+            type="title"
+            style={{ fontSize: 24, maxWidth: "70%" }}>
+            {team.name}
+          </ThemedText>
+          {team.users.filter((user) => user.email === userEmail).length > 0 && (
+            <ThemedText type="title" light style={{ textAlign: "center" }}>
+              ✅
+            </ThemedText>
+          )}
+        </ThemedView>
+        <ThemedText light style={{ textAlign: "center" }}>
+          {team.users.map((user) => user.name).join("\n")}
+        </ThemedText>
+        <ThemedView light style={styles.teamButtons}>
+          {team.users.filter((user) => user.email === userEmail).length > 0 ? (
+            <ThemedPressable
+              async
+              themeColor="light"
+              text="Quit"
+              disabled={raceLaunched}
+              onPress={() => quitTeamLogic(team.id, userId, raceId)}
+              style={{
+                ...styles.teamSingleButton,
+                flex: 1,
+                opacity: raceLaunched ? 0.5 : 1,
+              }}></ThemedPressable>
+          ) : (
+            <ThemedPressable
+              async
+              themeColor="light"
+              disabled={raceLaunched && userCurrentTeam !== undefined}
+              text="Join"
+              onPress={() =>
+                enterTeamLogic(
+                  team.id,
+                  userId,
+                  userEmail,
+                  userCurrentTeam,
+                  raceId
+                )
+              }
+              style={{
+                ...styles.teamSingleButton,
+                flex: 1,
+                opacity: raceLaunched && userCurrentTeam ? 0.5 : 1,
+              }}></ThemedPressable>
+          )}
+          {team.users.length > 0 && team.users[0].email === "" && (
+            <ThemedPressable
+              async
+              text="X"
+              themeColor="light"
+              disabled={raceLaunched}
+              onPress={() => deleteTeamLogic(team.id, raceId)}
+              style={{
+                opacity: raceLaunched ? 0.5 : 1,
+                ...styles.teamSingleButton,
+                minWidth: 50,
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}></ThemedPressable>
+          )}
+        </ThemedView>
+      </ThemedView>
+    </Animated.View>
   );
 };
 
@@ -398,6 +471,11 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.light.background,
     borderTopWidth: 1,
   },
+  teamCardHeader: {
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+  },
   teamSingleButton: {
     borderWidth: 1,
     borderColor: Colors.light.background,
@@ -438,17 +516,23 @@ const styles = StyleSheet.create({
 async function createNewTeamLogic(
   name: string,
   raceId: string | string[] | undefined,
-  userInfo: UserInfoType | null
+  userId: string | undefined,
+  formerTeamId?: number
 ) {
-  if (!raceId || Array.isArray(raceId) || userInfo?.id === undefined)
+  if (!raceId || Array.isArray(raceId) || userId === undefined)
     throw new Error("No id provided");
 
-  const res = await createNewTeam(name, Number(raceId), userInfo?.id);
+  const res = await createNewTeam(
+    name,
+    Number(raceId),
+    userId,
+    formerTeamId ?? undefined
+  );
 
   if (!res || res.result === "error") return false;
   else {
-    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
-    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
+    await queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
+    await queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
   }
   return true;
 }
@@ -464,37 +548,26 @@ async function quitTeamLogic(
 
   if (!res || res.result === "error") return false;
   else {
-    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
-    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
+    await queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
+    await queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
   }
-  return true;
 }
 
 async function enterTeamLogic(
   teamId: number,
   userId: string,
   userEmail: string,
-  teams: TransformedTeamsData,
+  userCurrentTeam: TransformedSingleTeamData | undefined,
   raceId: string | string[] | undefined
 ) {
-  const existingTeamId = teams.reduce((acc, team) => {
-    if (
-      team.users.reduce((acc, value) => {
-        if (value.email === userEmail) return true;
-        else return acc;
-      }, false)
-    )
-      return team.id;
-    else return acc;
-  }, 0);
-
+  const existingTeamId = userCurrentTeam?.id ?? undefined;
   if (!raceId || Array.isArray(raceId) || userId === undefined) return false;
   const res = await enterTeam(teamId, userId, existingTeamId);
 
   if (!res || res.result === "error") return false;
   else {
-    queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
-    queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
+    await queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
+    await queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
   }
   return true;
 }

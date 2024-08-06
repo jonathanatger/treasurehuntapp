@@ -13,6 +13,7 @@ import { useContext, useState } from "react";
 import { appContext } from "../_layout";
 import { router } from "expo-router";
 import { ThemedPressable } from "@/components/Pressable";
+import { Colors } from "@/constants/Colors";
 
 function Join() {
   const { height, width } = useWindowDimensions();
@@ -58,7 +59,7 @@ function JoinForm({ viewerheight }: { viewerheight: number }) {
       router.push("tracks");
       setError("");
     } else {
-      setError(responseData.result.result);
+      setError("No race with this code found !");
     }
     return responseData;
   };
@@ -78,6 +79,7 @@ function JoinForm({ viewerheight }: { viewerheight: number }) {
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="Code"
+            placeholderTextColor={Colors.primary.muted}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -91,7 +93,7 @@ function JoinForm({ viewerheight }: { viewerheight: number }) {
         onPress={handleSubmit(onSubmit)}
         style={styles.joinButton}
         text="Join"></ThemedPressable>
-      <ThemedText light style={{ textAlign: "center" }}>
+      <ThemedText light style={{ textAlign: "center", minHeight: 40 }}>
         {error}
       </ThemedText>
     </ThemedView>

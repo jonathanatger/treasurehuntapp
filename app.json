@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FEF9F6"
+      "backgroundColor": "#C9420D"
     },
     "ios": {
       "buildNumber": "6",

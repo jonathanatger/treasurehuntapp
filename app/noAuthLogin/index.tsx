@@ -77,7 +77,10 @@ function ChooseNameForm() {
         control={control}
         rules={{
           required: true,
-          minLength: 6,
+          minLength: {
+            value: 6,
+            message: "Name must be at least 6 characters",
+          },
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
@@ -94,17 +97,13 @@ function ChooseNameForm() {
       <ThemedPressable
         async
         themeColor="primary"
-        onPress={() => {
-          setError("");
-          if (errors.Name?.type === "minLength")
-            setError("Name must be at least 6 characters");
-
-          handleSubmit(onSubmit)();
+        onPress={async () => {
+          await handleSubmit(onSubmit)();
         }}
         style={styles.editButton}
         text="Let's Go"></ThemedPressable>
-      <ThemedText style={{ color: Colors.primary.text, textAlign: "center" }}>
-        {error}
+      <ThemedText style={{ textAlign: "center" }}>
+        {errors.Name?.message}
       </ThemedText>
     </ThemedView>
   );

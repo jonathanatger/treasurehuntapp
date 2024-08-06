@@ -69,7 +69,8 @@ export type RaceData =
 export async function createNewTeam(
   teamName: string,
   raceId: number,
-  userId: string
+  userId: string,
+  formerTeamId?: number
 ) {
   const res = await fetch(domain + "/api/mobile/createTeam", {
     method: "POST",
@@ -77,6 +78,7 @@ export async function createNewTeam(
       teamName,
       raceId,
       userId,
+      formerTeamId,
     }),
   });
 

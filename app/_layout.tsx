@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Onboarding from "react-native-onboarding-swiper";
 import { Image } from "react-native";
 import * as Location from "expo-location";
+import { ThemedView } from "@/components/ThemedView";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -59,7 +60,7 @@ function Layout() {
       image: (
         <Image
           style={{ width: 200, height: 200 }}
-          source={require("../assets/images/splash.png")}
+          source={require("../assets/images/drawing1.png")}
         />
       ),
       title: "Welcome !",
@@ -76,7 +77,7 @@ function Layout() {
       image: (
         <Image
           style={{ width: 200, height: 200 }}
-          source={require("../assets/images/splash.png")}
+          source={require("../assets/images/drawing2.png")}
         />
       ),
       title: "We will ask you for your location",
@@ -95,7 +96,7 @@ function Layout() {
       image: (
         <Image
           style={{ width: 200, height: 200 }}
-          source={require("../assets/images/splash.png")}
+          source={require("../assets/images/drawing3.png")}
         />
       ),
       titleStyles: {
@@ -114,7 +115,7 @@ function Layout() {
       image: (
         <Image
           style={{ width: 200, height: 200 }}
-          source={require("../assets/images/splash.png")}
+          source={require("../assets/images/drawing4.png")}
         />
       ),
       title: "An account is possible - \n but not required",
@@ -160,46 +161,50 @@ function Layout() {
                 onDone={onboardingDone}
               />
             ) : (
-              <Stack>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="race/[raceId]"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="tracks/[raceId]"
-                  options={{ headerShown: false }}
-                />
+              <ThemedView
+                primary
+                style={{ flex: 1, backgroundColor: "#C03F0C" }}>
+                <Stack>
+                  <Stack.Screen name="index" options={{ headerShown: false }} />
+                  <Stack.Screen
+                    name="race/[raceId]"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="tracks/[raceId]"
+                    options={{ headerShown: false }}
+                  />
 
-                <Stack.Screen
-                  name="tracks/index"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="login/index"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="register/index"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="join/index"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="noAuthLogin/index"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="profile/index"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="support/index"
-                  options={{ headerShown: false }}
-                />
-              </Stack>
+                  <Stack.Screen
+                    name="tracks/index"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="login/index"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="register/index"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="join/index"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="noAuthLogin/index"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="profile/index"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="support/index"
+                    options={{ headerShown: false }}
+                  />
+                </Stack>
+              </ThemedView>
             )}
           </AppContextProvider>
         </QueryClientProvider>

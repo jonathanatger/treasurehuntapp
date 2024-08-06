@@ -1,13 +1,7 @@
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Image,
-  Pressable,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { Animated, StyleSheet, useWindowDimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { appContext } from "./_layout";
 import { PressableLink } from "@/components/PressableLink";
@@ -82,11 +76,12 @@ function Homescreen() {
         primary
         style={{ flexDirection: "column", alignItems: "center" }}>
         <Animated.Image
-          source={require("@/assets/images/icon.png")}
+          source={require("@/assets/images/adaptive-icon.png")}
           style={{
             opacity: fadeAnim2,
-            height: 100,
-            width: 100,
+            height: 300,
+            maxHeight: 300,
+            width: width,
           }}></Animated.Image>
       </ThemedView>
       <ThemedView primary style={styles.main}>
@@ -104,7 +99,7 @@ function Homescreen() {
               style={styles.links}
             />
             <PressableLink
-              text="Go to Races"
+              text="Your races"
               route="tracks"
               textType="subtitle"
               textStyle={{ fontFamily: "Oswald-Medium" }}
@@ -136,6 +131,15 @@ function Homescreen() {
               textType="subtitle"
               textStyle={{ fontFamily: "Oswald-Medium" }}
               style={styles.links}></PressableLink>
+            {/* <Pressable
+              onPress={() => {
+                setIsFirstTime(true);
+              }}
+              style={{
+                height: 10,
+                width: width,
+                backgroundColor: "white",
+              }}></Pressable> */}
           </Animated.View>
         )}
       </ThemedView>

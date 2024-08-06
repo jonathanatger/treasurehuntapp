@@ -50,14 +50,16 @@ export async function logout(
   }
 }
 
-export type TransformedTeamsData = {
+export type TransformedSingleTeamData = {
   id: number;
   name: string;
   users: { name: string; email: string }[];
   currentLongitude: number;
   currentLatitude: number;
   objectiveIndex: number;
-}[];
+};
+
+export type TransformedTeamsData = TransformedSingleTeamData[];
 
 export function transformTeamsData(data: RaceData) {
   let returnData = [] as TransformedTeamsData;

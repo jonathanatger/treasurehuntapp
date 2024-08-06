@@ -45,7 +45,9 @@ function RacePage() {
   const { raceId } = useLocalSearchParams();
   const numberId = raceId ? Number(raceId) : 0;
   const [finished, setFinished] = useState(false);
-  const [retryMessage, setRetryMessage] = useState(false);
+  const [retryMessage, setRetryMessage] = useState<string | undefined>(
+    undefined
+  );
   const [isLocationEnabled, setIsLocationEnabled] = useState(true);
   const [checkingLocation, setCheckingLocation] = useState(false);
 
@@ -138,7 +140,7 @@ function RacePage() {
             <StopTrackingButton raceId={raceId} />
           ) : (
             !isLocationEnabled && (
-              <PermissionsButton isSetLocationEnabled={setIsLocationEnabled} />
+              <PermissionsButton setIsLocationEnabled={setIsLocationEnabled} />
             )
           )}
         </ThemedView>
@@ -184,8 +186,8 @@ function InRaceScreen({
   checkingLocation,
 }: {
   finished: boolean;
-  setRetryMessage: React.Dispatch<React.SetStateAction<boolean>>;
-  retryMessage: boolean;
+  setRetryMessage: React.Dispatch<React.SetStateAction<string | undefined>>;
+  retryMessage: string | undefined;
   currentObjective: any;
   userCurrentTeamData: any;
   numberId: number;
@@ -224,14 +226,14 @@ function InRaceScreen({
         )}
       </ThemedView>
       <ThemedView style={styles.raceButtonView}>
-        {/* {finished ? ( */}
-        <AdvanceToNextObjectiveButton
-          userCurrentTeamData={userCurrentTeamData}
-          numberId={numberId}
-          currentObjective={currentObjective}
-          setFinished={setFinished}
-        />
-        {/* ) : (
+        {finished ? (
+          <AdvanceToNextObjectiveButton
+            userCurrentTeamData={userCurrentTeamData}
+            numberId={numberId}
+            currentObjective={currentObjective}
+            setFinished={setFinished}
+          />
+        ) : (
           <CheckLocationButton
             setFinished={setFinished}
             currentObjective={currentObjective}
@@ -240,7 +242,7 @@ function InRaceScreen({
             setCheckingLocation={setCheckingLocation}
             checkingLocation={checkingLocation}
           />
-        )} */}
+        )}
       </ThemedView>
     </ThemedView>
   );
@@ -251,7 +253,7 @@ function ObjectiveInfo({
   retryMessage,
 }: {
   message: string | undefined;
-  retryMessage: boolean;
+  retryMessage: string | undefined;
 }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -262,23 +264,29 @@ function ObjectiveInfo({
         useNativeDriver: true,
       }).start();
     } else {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }).start();
+      fadeAnim.setValue(0);
     }
   }, [retryMessage]);
   return (
     <ThemedView style={styles.objectiveInfoView}>
-      <ThemedView light style={styles.objClueText}>
-        <ThemedText type="subtitle" style={{ textAlign: "center" }}>
-          {message}
-        </ThemedText>
-      </ThemedView>
-      <Animated.View style={{ opacity: fadeAnim }}>
+      <ScrollView nestedScrollEnabled={true} style={{ flex: 1 }}>
+        <ThemedView light style={styles.objClueText}>
+          <ThemedText type="subtitle" style={{ textAlign: "center" }}>
+            {message}
+          </ThemedText>
+        </ThemedView>
+      </ScrollView>
+      <Animated.View
+        style={{
+          opacity: fadeAnim,
+          borderWidth: 1,
+          borderColor: Colors.primary.background,
+          borderRadius: 10,
+          padding: 10,
+          marginTop: 10,
+        }}>
         <ThemedText style={styles.objLocationErrorMessage}>
-          You are not at the right place yet...
+          {retryMessage}
         </ThemedText>
       </Animated.View>
     </ThemedView>
@@ -334,24 +342,27 @@ const StopTrackingButton = ({
   />
 );
 
-const PermissionsButton = ({
-  isSetLocationEnabled,
+function PermissionsButton({
+  setIsLocationEnabled,
 }: {
-  isSetLocationEnabled: React.Dispatch<React.SetStateAction<boolean>>;
-}) => (
-  <ThemedView>
+  setIsLocationEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [message, setMessage] = useState("Enable background location");
+  return (
     <ThemedPressable
       onPress={() => {
         requestLocationPermissions().then((result) => {
-          if (result) isSetLocationEnabled(true);
+          if (result) setIsLocationEnabled(true);
+          else {
+            setMessage("Your settings need to be updated");
+          }
         });
       }}
-      text="Enable background location"
-      style={{ ...styles.backlink, minWidth: 200 }}
+      text={message}
+      style={{ width: 220, borderRadius: 10, padding: 10 }}
     />
-  </ThemedView>
-);
-
+  );
+}
 function AdvanceToNextObjectiveButton({
   userCurrentTeamData,
   numberId,
@@ -398,7 +409,7 @@ function CheckLocationButton({
   checkingLocation,
 }: {
   currentObjective: any;
-  setRetryMessage: React.Dispatch<React.SetStateAction<boolean>>;
+  setRetryMessage: React.Dispatch<React.SetStateAction<string | undefined>>;
   setFinished: React.Dispatch<React.SetStateAction<boolean>>;
   refreshFunction: any;
   setCheckingLocation: React.Dispatch<React.SetStateAction<boolean>>;
@@ -426,6 +437,7 @@ function CheckLocationButton({
       ).start();
     } else {
       pulsationAnim.stopAnimation();
+      pulsationAnim.setValue(1);
     }
   }, [checkingLocation]);
 
@@ -434,21 +446,26 @@ function CheckLocationButton({
       <ThemedPressable
         onPress={async () => {
           setCheckingLocation(true);
-          if (
-            await checkLocation(
-              currentObjective?.latitude!,
-              currentObjective?.longitude!
-            )
-          ) {
+          const check = await checkLocation(
+            currentObjective?.latitude!,
+            currentObjective?.longitude!
+          );
+          if (check.isLocationEnabled && check.check) {
             setFinished(true);
             setCheckingLocation(false);
-          } else {
             refreshFunction();
-            setRetryMessage(true);
+          } else {
+            if (check.isLocationEnabled === false) {
+              setRetryMessage(
+                "❌ Your location is disabled. You can enable it in your phone settings."
+              );
+            } else {
+              setRetryMessage("❌ You are not at the right place yet...");
+            }
             setCheckingLocation(false);
 
             setTimeout(() => {
-              setRetryMessage(false);
+              setRetryMessage(undefined);
             }, 5000);
           }
         }}
@@ -462,6 +479,10 @@ function CheckLocationButton({
 }
 
 async function checkLocation(lat: number, lon: number) {
+  const result = await requestLocationPermissions();
+  if (!result) {
+    return { isLocationEnabled: false, check: false };
+  }
   const location = await Location.getCurrentPositionAsync();
   const distance = getDistanceFromLatLonInM(
     location.coords.latitude,
@@ -470,9 +491,9 @@ async function checkLocation(lat: number, lon: number) {
     lon
   );
   if (distance < 50) {
-    return true;
+    return { isLocationEnabled: true, check: true };
   }
-  return false;
+  return { isLocationEnabled: true, check: false };
 }
 
 const styles = StyleSheet.create({
@@ -503,13 +524,15 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   objClueText: {
-    height: "80%",
     textAlign: "center",
     flexDirection: "column",
     justifyContent: "center",
+    overflow: "visible",
+    pointerEvents: "auto",
   },
   objLocationErrorMessage: {
-    flex: 1,
+    minHeight: 50,
+    textAlign: "center",
   },
   objectiveInfoView: {
     flex: 1,

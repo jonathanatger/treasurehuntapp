@@ -187,6 +187,25 @@ export async function advanceObjective(
   return data;
 }
 
+export async function quitRace(raceId: number, userId: number) {
+  if (!userId || !raceId) return;
+
+  const res = await fetch(domain + "/api/mobile/quitRace", {
+    method: "POST",
+    body: JSON.stringify({
+      raceId: raceId,
+      userId: userId,
+    }),
+  });
+
+  const data = (await res.json()) as {
+    result: string;
+  };
+
+  if (data.result === "success") return true;
+  return false;
+}
+
 export const setTeamLocation = async (
   latitude: number,
   longitude: number,

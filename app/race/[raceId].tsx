@@ -51,7 +51,6 @@ function RacePage() {
   const [checkingLocation, setCheckingLocation] = useState(false);
 
   async function refreshFunction() {
-    setFinished(false);
     queryClient.invalidateQueries({
       queryKey: [fetchProjectObjectivesKey + raceId],
     });
@@ -303,8 +302,10 @@ function ObjectiveInfo({
 
 function CongratulationsMessage() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText>Congratulations, you found the objective !</ThemedText>
+    <ThemedView style={styles.congratulationsMessage}>
+      <ThemedText style={{ textAlign: "center" }}>
+        Congratulations, you found the objective !
+      </ThemedText>
     </ThemedView>
   );
 }
@@ -462,8 +463,10 @@ function CheckLocationButton({
             currentObjective?.latitude!,
             currentObjective?.longitude!
           );
+
           if (check.isLocationEnabled && check.check) {
             setFinished(true);
+
             setCheckingLocation(false);
             refreshFunction();
           } else {
@@ -492,11 +495,11 @@ function CheckLocationButton({
 
 async function checkLocation(lat: number, lon: number) {
   const result = await requestLocationPermissions();
-  console.log("result", result);
   if (!result) {
     return { isLocationEnabled: false, check: false };
   }
   const location = await Location.getCurrentPositionAsync();
+  console.log(location.coords);
   const distance = getDistanceFromLatLonInM(
     location.coords.latitude,
     location.coords.longitude,
@@ -525,6 +528,13 @@ const styles = StyleSheet.create({
     width: 200,
   },
   container: {
+    fontSize: 30,
+    padding: 10,
+    flexDirection: "column",
+    gap: 10,
+    borderRadius: 10,
+  },
+  congratulationsMessage: {
     fontSize: 30,
     padding: 10,
     flexDirection: "column",

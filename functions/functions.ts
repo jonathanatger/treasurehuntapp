@@ -136,14 +136,13 @@ export let currentLocationTimestamp = 0;
 function defineTask() {
   TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
     if (error) {
-      console.log("error", error);
       return;
     }
-    console.log("currentLocationTimestamp", currentLocationTimestamp);
+
     if (data) {
       const typedData = data as locationDataType;
 
-      if (typedData.locations[0].timestamp > currentLocationTimestamp + 1000) {
+      if (typedData.locations[0].timestamp > currentLocationTimestamp + 60000) {
         currentLocationTimestamp = typedData.locations[0].timestamp;
 
         const res = await setTeamLocation(
@@ -152,7 +151,6 @@ function defineTask() {
           currentTeamId
         );
 
-        console.log("res", res);
         if (res.res.raceFinished) {
           await stopTracking();
         }

@@ -7,7 +7,7 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { createContext, useEffect, useState } from "react";
 import { useFonts } from "expo-font";
-import { useColorScheme, useWindowDimensions } from "react-native";
+import { Platform, useColorScheme, useWindowDimensions } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppContextType, UserInfoType } from "@/constants/data";
@@ -230,5 +230,6 @@ async function checkFirstTime(
 async function getLocationPermission() {
   let { status: firstStatus } =
     await Location.requestForegroundPermissionsAsync();
-  let { status } = await Location.requestBackgroundPermissionsAsync();
+  if (Platform.OS !== "android")
+    await Location.requestBackgroundPermissionsAsync();
 }

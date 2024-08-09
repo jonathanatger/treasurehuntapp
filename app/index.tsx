@@ -9,12 +9,12 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchRaces, fetchRacesKey } from "@/queries/queries";
 import * as Location from "expo-location";
 import { stopTracking } from "@/functions/functions";
+import { LOCATION_TASK_NAME } from "@/functions/functions";
 
 function Homescreen() {
   const { height, width } = useWindowDimensions();
   const userInfo = useContext(appContext).userInfo;
   const setUserInfo = useContext(appContext).setUserInfo;
-  const setIsFirstTime = useContext(appContext).setIsFirstTime;
   const [isLocationEnabled, setIsLocationEnabled] = useState(true);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim2 = useRef(new Animated.Value(0)).current;
@@ -33,26 +33,22 @@ function Homescreen() {
     }).start();
   }, []);
 
-  if (!userInfo) {
-    try {
-      stopTracking();
-    } catch {}
-  }
-
   useEffect(() => {
-    (async () => {
-      let { status: firstStatus } =
-        await Location.requestForegroundPermissionsAsync();
-      let { status } = await Location.requestBackgroundPermissionsAsync();
-      if (status !== "granted") {
-        setIsLocationEnabled(false);
-        return;
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
+    const getUserInfoInStorage = async () => {
+      await AsyncStorage.getItem("user").then((userJSON) => {
+        if (!userJSON || !setUserInfo) return;
+        setUserInfo(JSON.parse(userJSON));
+      });
+    };
     getUserInfoInStorage();
+
+    const checkForLocationUpdates = async () => {
+      if (await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME)) {
+        stopTracking();
+      }
+    };
+
+    checkForLocationUpdates();
   }, []);
 
   const { data, isLoading, error } = useQuery({
@@ -62,13 +58,6 @@ function Homescreen() {
       return data.data;
     },
   });
-
-  const getUserInfoInStorage = async () => {
-    await AsyncStorage.getItem("user").then((userJSON) => {
-      if (!userJSON || !setUserInfo) return;
-      setUserInfo(JSON.parse(userJSON));
-    });
-  };
 
   return (
     <ThemedSafeAreaView primary style={{ height: height, ...styles.container }}>
@@ -132,7 +121,7 @@ function Homescreen() {
               textStyle={{ fontFamily: "Oswald-Medium" }}
               style={styles.links}></PressableLink>
             {/* <Pressable
-              onPress={() => {
+              onPress={() => 
                 setIsFirstTime(true);
               }}
               style={{

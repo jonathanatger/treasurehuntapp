@@ -36,7 +36,7 @@ function Layout() {
     OswaldMedium: require("../assets/fonts/Oswald-Medium.ttf"),
   });
   const [userInfo, setUserInfo] = useState<UserInfoType | null>(null);
-  const [isChecking, setIsChecking] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const [isFirstTime, setIsFirstTime] = useState(true);
   const { width } = useWindowDimensions();
 
@@ -228,9 +228,7 @@ async function checkFirstTime(
 }
 
 async function getLocationPermission() {
-  (async () => {
-    let { status: firstStatus } =
-      await Location.requestForegroundPermissionsAsync();
-    let { status } = await Location.requestBackgroundPermissionsAsync();
-  })();
+  let { status: firstStatus } =
+    await Location.requestForegroundPermissionsAsync();
+  let { status } = await Location.requestBackgroundPermissionsAsync();
 }

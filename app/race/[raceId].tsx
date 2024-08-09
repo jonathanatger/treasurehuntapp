@@ -1,10 +1,12 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
-import { Link, router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import * as Location from "expo-location";
 import {
   Animated,
+  AppState,
   Easing,
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -20,12 +22,11 @@ import {
   fetchProjectObjectivesKey,
   fetchTeams,
   fetchTeamsKey,
-  setTeamLocation,
   teamFinishedRace,
 } from "@/queries/queries";
 import {
+  requestLocationPermissions,
   setCurrentTeamId,
-  setNumberOfTeamMembers,
   stopTracking,
   transformTeamsData,
 } from "../../functions/functions";
@@ -34,10 +35,8 @@ import { getDistanceFromLatLonInM } from "../../functions/functions";
 import { ThemedPressable } from "@/components/Pressable";
 import {
   LOCATION_TASK_NAME,
-  backgroundLocationFetch,
-  requestLocationPermissions,
+  backgroundLocationFetchIos,
 } from "../../functions/functions";
-import { set } from "react-hook-form";
 
 function RacePage() {
   const [refreshing, setRefreshing] = useState(false);
@@ -105,7 +104,6 @@ function RacePage() {
     return false;
   });
 
-  setNumberOfTeamMembers(userCurrentTeamData?.users.length!);
   setCurrentTeamId(userCurrentTeamData?.id!);
 
   const currentObjective = projectObjectives?.result.filter(
@@ -136,12 +134,13 @@ function RacePage() {
             text="Go back"
             route={"/tracks/" + raceId}
             style={styles.backlink}></PressableLink>
-          {isLocationEnabled && !userHasFinishedRace ? (
+          {/* {isLocationEnabled && !userHasFinishedRace ? ( */}
+          {!userHasFinishedRace && Platform.OS !== "android" && (
             <StopTrackingButton raceId={raceId} />
-          ) : (
-            !isLocationEnabled && (
-              <PermissionsButton setIsLocationEnabled={setIsLocationEnabled} />
-            )
+            // ) : (
+            //   !isLocationEnabled && (
+            //     <PermissionsButton setIsLocationEnabled={setIsLocationEnabled} />
+            //   )
           )}
         </ThemedView>
         {projectObjectivesIsLoading ? (
@@ -161,6 +160,7 @@ function RacePage() {
             refreshFunction={() => refreshFunction()}
             setCheckingLocation={setCheckingLocation}
             checkingLocation={checkingLocation}
+            isLocationEnabled={isLocationEnabled}
           />
         )}
       </ScrollView>
@@ -169,7 +169,11 @@ function RacePage() {
 }
 
 function LoadingScreen() {
-  return <ThemedText>En attente des objectifs...</ThemedText>;
+  return (
+    <ThemedText style={{ textAlign: "center" }}>
+      We are waiting for the objectives...
+    </ThemedText>
+  );
 }
 
 function InRaceScreen({
@@ -184,6 +188,7 @@ function InRaceScreen({
   refreshFunction,
   setCheckingLocation,
   checkingLocation,
+  isLocationEnabled,
 }: {
   finished: boolean;
   setRetryMessage: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -196,21 +201,24 @@ function InRaceScreen({
   refreshFunction: any;
   setCheckingLocation: React.Dispatch<React.SetStateAction<boolean>>;
   checkingLocation: boolean;
+  isLocationEnabled: boolean;
 }) {
-  const { height } = useWindowDimensions();
+  const appState = useRef(AppState.currentState);
+  const [backgroundListener, setBackgroundListener] = useState(true);
 
   useEffect(() => {
-    const permissionCheck = async () => {
-      let { status } = await Location.requestBackgroundPermissionsAsync();
-      if (status !== "granted") {
-        setIsLocationEnabled(false);
-        return;
+    if (Platform.OS === "android") return;
+
+    requestLocationPermissions().then((result) => {
+      if (result) {
+        setIsLocationEnabled(true);
+        Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME).then(
+          (hasStarted) => {
+            if (!hasStarted) backgroundLocationFetchIos();
+          }
+        );
       }
-    };
-
-    permissionCheck();
-
-    backgroundLocationFetch();
+    });
   }, []);
 
   return (
@@ -303,8 +311,10 @@ function CongratulationsMessage() {
 
 function VictoryScreen({ currentTeamId }: { currentTeamId: number }) {
   useEffect(() => {
-    stopTracking();
     teamFinishedRace(currentTeamId);
+
+    if (Platform.OS === "android") return;
+    stopTracking();
   }, []);
 
   return (
@@ -322,8 +332,9 @@ const StopTrackingButton = ({
   raceId: string | string[] | undefined;
 }) => (
   <ThemedPressable
+    async
     onPress={async () => {
-      await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+      stopTracking();
 
       if (typeof raceId === "string") {
         router.push("/tracks/" + raceId);
@@ -342,27 +353,28 @@ const StopTrackingButton = ({
   />
 );
 
-function PermissionsButton({
-  setIsLocationEnabled,
-}: {
-  setIsLocationEnabled: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
-  const [message, setMessage] = useState("Enable background location");
-  return (
-    <ThemedPressable
-      onPress={() => {
-        requestLocationPermissions().then((result) => {
-          if (result) setIsLocationEnabled(true);
-          else {
-            setMessage("Your settings need to be updated");
-          }
-        });
-      }}
-      text={message}
-      style={{ width: 220, borderRadius: 10, padding: 10 }}
-    />
-  );
-}
+// function PermissionsButton({
+//   setIsLocationEnabled,
+// }: {
+//   setIsLocationEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+// }) {
+//   const [message, setMessage] = useState("Enable background location");
+//   return (
+//     <ThemedPressable
+//       onPress={() => {
+//         requestLocationPermissions().then((result) => {
+//           if (result) setIsLocationEnabled(true);
+//           else {
+//             setMessage("Your settings need to be updated");
+//           }
+//         });
+//       }}
+//       text={message}
+//       style={{ width: 220, borderRadius: 10, padding: 10 }}
+//     />
+//   );
+// }
+
 function AdvanceToNextObjectiveButton({
   userCurrentTeamData,
   numberId,
@@ -462,12 +474,12 @@ function CheckLocationButton({
             } else {
               setRetryMessage("❌ You are not at the right place yet...");
             }
-            setCheckingLocation(false);
-
-            setTimeout(() => {
-              setRetryMessage(undefined);
-            }, 5000);
           }
+          setCheckingLocation(false);
+
+          setTimeout(() => {
+            setRetryMessage(undefined);
+          }, 5000);
         }}
         text="Check your location !"
         themeColor="primary"
@@ -480,6 +492,7 @@ function CheckLocationButton({
 
 async function checkLocation(lat: number, lon: number) {
   const result = await requestLocationPermissions();
+  console.log("result", result);
   if (!result) {
     return { isLocationEnabled: false, check: false };
   }

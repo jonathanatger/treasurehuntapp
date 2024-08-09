@@ -1,4 +1,4 @@
-export const domain = "https://treasurehunt-jet.vercel.app";
+export const domain = "https://www.treasurio.app";
 
 export type AppContextType = {
   userInfo: UserInfoType | null;

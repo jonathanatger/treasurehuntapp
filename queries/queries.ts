@@ -1,4 +1,3 @@
-import { stopTracking } from "@/functions/functions";
 import { domain } from "../constants/data";
 
 export const fetchRaces = async (id: string | undefined) => {
@@ -72,6 +71,7 @@ export async function createNewTeam(
   userId: string,
   formerTeamId?: number
 ) {
+  console.log;
   const res = await fetch(domain + "/api/mobile/createTeam", {
     method: "POST",
     body: JSON.stringify({

@@ -187,7 +187,7 @@ export async function advanceObjective(
   return data;
 }
 
-export async function quitRace(raceId: number, userId: number) {
+export async function quitRace(raceId: number, userId: string) {
   if (!userId || !raceId) return;
 
   const res = await fetch(domain + "/api/mobile/quitRace", {

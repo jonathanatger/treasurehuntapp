@@ -394,7 +394,7 @@ function AdvanceToNextObjectiveButton({
       themeColor="secondary"
       disabled={disabled}
       textStyle={{ textAlign: "center" }}
-      onPress={() => {
+      onPress={async () => {
         setDisabled(true);
 
         advanceToNextObjectiveLogic(
@@ -506,6 +506,7 @@ async function checkLocation(lat: number, lon: number) {
     lat,
     lon
   );
+  console.log(distance);
   if (distance < 50) {
     return { isLocationEnabled: true, check: true };
   }

@@ -8,21 +8,23 @@ export const fetchRaces = async (id: string | undefined) => {
     body: id,
   });
 
-  const data = (await res.json()) as {
-    data: {
-      races: {
-        id: number;
-        code: string;
-        createdAt: Date;
-        projectId: number;
-        name: string;
-        launched: boolean;
-      };
-      raceOnUserJoin: { userEmail: string; raceId: number };
-    }[];
-  };
-  return data;
+  const resData = await res.json();
+  return resData.data as RaceData[];
 };
+
+export type RaceData = {
+  races: {
+    id: number;
+    code: string;
+    createdAt: Date;
+    projectId: number;
+    name: string;
+    launched: boolean;
+    currentPlanId: number;
+  };
+  raceOnUserJoin: { userEmail: string; raceId: number };
+};
+
 export const fetchRacesKey = "userRaces";
 
 export const fetchTeams = async (id: string | string[] | undefined) => {
@@ -35,13 +37,14 @@ export const fetchTeams = async (id: string | string[] | undefined) => {
     body: JSON.stringify(raceId),
   });
 
-  const data = (await res.json()) as RaceData;
+  const data = (await res.json()) as RaceTeamsData;
 
   return data;
 };
+
 export const fetchTeamsKey = "fetchTeams";
 
-export type RaceData =
+export type RaceTeamsData =
   | {
       result: {
         teams: {
@@ -69,6 +72,7 @@ export async function createNewTeam(
   teamName: string,
   raceId: number,
   userId: string,
+  maxNumberOfTeams: number,
   formerTeamId?: number
 ) {
   console.log;
@@ -78,6 +82,7 @@ export async function createNewTeam(
       teamName,
       raceId,
       userId,
+      maxNumberOfTeams,
       formerTeamId,
     }),
   });

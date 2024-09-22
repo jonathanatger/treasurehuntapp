@@ -1,10 +1,9 @@
 import { UserInfoType } from "@/constants/data";
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
-import { RaceData, setTeamLocation } from "@/queries/queries";
+import { RaceTeamsData, setTeamLocation } from "@/queries/queries";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { revokeAsync } from "expo-auth-session";
-import { Platform } from "react-native";
 
 export function getDistanceFromLatLonInM(
   lat1: number,
@@ -62,7 +61,7 @@ export type TransformedSingleTeamData = {
 
 export type TransformedTeamsData = TransformedSingleTeamData[];
 
-export function transformTeamsData(data: RaceData) {
+export function transformTeamsData(data: RaceTeamsData) {
   let returnData = [] as TransformedTeamsData;
 
   if (!data) return undefined;

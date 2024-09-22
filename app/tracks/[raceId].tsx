@@ -3,7 +3,6 @@ import { ThemedSafeAreaView, ThemedView } from "@/components/ThemedView";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   Animated,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -14,7 +13,6 @@ import { PressableLink } from "@/components/PressableLink";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import {
-  RaceData,
   createNewTeam,
   deleteTeam,
   enterTeam,
@@ -25,6 +23,7 @@ import {
   fetchTeams,
   fetchTeamsKey,
   quitTeam,
+  RaceData,
 } from "@/queries/queries";
 import { useQuery } from "@tanstack/react-query";
 import { appContext, queryClient } from "../_layout";
@@ -66,17 +65,18 @@ function SpecificRacePage() {
   } = useQuery({
     queryKey: ["userRaces"],
     queryFn: async () => {
-      const data = await fetchRaces(userInfo?.id);
-      return data.data;
+      return (await fetchRaces(userInfo?.id)) as RaceData[];
     },
   });
 
   const raceNumberId = raceId ? Number(raceId) : 0;
-  let currentRace = null;
+  let currentRace: RaceData | undefined = undefined;
   let raceLaunched = false;
 
   if (raceData) {
-    currentRace = raceData?.filter((race) => race.races.id === raceNumberId)[0];
+    currentRace = raceData?.filter(
+      (race) => race.races.id === raceNumberId
+    )[0] as RaceData;
 
     raceLaunched = currentRace?.races.launched ? true : false;
   }
@@ -110,6 +110,22 @@ function SpecificRacePage() {
     (team) => team.users.filter((user) => user.email === userEmail).length > 0
   )[0];
 
+  const currentPlanId = currentRace?.races.currentPlanId
+    ? currentRace.races.currentPlanId
+    : 0;
+  let maxNumberOfTeams = 0;
+  switch (currentPlanId) {
+    case 0:
+      maxNumberOfTeams = 2;
+      break;
+    case 1:
+      maxNumberOfTeams = 8;
+      break;
+    case 2:
+      maxNumberOfTeams = 16;
+      break;
+  }
+
   return (
     <ThemedSafeAreaView style={{ height: height, ...styles.main }}>
       <ScrollView
@@ -137,6 +153,7 @@ function SpecificRacePage() {
             userCurrentTeam={userCurrentTeam}
             raceId={raceId}
             userInfo={userInfo}
+            maxNumberOfTeams={maxNumberOfTeams}
           />
         )}
         {teamsIsLoading ? (
@@ -150,13 +167,16 @@ function SpecificRacePage() {
             (No team has been created yet)
           </ThemedText>
         ) : (
-          <TeamCards
-            raceLaunched={raceLaunched}
-            teams={teamsData}
-            userInfo={userInfo}
-            raceId={raceId}
-            userCurrentTeam={userCurrentTeam}
-          />
+          <>
+            <TeamCards
+              raceLaunched={raceLaunched}
+              teams={teamsData}
+              userInfo={userInfo}
+              raceId={raceId}
+              userCurrentTeam={userCurrentTeam}
+              maxNumberOfTeams={maxNumberOfTeams}
+            />
+          </>
         )}
       </ScrollView>
       <ThemedView primary style={styles.raceEnterContainer}>
@@ -212,10 +232,12 @@ const NewTeamForm = ({
   raceId,
   userInfo,
   userCurrentTeam,
+  maxNumberOfTeams,
 }: {
   raceId: string | string[] | undefined;
   userInfo: UserInfoType | null;
   userCurrentTeam: TransformedSingleTeamData | undefined;
+  maxNumberOfTeams: number;
 }) => {
   const { register, handleSubmit, control, reset } = useForm({
     defaultValues: { Name: "" },
@@ -227,6 +249,7 @@ const NewTeamForm = ({
       data.Name,
       raceId,
       userInfo.id,
+      maxNumberOfTeams,
       userCurrentTeam?.id ?? undefined
     );
     if (res) {
@@ -281,12 +304,14 @@ const TeamCards = ({
   raceId,
   raceLaunched,
   userCurrentTeam,
+  maxNumberOfTeams,
 }: {
   teams: TransformedTeamsData | undefined;
   userInfo: UserInfoType | null;
   raceId: string | string[] | undefined;
   raceLaunched: boolean;
   userCurrentTeam: any;
+  maxNumberOfTeams: number;
 }) => {
   const [loading, setLoading] = useState(false);
   const userName = userInfo?.name ? userInfo.name : "";
@@ -310,6 +335,9 @@ const TeamCards = ({
             />
           );
         })}
+      <ThemedText light style={{ textAlign: "center" }}>
+        Number of teams : {teams?.length} / {maxNumberOfTeams}
+      </ThemedText>
     </ThemedView>
   );
 };
@@ -517,6 +545,7 @@ async function createNewTeamLogic(
   name: string,
   raceId: string | string[] | undefined,
   userId: string | undefined,
+  maxNumberOfTeams: number,
   formerTeamId?: number
 ) {
   if (!raceId || Array.isArray(raceId) || userId === undefined)
@@ -526,6 +555,7 @@ async function createNewTeamLogic(
     name,
     Number(raceId),
     userId,
+    maxNumberOfTeams,
     formerTeamId ?? undefined
   );
 

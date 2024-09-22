@@ -154,6 +154,7 @@ function SpecificRacePage() {
             raceId={raceId}
             userInfo={userInfo}
             maxNumberOfTeams={maxNumberOfTeams}
+            teamsData={teamsData}
           />
         )}
         {teamsIsLoading ? (
@@ -233,11 +234,13 @@ const NewTeamForm = ({
   userInfo,
   userCurrentTeam,
   maxNumberOfTeams,
+  teamsData,
 }: {
   raceId: string | string[] | undefined;
   userInfo: UserInfoType | null;
   userCurrentTeam: TransformedSingleTeamData | undefined;
   maxNumberOfTeams: number;
+  teamsData: TransformedTeamsData | undefined;
 }) => {
   const { register, handleSubmit, control, reset } = useForm({
     defaultValues: { Name: "" },
@@ -259,6 +262,9 @@ const NewTeamForm = ({
     }
   };
 
+  const maxNumberOfTeamsAttained =
+    teamsData && teamsData.length >= maxNumberOfTeams;
+
   return (
     <ThemedView light style={styles.newTeamForm}>
       <ThemedView
@@ -268,13 +274,21 @@ const NewTeamForm = ({
           alignItems: "center",
           justifyContent: "space-between",
         }}>
-        <ThemedText type="subtitle"> Create a new team</ThemedText>
+        <ThemedText type="subtitle">
+          {maxNumberOfTeamsAttained
+            ? "Max number of teams attained !"
+            : "Create a new team"}
+        </ThemedText>
         <ThemedPressable
           async
           themeColor="primary"
           onPress={handleSubmit(onSubmit)}
-          style={styles.newTeamButton}
+          style={{
+            ...styles.newTeamButton,
+            opacity: maxNumberOfTeamsAttained ? 0.5 : 1,
+          }}
           text="+"
+          disabled={maxNumberOfTeamsAttained}
           textType="subtitle"></ThemedPressable>
       </ThemedView>
       <Controller
@@ -282,16 +296,30 @@ const NewTeamForm = ({
         rules={{
           required: true,
         }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            placeholder="Enter the name of the new team..."
-            placeholderTextColor={Colors.primary.placeholder}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            style={styles.newTeamInput}
-          />
-        )}
+        render={({ field: { onChange, onBlur, value } }) =>
+          maxNumberOfTeamsAttained ? (
+            <ThemedView
+              style={{
+                ...styles.newTeamInput,
+                backgroundColor: Colors.primary.placeholder,
+                borderWidth: 0,
+              }}
+            />
+          ) : (
+            <TextInput
+              placeholder={
+                maxNumberOfTeamsAttained
+                  ? "-"
+                  : "Enter the name of the new team..."
+              }
+              placeholderTextColor={Colors.primary.placeholder}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              style={styles.newTeamInput}
+            />
+          )
+        }
         name="Name"
       />
     </ThemedView>

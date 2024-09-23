@@ -63,7 +63,7 @@ function SpecificRacePage() {
     isLoading: raceIsLoading,
     error: raceError,
   } = useQuery({
-    queryKey: ["userRaces"],
+    queryKey: [fetchRacesKey],
     queryFn: async () => {
       return (await fetchRaces(userInfo?.id)) as RaceData[];
     },
@@ -254,12 +254,11 @@ const NewTeamForm = ({
       userInfo.id,
       maxNumberOfTeams,
       userCurrentTeam?.id ?? undefined
-    );
-    if (res) {
+    ).then((res) => {
       queryClient.invalidateQueries({ queryKey: [fetchTeamsKey + raceId] });
       queryClient.refetchQueries({ queryKey: [fetchTeamsKey + raceId] });
       reset();
-    }
+    });
   };
 
   const maxNumberOfTeamsAttained =

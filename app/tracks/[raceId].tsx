@@ -113,7 +113,7 @@ function SpecificRacePage() {
   const currentPlanId = currentRace?.races.currentPlanId
     ? currentRace.races.currentPlanId
     : 0;
-  let maxNumberOfTeams = 0;
+  let maxNumberOfTeams = 2;
   switch (currentPlanId) {
     case 0:
       maxNumberOfTeams = 2;

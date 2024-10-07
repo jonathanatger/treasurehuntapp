@@ -15,7 +15,6 @@ import { RefreshControl } from "react-native";
 import { fetchRaces, fetchRacesKey, quitRace } from "../../queries/queries";
 import { Colors } from "@/constants/Colors";
 import { ThemedPressable } from "@/components/Pressable";
-import { domain } from "@/constants/data";
 
 function RacesMainPage() {
   const { height, width } = useWindowDimensions();
@@ -27,10 +26,10 @@ function RacesMainPage() {
   const pulsationAnim = useRef(new Animated.Value(0)).current;
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["userRaces"],
+    queryKey: [fetchRacesKey],
     queryFn: async () => {
       const data = await fetchRaces(userInfo?.id);
-      return data.data;
+      return data;
     },
   });
 

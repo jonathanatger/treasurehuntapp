@@ -7,7 +7,6 @@ import {
   AppState,
   Easing,
   Platform,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   useWindowDimensions,
@@ -37,6 +36,7 @@ import {
   LOCATION_TASK_NAME,
   backgroundLocationFetchIos,
 } from "../../functions/functions";
+import { Icon } from "react-native-elements/dist/icons/Icon";
 
 function RacePage() {
   const [refreshing, setRefreshing] = useState(false);
@@ -113,56 +113,42 @@ function RacePage() {
     projectObjectives?.result?.length! <= userCurrentTeamData?.objectiveIndex!;
 
   return (
-    <ThemedSafeAreaView style={{ height: height, flexDirection: "column" }}>
-      <ScrollView
-        contentContainerStyle={{ flex: 1, ...styles.container }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => refreshFunction()}
-          />
-        }>
-        <ThemedView
-          primary
-          style={{
-            width: "auto",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}>
-          <PressableLink
-            text="Go back"
-            route={"/tracks/" + raceId}
-            style={styles.backlink}></PressableLink>
-          {/* {isLocationEnabled && !userHasFinishedRace ? ( */}
-          {!userHasFinishedRace && Platform.OS !== "android" && (
-            <StopTrackingButton raceId={raceId} />
-            // ) : (
-            //   !isLocationEnabled && (
-            //     <PermissionsButton setIsLocationEnabled={setIsLocationEnabled} />
-            //   )
-          )}
-        </ThemedView>
-        {projectObjectivesIsLoading ? (
-          <LoadingScreen />
-        ) : userHasFinishedRace ? (
-          <VictoryScreen currentTeamId={userCurrentTeamData?.id!} />
-        ) : (
-          <InRaceScreen
-            currentObjective={currentObjective}
-            userCurrentTeamData={userCurrentTeamData}
-            numberId={numberId}
-            finished={finished}
-            setRetryMessage={setRetryMessage}
-            retryMessage={retryMessage}
-            setFinished={setFinished}
-            setIsLocationEnabled={setIsLocationEnabled}
-            refreshFunction={() => refreshFunction()}
-            setCheckingLocation={setCheckingLocation}
-            checkingLocation={checkingLocation}
-            isLocationEnabled={isLocationEnabled}
-          />
+    <ThemedSafeAreaView style={{ height: height, ...styles.container }}>
+      <ThemedView
+        primary
+        style={{
+          width: "auto",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}>
+        <PressableLink
+          text="Go back"
+          route={"/tracks/" + raceId}
+          style={styles.backlink}></PressableLink>
+        {!userHasFinishedRace && Platform.OS !== "android" && (
+          <StopTrackingButton raceId={raceId} />
         )}
-      </ScrollView>
+      </ThemedView>
+      {projectObjectivesIsLoading ? (
+        <LoadingScreen />
+      ) : userHasFinishedRace ? (
+        <VictoryScreen currentTeamId={userCurrentTeamData?.id!} />
+      ) : (
+        <InRaceScreen
+          currentObjective={currentObjective}
+          userCurrentTeamData={userCurrentTeamData}
+          numberId={numberId}
+          finished={finished}
+          setRetryMessage={setRetryMessage}
+          retryMessage={retryMessage}
+          setFinished={setFinished}
+          setIsLocationEnabled={setIsLocationEnabled}
+          refreshFunction={() => refreshFunction()}
+          setCheckingLocation={setCheckingLocation}
+          checkingLocation={checkingLocation}
+          isLocationEnabled={isLocationEnabled}
+        />
+      )}
     </ThemedSafeAreaView>
   );
 }
@@ -276,9 +262,31 @@ function ObjectiveInfo({
   }, [retryMessage]);
   return (
     <ThemedView style={styles.objectiveInfoView}>
-      <ScrollView nestedScrollEnabled={true} style={{ flex: 1 }}>
+      <ScrollView
+        nestedScrollEnabled={true}
+        style={{
+          borderColor: Colors.primary.background,
+          borderWidth: 1,
+          borderRadius: 10,
+          height: "100%",
+        }}
+        contentContainerStyle={{
+          flexDirection: "column",
+          alignItems: "center",
+          paddingVertical: 30,
+          paddingHorizontal: 10,
+        }}>
         <ThemedView light style={styles.objClueText}>
-          <ThemedText type="subtitle" style={{ textAlign: "center" }}>
+          <Icon
+            iconStyle={{ color: Colors.primary.background, height: 70 }}
+            size={50}
+            name="info"
+          />
+          <ThemedText
+            type="subtitle"
+            style={{
+              textAlign: "center",
+            }}>
             {message}
           </ThemedText>
         </ThemedView>
@@ -499,14 +507,12 @@ async function checkLocation(lat: number, lon: number) {
     return { isLocationEnabled: false, check: false };
   }
   const location = await Location.getCurrentPositionAsync();
-  console.log(location.coords);
   const distance = getDistanceFromLatLonInM(
     location.coords.latitude,
     location.coords.longitude,
     lat,
     lon
   );
-  console.log(distance);
   if (distance < 50) {
     return { isLocationEnabled: true, check: true };
   }
@@ -550,6 +556,7 @@ const styles = StyleSheet.create({
   objClueText: {
     textAlign: "center",
     flexDirection: "column",
+    flexGrow: 1,
     justifyContent: "center",
     overflow: "visible",
     pointerEvents: "auto",

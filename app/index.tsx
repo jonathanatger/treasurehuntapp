@@ -55,7 +55,7 @@ function Homescreen() {
     queryKey: [fetchRacesKey],
     queryFn: async () => {
       const data = await fetchRaces(userInfo?.id);
-      return data.data;
+      return data;
     },
   });
 

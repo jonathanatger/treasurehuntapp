@@ -2,7 +2,7 @@
   "expo": {
     "name": "Treasurio",
     "slug": "treasurehuntapp",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "com.jonathanatger.treasurehuntapp",
@@ -45,7 +45,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.jonathanatger.treasurehuntapp",
-      "versionCode": 18,
+      "versionCode": 19,
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",

@@ -118,7 +118,7 @@ function Layout() {
           source={require("../assets/images/drawing4.png")}
         />
       ),
-      title: "An account is possible - \n but not required",
+      title: "An account is possible - \n but not required !",
       titleStyles: {
         padding: 10,
         fontFamily: "Oswald-Medium",

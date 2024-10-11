@@ -44,8 +44,8 @@ function RacesMainPage() {
             easing: Easing.linear,
           }),
           Animated.timing(pulsationAnim, {
-            toValue: 0.6,
-            duration: 800,
+            toValue: 0.61,
+            duration: 780,
             useNativeDriver: true,
             easing: Easing.linear,
           }),

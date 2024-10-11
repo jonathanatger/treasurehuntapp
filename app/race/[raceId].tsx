@@ -192,6 +192,7 @@ function InRaceScreen({
   const [backgroundListener, setBackgroundListener] = useState(true);
 
   useEffect(() => {
+    // Doesn't work on android
     if (Platform.OS === "android") return;
 
     requestLocationPermissions().then((result) => {
@@ -253,7 +254,7 @@ function ObjectiveInfo({
     if (retryMessage) {
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 800,
+        duration: 780,
         useNativeDriver: true,
       }).start();
     } else {

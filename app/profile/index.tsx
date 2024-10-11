@@ -155,7 +155,7 @@ function DeleteUserComponent() {
             to all the races you have entered. Please confirm below.
           </ThemedText>
           <ThemedPressable
-            themeColor="primary"
+            themeColor="secondary"
             text="Keep my account"
             onPress={() => {
               setIsDeleting(false);
@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 48,
     borderRadius: 100,
-    backgroundColor: Colors.primary.background,
     borderColor: Colors.primary.text,
     borderWidth: 1,
   },
@@ -230,8 +229,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 48,
     borderRadius: 100,
-    borderWidth: 1,
-    borderColor: Colors.light.text,
   },
   form: {
     flexDirection: "column",

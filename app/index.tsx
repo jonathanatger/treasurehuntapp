@@ -68,8 +68,8 @@ function Homescreen() {
           source={require("@/assets/images/adaptive-icon.png")}
           style={{
             opacity: fadeAnim2,
-            height: 300,
-            maxHeight: 300,
+            height: 330,
+            maxHeight: 310,
             width: width,
           }}></Animated.Image>
       </ThemedView>
@@ -82,7 +82,7 @@ function Homescreen() {
             }}>
             <PressableLink
               route="join"
-              text="Join a Race"
+              text="Join a race"
               textType="subtitle"
               textStyle={{ fontFamily: "Oswald-Medium" }}
               style={styles.links}

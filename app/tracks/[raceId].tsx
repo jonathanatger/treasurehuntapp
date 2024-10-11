@@ -25,7 +25,7 @@ import {
   quitTeam,
   RaceData,
 } from "@/queries/queries";
-import { useQuery } from "@tanstack/react-query";
+import { useIsFetching, useQuery } from "@tanstack/react-query";
 import { appContext, queryClient } from "../_layout";
 import { UserInfoType } from "@/constants/data";
 import { Controller, useForm } from "react-hook-form";
@@ -261,6 +261,8 @@ const NewTeamForm = ({
     });
   };
 
+  const numberOfFetches = useIsFetching({ queryKey: [fetchTeamsKey + raceId] });
+
   const maxNumberOfTeamsAttained =
     teamsData && teamsData.length >= maxNumberOfTeams;
 
@@ -284,10 +286,10 @@ const NewTeamForm = ({
           onPress={handleSubmit(onSubmit)}
           style={{
             ...styles.newTeamButton,
-            opacity: maxNumberOfTeamsAttained ? 0.5 : 1,
+            opacity: maxNumberOfTeamsAttained || numberOfFetches > 0 ? 0.5 : 1,
           }}
           text="+"
-          disabled={maxNumberOfTeamsAttained}
+          disabled={maxNumberOfTeamsAttained || numberOfFetches > 0}
           textType="subtitle"></ThemedPressable>
       </ThemedView>
       <Controller
